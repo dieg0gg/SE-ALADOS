@@ -245,7 +245,15 @@ html, body {
 <div class="screen" id="s2">
   <div class="status-bar">
     <span class="status-left" id="s2status">SEÑALADOS</span>
-    <div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div>
+    <div style="display:flex;gap:0.6rem;align-items:center;">
+      <div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div>
+      <button id="hostMenuBtn" onclick="toggleHostMenu()" style="display:none;background:none;border:none;color:var(--apagado);font-size:1.2rem;cursor:pointer;padding:0.2rem;">☰</button>
+    </div>
+  </div>
+  <div id="hostMenu" style="display:none;background:var(--gris);border:1px solid #2a2a2a;border-radius:8px;padding:0.8rem;margin-bottom:0.8rem;flex-shrink:0;">
+    <div style="font-size:0.55rem;letter-spacing:0.2em;color:var(--apagado);text-transform:uppercase;margin-bottom:0.6rem;">menú del host</div>
+    <button class="btn btn-secondary" style="margin-top:0;margin-bottom:0.4rem;font-size:0.75rem;padding:0.6rem;" onclick="resetRoom()">🗑 Resetear sala</button>
+    <button class="btn btn-secondary" style="margin-top:0;font-size:0.75rem;padding:0.6rem;" onclick="reanudarPartida()">🔄 Reanudar partida</button>
   </div>
   <div class="eyebrow">sala de espera</div>
   <div class="title">Esperando<br>al <span class="r">host</span></div>
@@ -528,6 +536,10 @@ function selectName(name) {
 
 window.joinGame = async function() {
   if(!myName){ showToast('Elige tu nombre primero'); return; }
+  // Block if game already started
+  const phaseSnap = await fbGet('gamePhase');
+  const phase = phaseSnap.val();
+  if(phase && phase !== 'lobby') { showToast('La partida ya ha empezado'); return; }
   const snap = await fbGet(`players/${myName}`);
   if(snap.val()){ showToast('Este nombre ya está cogido'); return; }
   await fbSet(`players/${myName}`, {joined:true, ready:false});
@@ -547,6 +559,7 @@ function setupLobby(isHost) {
     document.getElementById('hostControls').style.display = 'block';
     document.getElementById('waitingMsg').style.display = 'none';
     document.getElementById('s2sub').textContent = 'tú eres el host — arranca cuando quieras';
+    document.getElementById('hostMenuBtn').style.display = 'block';
   }
   
   fbListen('players', data => {
@@ -563,12 +576,28 @@ function setupLobby(isHost) {
   
   fbListen('gamePhase', phase => {
     if(phase === 'roles') loadMyRole();
-    if(phase === 'turns') goScreen('s4');
     if(phase === 'immunity') loadImmunity();
     if(phase === 'voting') startVoting();
     if(phase === 'results') showResults();
     if(phase === 'finalVoting') startFinalVoting();
     if(phase === 'reveal') showFinalReveal();
+  });
+
+  // Real-time notifications listener
+  fbListen(`notifications/${myName}`, notifs => {
+    if(!notifs) return;
+    Object.values(notifs).forEach(n => {
+      if(n._shown) return;
+      if(n.tipo === 'pista') {
+        showToast(`📤 Pista de ${n.de}: "${n.texto.slice(0,40)}..."`, 5000);
+        // Store for later display
+        if(!window._pendingPistas) window._pendingPistas = [];
+        window._pendingPistas.push(n);
+      }
+      if(n.tipo === 'señal') {
+        showToast(`👆 Alguien ha señalado a ${n.sobre}`, 3000);
+      }
+    });
   });
 }
 
@@ -596,23 +625,34 @@ window.startGame = async function() {
   });
   
   // Generar historia completa con IA
-  const crimePrompt = `Eres el narrador de un juego de misterio en una casa rural española. Los jugadores son: ${players.join(', ')}. La víctima es ${victima}. El asesino es ${asesino}.
+  const crimePrompt = `Eres el narrador de un juego de misterio en una casa rural española.
 
-Crea una historia de asesinato coherente, dramática y divertida ambientada en una casa rural. La historia debe involucrar a TODOS los jugadores con roles concretos esa noche.
+JUGADORES: ${players.join(', ')}
+VÍCTIMA (ha muerto esta noche): ${victima}
+ASESINO (el culpable real, nadie lo sabe): ${asesino}
 
-Responde SOLO en JSON sin markdown:
+PROCESO: Primero construye la historia completa de lo que pasó esa noche. Luego, a partir de esa historia, escribe la coartada de cada jugador — lo que cada uno estaba haciendo en los momentos clave. Las coartadas DEBEN ser coherentes con la historia: si en la historia alguien oyó voces, su coartada debe reflejar que estaba despierto. Si alguien estaba en la cocina según la historia, su coartada lo confirma o lo contradice con lógica. La coartada del asesino es una mentira que suena creíble pero que choca sutilmente con alguna pista.
+
+Las coartadas deben:
+- Ser 100% coherentes con la historia que has creado
+- Ser todas distintas — lugares concretos de la casa rural (cocina, jardín, piscina, terraza, salón, coche, camino...) y actividades reales (fumando, bebiendo, llorando, en el baño, llamando, escuchando música, mirando el móvil...)
+- Algunas se contradicen sutilmente entre sí (dos personas dicen estar en sitios distintos pero la historia sugiere que se cruzaron)
+- La del asesino suena perfecta pero choca con al menos una pista
+
+Responde SOLO en JSON sin markdown ni texto extra:
 {
-  "crimen": "frase dramática de una línea sobre cómo murió ${victima}",
-  "historia_completa": "historia detallada de 4-6 frases que explica qué pasó esa noche, quién estaba dónde, qué motivó el crimen, cómo lo hizo ${asesino}. Menciona a todos los jugadores con detalles concretos.",
-  "motivo_asesino": "una frase sobre por qué ${asesino} lo hizo",
+  "crimen": "frase dramática y específica de una línea: cómo, dónde y cuándo murió ${victima}",
+  "historia_completa": "historia de 5-7 frases que narra cronológicamente lo que pasó desde la cena hasta el crimen. Menciona a cada jugador por nombre con su papel real esa noche. Explica el motivo de ${asesino} y cómo ejecutó el crimen.",
+  "motivo_asesino": "motivo concreto y personal. Algo que viene de antes del rural, con historia detrás.",
   "datos": {
-    ${players.map(p=>`"${p}": "dato concreto de dónde estaba o qué hacía ${p} esa noche, coherente con la historia, máximo 15 palabras"`).join(',\n    ')}
+    ${players.map(p => `"${p}": "coartada de ${p} coherente con la historia: dónde estaba exactamente en los momentos clave, qué hacía. Máximo 20 palabras. Debe ser única y derivarse directamente de la historia."`).join(',
+    ')}
   },
   "pistas": [
-    "pista ronda 1: detalle concreto de la historia que ayuda a deducir algo (no revela al asesino)",
-    "pista ronda 2: otro detalle concreto que añade información nueva",
-    "pista ronda 3: detalle que empieza a apuntar hacia el culpable indirectamente",
-    "pista ronda 4: detalle FALSO plantado por el asesino para despistar, debe sonar creíble"
+    "pista ronda 1: detalle físico o temporal de la historia que da info sin revelar al culpable",
+    "pista ronda 2: algo que alguien vio u oyó esa noche, coherente con la historia",
+    "pista ronda 3: detalle que empieza a señalar indirectamente a ${asesino} sin nombrarlo",
+    "pista ronda 4: pista FALSA muy creíble que ${asesino} ha plantado, contradice algo real de la historia"
   ]
 }`;
 
@@ -631,16 +671,18 @@ Responde SOLO en JSON sin markdown:
       `${victima} ha caído misteriosamente por las escaleras`,
       `${victima} ha aparecido envenenado/a con el café de la mañana`
     ];
+    const coartadasFallback = ['Fumando en la terraza, viste luz en la cocina pero no bajaste.', 'En el baño de arriba con dolor de estómago desde medianoche.', 'Llamando por teléfono al jardín, escuchaste algo raro pero pensaste que era el viento.', 'Bebiendo solo/a en el salón, te quedaste dormido/a en el sofá.', 'Escuchando música con auriculares, no oíste nada de nada.', 'En la cocina calentando algo, viste pasar una sombra por el jardín.', 'Mirando el móvil en la terraza de arriba, no bajaste en toda la noche.', 'Llorando en el coche aparcado, estabas procesando una conversación de antes.', 'Con los pies en la piscina a las 2am, estabas solo/a.', 'Durmiendo profundamente, no te enteraste de nada hasta la mañana.'];
+    const shuffledCoartadas = [...coartadasFallback].sort(()=>Math.random()-0.5);
     crimeData = {
       crimen: rand(crimenes),
-      historia_completa: `Esa noche todo parecía normal hasta que ${asesino} y ${victima} tuvieron una discusión por algo que pasó en la cena. Nadie más lo oyó. A las 3am alguien bajó al jardín. A las 7am encontraron a ${victima}.`,
-      motivo_asesino: `${asesino} llevaba tiempo guardando un secreto que ${victima} amenazaba con revelar.`,
-      datos: Object.fromEntries(players.map(p=>[p, p === asesino ? `Estabas despierto/a. Bajaste al jardín a las 3am.` : `Estabas durmiendo cuando ocurrió todo`])),
+      historia_completa: `Esa noche la tensión en la casa era palpable. ${asesino} y ${victima} llevaban horas evitándose después de lo que pasó en la cena. A las 3am la casa estaba casi en silencio. Alguien bajó al jardín. ${victima} apareció a las 7am. Nadie oyó nada, o eso dicen.`,
+      motivo_asesino: `${asesino} llevaba tiempo guardando un secreto que ${victima} amenazaba con revelar al grupo.`,
+      datos: Object.fromEntries(players.map((p, i) => [p, p === asesino ? `Bajaste al jardín a las 3am con la excusa de tomar el aire. Volviste antes de que nadie se despertara.` : shuffledCoartadas[i % shuffledCoartadas.length]])),
       pistas: [
-        `La víctima tuvo una discusión en la cena con alguien del grupo`,
-        `Alguien salió al jardín pasadas las 2am`,
-        `El asesino tenía un motivo que venía de antes del rural`,
-        `Se encontró una nota en la habitación de la víctima (FALSA)`
+        `Se encontraron huellas mojadas que iban desde la piscina hasta la puerta trasera`,
+        `Alguien oyó voces en el jardín pasadas las 2am pero no quiso levantarse`,
+        `El móvil de la víctima tenía una conversación borrada esa misma noche`,
+        `Una testigo dice haber visto a dos personas juntas en el jardín (FALSO — solo había una)`
       ]
     };
   }
@@ -749,8 +791,8 @@ async function markReadyAndStartTurns() {
 // ─── TURNS ───
 function setupTurns() {
   const game = gameState;
+  if(!game || !game.turnOrder) return;
   const order = game.turnOrder;
-  const myIdx = order.indexOf(myName);
   
   // Update turn list
   const list = document.getElementById('turnList'); list.innerHTML = '';
@@ -802,6 +844,16 @@ async function loadMyTurn() {
   document.getElementById('s5status').textContent=`SEÑALADOS · ronda ${ronda}/4`;
   currentAction=null;
   ['ac1','ac2','ac3'].forEach(id=>document.getElementById(id).classList.remove('selected'));
+  
+  // Show any pending pistas received from others
+  if(window._pendingPistas && window._pendingPistas.length > 0) {
+    const p = window._pendingPistas[0];
+    document.getElementById('pistaCard').style.display='block';
+    document.getElementById('sinPista').style.display='none';
+    typewrite(document.getElementById('pistaText'), `[de ${p.de}]: ${p.texto}`);
+    window._pendingPistas = window._pendingPistas.slice(1);
+  }
+  
   goScreen('s5');
 }
 
@@ -1221,6 +1273,31 @@ function resetAll() {
 window.resetRoom = async function() {
   resetAll();
   showToast('Sala reseteada ✓');
+  document.getElementById('hostMenu').style.display='none';
+  goScreen('s1');
+}
+
+window.toggleHostMenu = function() {
+  const m = document.getElementById('hostMenu');
+  m.style.display = m.style.display === 'none' ? 'block' : 'none';
+}
+
+window.reanudarPartida = async function() {
+  // Reset only players and gamePhase, keep game data
+  await fbSet('players', null);
+  await fbSet('gamePhase', null);
+  await fbSet('game/roundVotes', null);
+  await fbSet('game/readyForTurns', null);
+  myName=null; myRole=null; myData=null; selectedVote=null; currentAction=null;
+  document.getElementById('nameList').querySelectorAll('.player-row').forEach(r=>{
+    r.classList.remove('selected');
+    r.querySelector('.pstatus').textContent='libre';
+    r.querySelector('.pstatus').className='pstatus';
+    r.querySelector('.avatar').className='avatar';
+  });
+  document.getElementById('btnJoin').textContent='Elige tu nombre →';
+  document.getElementById('hostMenu').style.display='none';
+  showToast('Sala reseteada — volved a entrar');
   goScreen('s1');
 }
 
@@ -1231,14 +1308,14 @@ window.hideReveal=function(){
 }
 
 // ─── LISTEN TURNS ───
-// ─── LISTEN TURNS ───
 fbListen("gamePhase", phase=>{
   if(!myName||!phase) return;
   if(phase==="turns"||phase.startsWith("turns_update")) {
     fbGet("game").then(snap=>{
       gameState=snap.val();
-      goScreen("s4");
-      setTimeout(()=>setupTurns(), 300);
+      const activeScreen = document.querySelector(".screen.active")?.id;
+      if(activeScreen !== "s5" && activeScreen !== "s5b") goScreen("s4");
+      setTimeout(()=>setupTurns(), 400);
     });
   }
   if(phase==="immunity") loadImmunity();
@@ -1247,6 +1324,17 @@ fbListen("gamePhase", phase=>{
   if(phase==="finalVoting") startFinalVoting();
   if(phase==="reveal") showFinalReveal();
   if(phase==="roles" && myName) loadMyRole();
+});
+
+// Also listen to currentTurnIndex changes for stuck players
+fbListen("game/currentTurnIndex", idx=>{
+  if(!myName||idx===null||idx===undefined) return;
+  fbGet("game").then(snap=>{
+    if(!snap.val()) return;
+    gameState=snap.val();
+    const activeScreen = document.querySelector(".screen.active")?.id;
+    if(activeScreen === "s4") setupTurns();
+  });
 });
 
 // ─── EXPOSE GLOBALS ───
