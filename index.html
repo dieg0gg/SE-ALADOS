@@ -280,7 +280,7 @@ html, body {
     <div class="card-label">observas los votos de</div>
     <div class="card-text" id="observaText">—</div>
   </div>
-  <button class="btn btn-primary" onclick="goScreen('s4')">Entendido →</button>
+  <button class="btn btn-primary" onclick="markReadyAndStartTurns()">Entendido →</button>
 </div>
 
 <!-- S4: ESPERAR TURNO -->
@@ -708,9 +708,22 @@ async function loadMyRole() {
     : 'No observas a nadie esta partida.';
   
   // Update status
-  document.getElementById('s3status').textContent = `SEÑALADOS · ronda ${game.ronda}/4`;
-  
-  goScreen('s3');
+  document.getElementById("s3status").textContent = `SEÑALADOS · ronda ${game.ronda}/4`;
+  goScreen("s3");
+}
+
+async function markReadyAndStartTurns() {
+  await fbSet(`game/readyForTurns/${myName}`, true);
+  const psnap = await fbGet("players");
+  const allPlayers = Object.keys(psnap.val()||{});
+  const readySnap = await fbGet("game/readyForTurns");
+  const ready = Object.keys(readySnap.val()||{});
+  if(ready.length >= allPlayers.length) {
+    await fbSet("game/readyForTurns", null);
+    await fbSet("gamePhase","turns");
+  } else {
+    goScreen("s4");
+  }
 }
 
 // ─── TURNS ───
@@ -1213,6 +1226,7 @@ fbListen("gamePhase", phase=>{
 
 // ─── EXPOSE GLOBALS ───
 window.joinGame=window.joinGame;
+window.markReadyAndStartTurns=markReadyAndStartTurns;
 window.startGame=window.startGame;
 window.selectName=selectName;
 </script>
