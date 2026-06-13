@@ -6,7 +6,7 @@
 <title>SEÑALADOS</title>
 <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
-* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 :root { --negro:#0a0a0a; --hueso:#e8e4d9; --rojo:#c1272d; --gris:#1c1c1c; --apagado:#555; --font:'Courier Prime',monospace; }
 html,body { height:100%; width:100%; overflow:hidden; background:var(--negro); color:var(--hueso); font-family:var(--font); }
 
@@ -14,7 +14,7 @@ html,body { height:100%; width:100%; overflow:hidden; background:var(--negro); c
 .screen.active { opacity:1; pointer-events:all; transform:translateY(0); }
 .screen.out { opacity:0; transform:translateY(-10px); }
 
-.scanline { position:fixed; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,rgba(193,39,45,0.1),transparent); animation:scan 5s linear infinite; pointer-events:none; z-index:50; }
+.scanline { position:fixed; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,rgba(193,39,45,0.1),transparent); animation:scan 5s linear infinite; pointer-events:none; z-index:999; }
 @keyframes scan { from{top:0} to{top:100%} }
 
 .status-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.1rem; flex-shrink:0; }
@@ -34,7 +34,7 @@ html,body { height:100%; width:100%; overflow:hidden; background:var(--negro); c
 .card.sel { cursor:pointer; }
 .card.sel:active { transform:scale(0.98); }
 .card.selected { border-color:var(--rojo); background:#1a0505; }
-.card.dim { opacity:0.35; }
+.card.dim { opacity:0.4; }
 .clabel { font-size:0.54rem; letter-spacing:0.22em; color:var(--apagado); text-transform:uppercase; margin-bottom:0.3rem; }
 .ctext { font-size:0.82rem; color:var(--hueso); line-height:1.45; }
 .ctext strong { color:var(--rojo); }
@@ -58,23 +58,55 @@ html,body { height:100%; width:100%; overflow:hidden; background:var(--negro); c
 .btn-p:active { transform:scale(0.98); }
 .btn-s { background:transparent; border:1px solid #2a2a2a; color:var(--apagado); margin-top:0.4rem; }
 .btn-s:hover { border-color:#3a3a3a; color:#888; }
-.btn-d { background:#1a1a1a; color:var(--apagado); border:1px solid #222; cursor:not-allowed; }
+.btn-d { background:#1a1a1a; color:var(--apagado); border:1px solid #222; margin-top:auto; cursor:not-allowed; }
 
 .div { height:1px; background:linear-gradient(90deg,transparent,#222,transparent); margin:0.6rem 0; flex-shrink:0; }
+
 .notif { background:#160303; border-left:2px solid var(--rojo); border-radius:0 6px 6px 0; padding:0.55rem 0.8rem; margin-bottom:0.45rem; flex-shrink:0; }
 .nlabel { font-size:0.53rem; color:var(--rojo); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:0.2rem; }
 .ntext { font-size:0.75rem; color:var(--hueso); line-height:1.4; }
 
 .rol-badge { display:inline-block; padding:0.28rem 0.8rem; border-radius:3px; font-size:0.62rem; letter-spacing:0.2em; text-transform:uppercase; font-weight:700; margin-bottom:0.8rem; flex-shrink:0; }
 .rol-i { background:#181818; color:#666; border:1px solid #2a2a2a; }
-.rol-a { background:#200000; color:var(--rojo); border:1px solid rgba(193,39,45,0.5); }
+.rol-a { background:#200000; color:var(--rojo); border:1px solid rgba(193,39,45,0.5); box-shadow:0 0 14px rgba(193,39,45,0.15); }
 .rol-v { background:#080810; color:#5577bb; border:1px solid #223; }
 
 .vrow { display:flex; align-items:center; gap:0.55rem; margin-bottom:0.5rem; }
-.vname { font-size:0.7rem; color:var(--hueso); width:60px; flex-shrink:0; }
+.vname { font-size:0.7rem; color:var(--hueso); width:55px; flex-shrink:0; }
 .vbg { flex:1; height:4px; background:#1e1e1e; border-radius:2px; overflow:hidden; }
 .vbar { height:100%; background:var(--rojo); border-radius:2px; width:0; transition:width 1.2s cubic-bezier(0.4,0,0.2,1); box-shadow:0 0 6px rgba(193,39,45,0.5); }
-.vcount { font-size:0.68rem; color:var(--apagado); width:20px; text-align:right; flex-shrink:0; }
+.vcount { font-size:0.68rem; color:var(--apagado); width:14px; text-align:right; flex-shrink:0; }
+
+.imm-box { border:1px dashed rgba(193,39,45,0.4); border-radius:10px; padding:1rem; text-align:center; margin-bottom:0.8rem; flex-shrink:0; background:#120000; animation:pb 2s ease-in-out infinite; }
+@keyframes pb { 0%,100%{border-color:rgba(193,39,45,0.25)} 50%{border-color:rgba(193,39,45,0.65)} }
+.imm-icon { font-size:1.5rem; display:block; margin-bottom:0.4rem; }
+.imm-text { font-size:0.75rem; color:var(--hueso); line-height:1.45; margin-bottom:0.45rem; }
+.imm-warn { font-size:0.62rem; color:var(--rojo); font-style:italic; }
+
+.reveal-overlay { position:fixed; inset:0; background:var(--negro); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:100; padding:2rem; text-align:center; opacity:0; pointer-events:none; transition:opacity 0.5s; overflow-y:auto; }
+.reveal-overlay.show { opacity:1; pointer-events:all; }
+.rlabel { font-size:0.62rem; letter-spacing:0.3em; color:var(--apagado); text-transform:uppercase; margin-bottom:0.8rem; }
+.rname { font-size:3rem; font-weight:700; color:var(--rojo); line-height:1; margin-bottom:0.3rem; }
+.rline { width:36px; height:1px; background:var(--rojo); margin:0.8rem auto; }
+
+/* RONDA ANIMATION */
+.ronda-overlay { position:fixed; inset:0; background:var(--negro); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:150; opacity:0; pointer-events:none; transition:opacity 0.4s; }
+.ronda-overlay.show { opacity:1; pointer-events:all; }
+.ronda-num { font-size:5rem; font-weight:700; color:var(--rojo); line-height:1; animation:rondaIn 0.5s ease; }
+.ronda-label { font-size:0.7rem; letter-spacing:0.4em; color:var(--apagado); text-transform:uppercase; margin-top:0.5rem; animation:rondaIn 0.5s ease 0.1s both; }
+@keyframes rondaIn { from{opacity:0;transform:scale(0.8)} to{opacity:1;transform:scale(1)} }
+
+.toast { position:fixed; bottom:5rem; left:50%; transform:translateX(-50%) translateY(20px); background:#1a1a1a; border:1px solid #333; border-radius:8px; padding:0.6rem 1.2rem; font-size:0.75rem; color:var(--hueso); opacity:0; transition:all 0.3s; z-index:200; white-space:nowrap; max-width:90vw; overflow:hidden; text-overflow:ellipsis; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* PISTA POPUP */
+.popup-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:300; display:none; align-items:center; justify-content:center; padding:1.5rem; }
+.popup-overlay.show { display:flex; }
+.popup-box { background:#1c1c1c; border:1px solid rgba(193,39,45,0.5); border-radius:12px; padding:1.4rem; max-width:320px; width:100%; }
+.popup-label { font-size:0.55rem; letter-spacing:0.2em; color:var(--rojo); text-transform:uppercase; margin-bottom:0.4rem; }
+.popup-sub { font-size:0.7rem; color:var(--apagado); margin-bottom:0.7rem; }
+.popup-text { font-size:0.88rem; color:var(--hueso); line-height:1.5; margin-bottom:1.2rem; }
+.popup-btn { width:100%; padding:0.75rem; background:var(--rojo); color:var(--hueso); border:none; border-radius:8px; font-family:var(--font); font-size:0.8rem; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; cursor:pointer; }
 
 .scroll { flex:1; overflow-y:auto; scrollbar-width:none; }
 .scroll::-webkit-scrollbar { display:none; }
@@ -83,80 +115,56 @@ html,body { height:100%; width:100%; overflow:hidden; background:var(--negro); c
 
 .host-menu { background:var(--gris); border:1px solid #2a2a2a; border-radius:8px; padding:0.8rem; margin-bottom:0.8rem; flex-shrink:0; display:none; }
 .hmbtn { width:100%; padding:0.6rem; background:transparent; border:1px solid #2a2a2a; border-radius:6px; font-family:var(--font); font-size:0.75rem; color:var(--apagado); cursor:pointer; margin-bottom:0.4rem; text-align:left; transition:all 0.15s; }
-.hmbtn:last-child { margin-bottom:0; }
 .hmbtn:hover { border-color:#3a3a3a; color:#888; }
-
-/* OVERLAYS */
-.overlay { position:fixed; inset:0; background:var(--negro); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:200; padding:2rem; text-align:center; opacity:0; pointer-events:none; transition:opacity 0.5s; }
-.overlay.show { opacity:1; pointer-events:all; }
-
-/* BIG TEXT ANIMATIONS */
-.big-word { font-size:clamp(2.5rem,12vw,5rem); font-weight:700; color:var(--rojo); line-height:1; letter-spacing:0.02em; }
-.big-name { font-size:clamp(2.8rem,14vw,6rem); font-weight:700; color:var(--hueso); line-height:1; }
-.big-label { font-size:0.65rem; letter-spacing:0.35em; color:var(--apagado); text-transform:uppercase; margin-bottom:0.6rem; }
-.big-sub { font-size:0.85rem; color:var(--apagado); margin-top:0.8rem; }
-.line-sep { width:40px; height:1px; background:var(--rojo); margin:1rem auto; }
-.fade-in { animation:fadeIn 0.6s ease both; }
-.fade-in-delay { animation:fadeIn 0.6s ease 0.4s both; }
-@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-.flicker { animation:flicker 0.15s ease-in-out 4; }
-@keyframes flicker { 0%,100%{opacity:1} 50%{opacity:0.2} }
-
-/* PODIO */
-.podio-item { display:flex; align-items:center; gap:1rem; padding:0.8rem 0; border-bottom:1px solid #1a1a1a; width:100%; max-width:300px; }
-.podio-pos { font-size:1.4rem; font-weight:700; color:var(--rojo); width:2rem; text-align:center; flex-shrink:0; }
-.podio-name { font-size:1rem; color:var(--hueso); flex:1; text-align:left; }
-.podio-votes { font-size:0.75rem; color:var(--apagado); }
-
-/* TOAST */
-.toast { position:fixed; bottom:5rem; left:50%; transform:translateX(-50%) translateY(20px); background:#1a1a1a; border:1px solid #333; border-radius:8px; padding:0.6rem 1.2rem; font-size:0.75rem; color:var(--hueso); opacity:0; transition:all 0.3s; z-index:300; white-space:nowrap; max-width:90vw; overflow:hidden; text-overflow:ellipsis; }
-.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-
-/* PISTA POPUP */
-.popup-ov { position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:400; display:none; align-items:center; justify-content:center; padding:1.5rem; }
-.popup-ov.show { display:flex; }
-.popup-box { background:#1c1c1c; border:1px solid rgba(193,39,45,0.5); border-radius:12px; padding:1.4rem; max-width:320px; width:100%; }
-.popup-label { font-size:0.55rem; letter-spacing:0.2em; color:var(--rojo); text-transform:uppercase; margin-bottom:0.4rem; }
-.popup-sub { font-size:0.7rem; color:var(--apagado); margin-bottom:0.7rem; }
-.popup-text { font-size:0.88rem; color:var(--hueso); line-height:1.5; margin-bottom:1.2rem; }
-.popup-btn { width:100%; padding:0.75rem; background:var(--rojo); color:var(--hueso); border:none; border-radius:8px; font-family:var(--font); font-size:0.8rem; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; cursor:pointer; }
-
-.imm-box { border:1px dashed rgba(193,39,45,0.4); border-radius:10px; padding:1rem; text-align:center; margin-bottom:0.8rem; flex-shrink:0; background:#120000; animation:pb 2s ease-in-out infinite; }
-@keyframes pb { 0%,100%{border-color:rgba(193,39,45,0.25)} 50%{border-color:rgba(193,39,45,0.65)} }
-.imm-warn { font-size:0.62rem; color:var(--rojo); font-style:italic; margin-top:0.4rem; }
+.hmbtn:last-child { margin-bottom:0; }
 </style>
 </head>
 <body>
 <div class="scanline"></div>
-<div id="rondaOverlay" style="display:none;">
-  <div id="rondaNum" style="font-size:5rem;font-weight:700;color:var(--rojo);line-height:1;">2</div>
-  <div id="rondaLabel" style="font-size:0.7rem;letter-spacing:0.35em;color:var(--apagado);text-transform:uppercase;margin-top:0.6rem;">RONDA 2 DE 4</div>
-</div>
 <div class="toast" id="toast"></div>
 
 <!-- PISTA POPUP -->
-<div class="popup-ov" id="pistaPopup">
+<div class="popup-overlay" id="pistaPopup">
   <div class="popup-box">
     <div class="popup-label">📤 pista recibida</div>
-    <div class="popup-sub" id="ppDe">de —</div>
-    <div class="popup-text" id="ppTexto"></div>
-    <button class="popup-btn" onclick="closePP()">Entendido →</button>
+    <div class="popup-sub" id="pistaPopupDe">de —</div>
+    <div class="popup-text" id="pistaPopupTexto"></div>
+    <button class="popup-btn" onclick="closePistaPopup()">Entendido →</button>
   </div>
+</div>
+
+<!-- RONDA ANIMATION -->
+<div class="ronda-overlay" id="rondaOverlay">
+  <div class="ronda-num" id="rondaNum">2</div>
+  <div class="ronda-label" id="rondaLabel">RONDA 2 DE 4</div>
+</div>
+
+<!-- REVEAL -->
+<div class="reveal-overlay" id="revealOverlay">
+  <div class="rlabel">el asesino era</div>
+  <div class="rname" id="revealName">—</div>
+  <div class="rline"></div>
+  <div style="font-size:0.72rem;color:var(--apagado);margin-bottom:1rem;" id="revealDesc"></div>
+  <div id="revealCards" style="width:100%;max-width:360px;"></div>
+  <button class="btn btn-p" style="max-width:360px;margin-top:1.5rem;" onclick="hideReveal()">Nueva partida →</button>
 </div>
 
 <!-- S0 SPLASH -->
 <div class="screen active" id="s0">
-  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
-    <div style="font-size:0.6rem;letter-spacing:0.4em;color:var(--rojo);text-transform:uppercase;margin-bottom:1rem;">bienvenido a</div>
-    <div style="font-size:4.5rem;font-weight:700;line-height:0.9;">SEÑAL<span style="color:var(--rojo);">A</span>DOS</div>
-    <div style="font-size:0.68rem;color:var(--apagado);margin-top:1rem;">un asesinato. una casa rural. nadie es inocente.</div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:0.5rem;">
+    <div style="font-size:0.6rem;letter-spacing:0.4em;color:var(--rojo);text-transform:uppercase;margin-bottom:0.5rem;">bienvenido a</div>
+    <div style="font-size:4rem;font-weight:700;line-height:0.9;">SEÑAL<span style="color:var(--rojo);">A</span>DOS</div>
+    <div style="font-size:0.68rem;color:var(--apagado);margin-top:0.5rem;">un asesinato. una casa rural. nadie es inocente.</div>
   </div>
   <button class="btn btn-p" onclick="goScreen('s1')">Entrar →</button>
 </div>
 
 <!-- S1 NOMBRE -->
 <div class="screen" id="s1">
-  <div class="status-bar"><span class="status-left">SEÑALADOS</span><div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot"></div></div></div>
+  <div class="status-bar">
+    <span class="status-left">SEÑALADOS</span>
+    <div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot"></div></div>
+  </div>
   <div class="eyebrow">sala · rural2025</div>
   <div class="title">Elige tu <span class="r">nombre</span></div>
   <div class="subtitle">el host arranca cuando estéis todos</div>
@@ -168,7 +176,8 @@ html,body { height:100%; width:100%; overflow:hidden; background:var(--negro); c
 <div class="screen" id="s2">
   <div class="status-bar">
     <span class="status-left" id="s2st">SEÑALADOS</span>
-    <div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div>
+    <div class="dots">
+      <div class="dot on"></div><div class="dot on"></div><div class="dot on"></div>
       <button id="hmBtn" onclick="toggleHM()" style="display:none;background:none;border:none;color:var(--apagado);font-size:1.1rem;cursor:pointer;padding:0 0.2rem;margin-left:0.3rem;">☰</button>
     </div>
   </div>
@@ -181,47 +190,79 @@ html,body { height:100%; width:100%; overflow:hidden; background:var(--negro); c
   <div class="title">Esperando<br>al <span class="r">host</span></div>
   <div class="subtitle" id="s2sub">cuando el host arranque, empieza</div>
   <div class="player-list" id="lobbyList"></div>
-  <div id="hostControls" style="display:none;margin-top:1rem;"><button class="btn btn-p" onclick="startGame()">Arrancar partida →</button></div>
+  <div id="hostControls" style="display:none;margin-top:1rem;">
+    <button class="btn btn-p" onclick="startGame()">Arrancar partida →</button>
+  </div>
   <div class="wpulse" id="waitMsg">esperando que el host arranque...</div>
 </div>
 
 <!-- S3 ROL -->
 <div class="screen" id="s3">
-  <div class="status-bar"><span class="status-left" id="s3st">SEÑALADOS · ronda 1/4</span><div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div></div>
+  <div class="status-bar">
+    <span class="status-left" id="s3st">SEÑALADOS · ronda 1/4</span>
+    <div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div>
+  </div>
   <div class="eyebrow">solo tú ves esto</div>
   <div class="title">Tu <span class="r">papel</span></div>
   <div class="div"></div>
   <div id="rolBadge" class="rol-badge rol-i">👤 inocente</div>
   <div class="scroll">
-    <div class="card red"><div class="clabel">el crimen</div><div class="ctext" id="crimeText">cargando...</div></div>
-    <div class="card red"><div class="clabel">tu coartada</div><div class="ctext" id="datoText">cargando...</div></div>
-    <div class="card" id="historiaCard" style="display:none;"><div class="clabel">🔪 historia completa — solo tú la ves</div><div class="ctext" id="historiaText"></div></div>
-    <div class="card" id="pistasAcumCard" style="display:none;"><div class="clabel">pistas acumuladas</div><div class="ctext" id="pistasAcumText"></div></div>
-    <div class="card"><div class="clabel">observas los votos de</div><div class="ctext" id="observaText">—</div></div>
+    <div class="card red">
+      <div class="clabel">el crimen</div>
+      <div class="ctext" id="crimeText">cargando...</div>
+    </div>
+    <div class="card red">
+      <div class="clabel">tu coartada esta ronda</div>
+      <div class="ctext" id="datoText">cargando...</div>
+    </div>
+    <div class="card" id="historiaCard" style="display:none;">
+      <div class="clabel">🔪 historia completa — solo tú la ves</div>
+      <div class="ctext" id="historiaText"></div>
+    </div>
+    <div class="card" id="pistasAcumCard" style="display:none;">
+      <div class="clabel">pistas acumuladas</div>
+      <div class="ctext" id="pistasAcumText"></div>
+    </div>
+    <div class="card">
+      <div class="clabel">observas los votos de</div>
+      <div class="ctext" id="observaText">—</div>
+    </div>
   </div>
-  <button class="btn btn-p" id="btnHostCont" style="display:none;" onclick="hostContinuar()">Continuar →</button>
+  <button class="btn btn-p" id="btnHostContinuar" style="display:none;" onclick="hostContinuarARoles()">Continuar →</button>
   <div class="wpulse" id="rolWait" style="display:none;">esperando al host...</div>
 </div>
 
 <!-- S4 TURNO -->
 <div class="screen" id="s4">
-  <div class="status-bar"><span class="status-left" id="s4st">SEÑALADOS · ronda 1/4</span><div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div></div>
+  <div class="status-bar">
+    <span class="status-left" id="s4st">SEÑALADOS · ronda 1/4</span>
+    <div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div>
+  </div>
   <div class="eyebrow">fase de coartadas</div>
   <div class="title">Escucha<br>las <span class="r">coartadas</span></div>
   <div class="subtitle">cuando sea tu turno te avisaremos</div>
   <div class="scroll" id="turnList"></div>
   <div class="wpulse" id="turnWait">esperando turno...</div>
-  <button class="btn btn-s" id="btnHostNext" style="display:none;margin-top:auto;" onclick="hostNextTurn()">Siguiente turno →</button>
+  <button class="btn btn-s" id="btnHostNextTurn" style="display:none;" onclick="hostNextTurn()">Siguiente turno →</button>
 </div>
 
 <!-- S5 MI TURNO -->
 <div class="screen" id="s5">
-  <div class="status-bar"><span class="status-left" id="s5st">SEÑALADOS · ronda 1/4</span><div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div></div>
+  <div class="status-bar">
+    <span class="status-left" id="s5st">SEÑALADOS · ronda 1/4</span>
+    <div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div>
+  </div>
   <div class="eyebrow">⚡ es tu turno</div>
   <div class="title">Da tu <span class="r">coartada</span></div>
   <div class="subtitle">en voz alta. luego elige una acción.</div>
-  <div id="pistaCard" class="card red" style="display:none;"><div class="clabel">pista de esta ronda</div><div class="ctext" id="pistaText"></div></div>
-  <div id="sinPista" class="card" style="display:none;"><div class="clabel">pista</div><div class="ctext" style="color:var(--apagado);">esta ronda no tienes pista.</div></div>
+  <div id="pistaCard" class="card red" style="display:none;">
+    <div class="clabel">pista de esta ronda</div>
+    <div class="ctext" id="pistaText"></div>
+  </div>
+  <div id="sinPista" class="card" style="display:none;">
+    <div class="clabel">pista</div>
+    <div class="ctext" style="color:var(--apagado);">esta ronda no tienes pista.</div>
+  </div>
   <div class="div"></div>
   <div class="clabel" style="font-size:0.54rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--apagado);margin-bottom:0.5rem;">acción secreta — elige una</div>
   <div class="card sel" id="ac1" onclick="selAc('compartir')"><div class="ctext">📤 <strong>Compartir pista</strong> — mandársela a alguien</div></div>
@@ -232,47 +273,48 @@ html,body { height:100%; width:100%; overflow:hidden; background:var(--negro); c
 
 <!-- S5b DESTINATARIO -->
 <div class="screen" id="s5b">
-  <div class="status-bar"><span class="status-left">SEÑALADOS</span><div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div></div>
+  <div class="status-bar">
+    <span class="status-left">SEÑALADOS</span>
+    <div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div>
+  </div>
   <div class="eyebrow" id="s5bEye">¿a quién?</div>
   <div class="title">Elige<br><span class="r">destinatario</span></div>
-  <div class="subtitle">al confirmar termina tu turno</div>
+  <div class="subtitle">cuando confirmes, termina tu turno</div>
   <div class="player-list" id="targetList"></div>
   <button class="btn btn-p" onclick="sendAcYTerminar()">Enviar y terminar turno →</button>
 </div>
 
-<!-- S5c VOTACIONES INTRO -->
+<!-- S5c INMUNIDAD -->
 <div class="screen" id="s5c">
-  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
-    <div class="big-label" id="s5cLabel">fase de votación</div>
-    <div class="big-word fade-in" id="s5cWord">VOTACIONES</div>
-    <div class="big-sub" id="s5cSub"></div>
+  <div class="status-bar">
+    <span class="status-left" id="s5cSt">SEÑALADOS</span>
+    <div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div>
   </div>
-  <div class="wpulse" id="s5cWait" style="display:none;">esperando al host...</div>
-  <button class="btn btn-p" id="btnHostVoting" style="display:none;" onclick="hostStartImmunity()">Continuar →</button>
-</div>
-
-<!-- S5d INMUNIDAD -->
-<div class="screen" id="s5d">
-  <div class="status-bar"><span class="status-left" id="s5dSt">SEÑALADOS</span><div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div></div>
-  <div class="eyebrow" id="s5dEye">inmunidad</div>
-  <div class="title" id="s5dTitle">¿Inmune?</div>
-  <div class="subtitle" id="s5dSub"></div>
+  <div class="eyebrow">⚠ antes de votar</div>
+  <div class="title">Oferta<br><span class="r">especial</span></div>
+  <div class="card"><div class="clabel">todo el mundo lo ve</div><div class="ctext" id="immInfo">—</div></div>
+  <div class="div"></div>
   <div class="imm-box" id="immBox" style="display:none;">
-    <div style="font-size:1.4rem;margin-bottom:0.4rem;">🛡</div>
-    <div style="font-size:0.82rem;color:var(--hueso);line-height:1.45;margin-bottom:0.2rem;">Si aceptas, <strong>nadie puede votarte</strong> esta ronda.</div>
-    <div class="imm-warn">recuerda: tus decisiones tienen consecuencias.</div>
+    <span class="imm-icon">🛡</span>
+    <div class="imm-text">Si aceptas, <strong>nadie puede votarte</strong> esta ronda. Todo el mundo lo verá.</div>
+    <div class="imm-warn">protegerte tiene un precio.</div>
   </div>
-  <div class="card dim" id="noImmCard" style="display:none;"><div class="ctext" style="color:var(--apagado);">Alguien puede ser inmune en esta votación.</div></div>
-  <div id="immBtns">
-    <button class="btn btn-p" id="btnAcImm" onclick="aceptarImm()" style="display:none;">Aceptar inmunidad →</button>
-    <button class="btn btn-s" id="btnRcImm" onclick="rechazarImm()">Continuar sin inmunidad</button>
+  <div class="card dim" id="noImmCard" style="display:none;">
+    <div class="ctext" style="color:var(--apagado);">No te ha tocado esta ronda.</div>
+  </div>
+  <div id="immDecisionArea">
+    <button class="btn btn-p" id="btnAceptarImm" onclick="aceptarImm()" style="display:none;">Aceptar inmunidad →</button>
+    <button class="btn btn-s" id="btnRechazarImm" onclick="rechazarImm()">Continuar sin inmunidad</button>
   </div>
   <div class="wpulse" id="immWait" style="display:none;">esperando a los demás...</div>
 </div>
 
 <!-- S6 VOTACIÓN -->
 <div class="screen" id="s6">
-  <div class="status-bar"><span class="status-left" id="s6st">SEÑALADOS · votación</span><div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div></div>
+  <div class="status-bar">
+    <span class="status-left" id="s6st">SEÑALADOS · votación</span>
+    <div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div>
+  </div>
   <div class="eyebrow">🗳 votación</div>
   <div class="title">¿Quién <span class="r">fue?</span></div>
   <div class="subtitle" id="s6sub">solo tus observados verán tu voto</div>
@@ -283,69 +325,35 @@ html,body { height:100%; width:100%; overflow:hidden; background:var(--negro); c
 
 <!-- S7 RESULTADO -->
 <div class="screen" id="s7">
-  <div class="status-bar"><span class="status-left" id="s7st">SEÑALADOS</span><div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div></div>
+  <div class="status-bar">
+    <span class="status-left" id="s7st">SEÑALADOS</span>
+    <div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div>
+  </div>
   <div class="eyebrow">resultado de ronda</div>
   <div class="title" id="s7title"><span class="r">—</span></div>
   <div class="subtitle" id="s7sub"></div>
   <div class="div"></div>
-  <div class="scroll"><div id="voteResults"></div><div class="div"></div><div id="s7notifs"></div></div>
-  <button class="btn btn-p" id="btnHostNR" style="display:none;" onclick="hostNextRound()">Siguiente ronda →</button>
+  <div class="scroll">
+    <div id="voteResults"></div>
+    <div class="div"></div>
+    <div id="s7notifs"></div>
+  </div>
+  <button class="btn btn-p" id="btnHostNextRound" style="display:none;" onclick="hostNextRound()">Siguiente ronda →</button>
   <div class="wpulse" id="s7wait" style="display:none;">esperando al host...</div>
 </div>
 
-<!-- S8 VOTACIÓN FINAL (todo en overlay) -->
+<!-- S8 VOTACIÓN FINAL -->
 <div class="screen" id="s8">
-  <div style="flex:1;display:flex;align-items:center;justify-content:center;">
-    <div class="wpulse">votación final en curso...</div>
+  <div class="status-bar">
+    <span class="status-left">SEÑALADOS · final</span>
+    <div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div>
   </div>
-</div>
-
-<!-- OVERLAY VOTACIÓN FINAL -->
-<div class="overlay" id="ovFinal">
-  <!-- Step 1: VOTACIÓN FINAL -->
-  <div id="ovF1" style="display:none;flex-direction:column;align-items:center;text-align:center;">
-    <div class="big-word flicker fade-in" style="font-size:clamp(2rem,10vw,4rem);letter-spacing:0.05em;">VOTACIÓN</div>
-    <div class="big-word flicker fade-in-delay" style="color:var(--hueso);font-size:clamp(2rem,10vw,4rem);">FINAL</div>
-  </div>
-  <!-- Step 2: Más señalado -->
-  <div id="ovF2" style="display:none;flex-direction:column;align-items:center;text-align:center;">
-    <div class="big-label">la persona más señalada ha sido</div>
-    <div class="big-name fade-in" id="ovF2name">—</div>
-  </div>
-  <!-- Step 3: Podio -->
-  <div id="ovF3" style="display:none;flex-direction:column;align-items:center;width:100%;max-width:340px;">
-    <div class="big-label" style="margin-bottom:1.2rem;">nominaciones de la partida</div>
-    <div id="ovF3podio" style="width:100%;"></div>
-  </div>
-  <!-- Step 4: Votación -->
-  <div id="ovF4" style="display:none;flex-direction:column;width:100%;max-width:340px;">
-    <div class="big-label" style="margin-bottom:1rem;">¿a quién quieres expulsar?</div>
-    <div id="finalVoteList" style="overflow-y:auto;max-height:50vh;"></div>
-    <button class="btn btn-p" id="btnFinal" onclick="submitFinal()" style="margin-top:1rem;">Votar →</button>
-    <div class="wpulse" id="finalWait" style="display:none;">voto enviado ✓ esperando a los demás...</div>
-  </div>
-  <!-- Step 5a: Ganaron inocentes -->
-  <div id="ovF5win" style="display:none;flex-direction:column;align-items:center;text-align:center;gap:0.8rem;">
-    <div class="big-label">habéis acusado a</div>
-    <div class="big-name fade-in" id="ovF5accuse">—</div>
-    <div class="line-sep"></div>
-    <div style="font-size:clamp(1.2rem,6vw,2.2rem);font-weight:700;color:var(--rojo);animation:fadeIn 0.6s ease 0.5s both;">HABÉIS DESCUBIERTO<br>SU COARTADA</div>
-    <div style="font-size:0.75rem;color:var(--apagado);animation:fadeIn 0.6s ease 1s both;" id="ovF5wrong">los que votaron a otro: un chupito cada uno</div>
-  </div>
-  <!-- Step 5b: Ganó asesino -->
-  <div id="ovF5lose" style="display:none;flex-direction:column;align-items:center;text-align:center;gap:0.8rem;">
-    <div style="font-size:clamp(1rem,5vw,1.6rem);font-weight:700;color:var(--apagado);">Seguís teniendo un criminal<br>entre vosotros.</div>
-    <div class="line-sep"></div>
-    <div class="big-label" style="margin-top:0.5rem;">habéis acusado a</div>
-    <div class="big-name fade-in" id="ovF5laccuse">—</div>
-    <div style="font-size:0.75rem;color:var(--apagado);margin-top:0.5rem;">sin embargo el criminal es</div>
-    <div style="font-size:clamp(2rem,10vw,4rem);font-weight:700;color:var(--rojo);animation:flicker 0.15s ease-in-out 4;" id="ovF5real">—</div>
-  </div>
-  <!-- Step 6: Historia final -->
-  <div id="ovF6" style="display:none;flex-direction:column;width:100%;max-width:360px;overflow-y:auto;max-height:90vh;">
-    <div id="ovF6cards"></div>
-    <button class="btn btn-p" onclick="hideReveal()" style="margin-top:1rem;">Nueva partida →</button>
-  </div>
+  <div class="eyebrow">votación final</div>
+  <div class="title">¿Quién <span class="r">fue?</span></div>
+  <div class="subtitle">última oportunidad · los votos son públicos</div>
+  <div class="player-list" id="finalList"></div>
+  <button class="btn btn-p" id="btnFinal" onclick="submitFinal()">Votar →</button>
+  <div class="wpulse" id="finalWait" style="display:none;">voto enviado ✓ esperando a los demás...</div>
 </div>
 
 <script type="module">
@@ -366,26 +374,41 @@ const GEMINI = "AIzaSyAQ.Ab8RN6K0lW4jsVjGAq3qaMzkeI5pSw8DHqdgCge5mPrkQHM_sw";
 const ROOM = "rural2025";
 const NAMES = ["Sara","Ana","Lucía","Elena","Eneko","Diego","Ramón","Irene","Dani","Adriana"];
 
-let myName=null,myRole=null,isHost=false;
-let curAction=null,selTarget=null,selVote=null,selFinal=null;
-let gs={},pistasAcum=[],shownNotifIds=new Set();
+let myName=null, myRole=null, isHost=false;
+let curAction=null, selTarget=null, selVote=null, selFinal=null;
+let gs={}, pistasAcum=[], pendingPistas=[];
+// Evita registrar listeners duplicados si el host resetea y vuelve a unirse
+let listenersSetup=false;
 
-const fr=p=>ref(db,`${ROOM}/${p}`);
-const fset=(p,v)=>set(fr(p),v);
-const fget=p=>get(fr(p));
-const fupd=(p,v)=>update(fr(p),v);
-const fon=(p,cb)=>onValue(fr(p),s=>cb(s.val()));
+const fr = p => ref(db,`${ROOM}/${p}`);
+const fset = (p,v) => set(fr(p),v);
+const fget = p => get(fr(p));
+const fupd = (p,v) => update(fr(p),v);
+const fon = (p,cb) => onValue(fr(p),s=>cb(s.val()));
 
-window.goScreen=function(id){
+window.goScreen = function(id){
   document.querySelectorAll('.screen').forEach(s=>{
     if(s.id===id){setTimeout(()=>s.classList.add('active'),30);s.classList.remove('out');}
     else{s.classList.remove('active');s.classList.add('out');setTimeout(()=>s.classList.remove('out'),350);}
   });
 }
 
-function toast(msg,dur=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur);}
+function toast(msg,dur=2500){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),dur);
+}
+
 function rand(arr){return arr[Math.floor(Math.random()*arr.length)];}
 function shuffle(arr){return [...arr].sort(()=>Math.random()-0.5);}
+
+function showRondaAnim(n, total, cb){
+  const ov=document.getElementById('rondaOverlay');
+  document.getElementById('rondaNum').textContent=n;
+  document.getElementById('rondaLabel').textContent=`RONDA ${n} DE ${total}`;
+  ov.classList.add('show');
+  setTimeout(()=>{ov.classList.remove('show');setTimeout(cb,400);},2000);
+}
 
 async function gemini(prompt){
   try{
@@ -412,8 +435,9 @@ window.addEventListener('DOMContentLoaded',()=>{
     if(!data)return;
     document.querySelectorAll('#nameList .prow').forEach(row=>{
       const n=row.dataset.name;
-      if(data[n]){row.querySelector('.av').className='av on';row.querySelector('.pst').textContent='ocupado';row.querySelector('.pst').className='pst on';}
-      else{row.querySelector('.av').className='av';row.querySelector('.pst').textContent='libre';row.querySelector('.pst').className='pst';}
+      const av=row.querySelector('.av'),st=row.querySelector('.pst');
+      if(data[n]){av.className='av on';st.textContent='ocupado';st.className='pst on';}
+      else{av.className='av';st.textContent='libre';st.className='pst';}
     });
   });
 });
@@ -421,7 +445,8 @@ window.addEventListener('DOMContentLoaded',()=>{
 function selectName(name){
   document.querySelectorAll('#nameList .prow').forEach(r=>r.classList.remove('selected'));
   document.querySelector(`#nameList [data-name="${name}"]`).classList.add('selected');
-  myName=name;document.getElementById('btnJoin').textContent=`Soy ${name} →`;
+  myName=name;
+  document.getElementById('btnJoin').textContent=`Soy ${name} →`;
 }
 
 window.joinGame=async function(){
@@ -445,6 +470,10 @@ function setupLobby(){
     document.getElementById('hmBtn').style.display='block';
   }
 
+  // Solo registrar listeners una vez por sesión de navegador
+  if(listenersSetup)return;
+  listenersSetup=true;
+
   fon('players',data=>{
     const list=document.getElementById('lobbyList');list.innerHTML='';
     if(!data)return;
@@ -460,15 +489,14 @@ function setupLobby(){
     if(!phase||!myName)return;
     if(phase==='roles') loadMyRole();
     if(phase==='turns'){
-      // Only navigate if not already doing my turn
+      // Guard: no interrumpir a un jugador que está en su turno activo
       const active=document.querySelector('.screen.active')?.id;
       if(active!=='s5'&&active!=='s5b'){
         fget('game').then(s=>{gs=s.val();setupTurns();goScreen('s4');});
-      } else {
+      }else{
         fget('game').then(s=>{gs=s.val();setupTurns();});
       }
     }
-    if(phase==='voting_intro') showVotingIntro();
     if(phase==='immunity') loadImmunity();
     if(phase==='voting') startVoting();
     if(phase==='results') showResults();
@@ -487,28 +515,32 @@ function setupLobby(){
 
   fon('game/turnDone',done=>{
     if(!isHost||!myName)return;
-    const btnH=document.getElementById('btnHostNext');
+    const active=document.querySelector('.screen.active')?.id;
+    if(active!=='s4')return;
+    const btnHost=document.getElementById('btnHostNextTurn');
     fget('game').then(s=>{
       if(!s.val())return;
       const g=s.val();
-      const ended=(g.currentTurnIndex||0)>=(g.turnOrder||[]).length;
-      if(done&&!ended){btnH.style.display='block';btnH.textContent='Siguiente turno →';}
-      else if(ended){btnH.style.display='block';btnH.textContent='Pasar a votaciones →';}
-      else{btnH.style.display='none';}
-      const active=document.querySelector('.screen.active')?.id;
-      if(active==='s5'||active==='s5b') goScreen('s4');
+      const yaAcabo=(g.currentTurnIndex||0)>=(g.turnOrder||[]).length;
+      if(done&&!yaAcabo){
+        btnHost.style.display='block';
+        btnHost.textContent='Siguiente turno →';
+      }else if(yaAcabo){
+        btnHost.style.display='block';
+        btnHost.textContent='Pasar a inmunidad →';
+      }else{
+        btnHost.style.display='none';
+      }
     });
   });
 
-  // Notificaciones — deduplicadas con shownNotifIds
   fon(`notifications/${myName}`,notifs=>{
     if(!notifs)return;
-    Object.entries(notifs).forEach(([id,n])=>{
-      if(shownNotifIds.has(id))return;
-      shownNotifIds.add(id);
+    Object.values(notifs).forEach(n=>{
       if(n.tipo==='pista'){
-        showPP(n.de,n.texto);
-        pistasAcum.push({id,de:n.de,texto:n.texto,ronda:n.ronda});
+        showPistaPopup(n.de,n.texto);
+        pistasAcum.push({de:n.de,texto:n.texto,ronda:n.ronda});
+        pendingPistas.push(n);
       }
       if(n.tipo==='señal') toast(`👆 Alguien ha señalado a ${n.sobre}`,4000);
     });
@@ -522,7 +554,7 @@ window.startGame=async function(){
 
   const shuffled=shuffle(players);
   const asesino=shuffled[0],victima=shuffled[1];
-  const complices=shuffled.slice(2,Math.min(4,shuffled.length));
+  const complices=shuffled.slice(2,4);
   const observers={};
   players.forEach(p=>{
     const others=players.filter(x=>x!==p);
@@ -535,75 +567,83 @@ JUGADORES: ${players.join(', ')}
 VÍCTIMA: ${victima}
 ASESINO: ${asesino}
 
-INSTRUCCIONES CRÍTICAS:
-1. Construye primero la historia completa y cronológica de lo que pasó esa noche.
-2. La historia debe ser EXPLÍCITA: di exactamente qué hizo ${asesino} para matar a ${victima}, dónde, cómo y cuándo. No uses eufemismos como "lo que pasó dejó a X sin vida". Sé dramático y concreto.
-3. Las coartadas de cada jugador deben derivarse DIRECTAMENTE de la historia y ser coherentes con ella.
-4. Cada coartada debe ser única, específica y diferente: lugares concretos (cocina, jardín, piscina, terraza, salón, coche...) y actividades reales (fumando, bebiendo, llorando, llamando por teléfono, escuchando música, vomitando del alcohol...).
-5. La coartada del asesino es mentira pero coherente con la historia.
-6. Las pistas son fragmentos concretos de la historia que se revelan progresivamente.
+PROCESO OBLIGATORIO:
+1. Construye primero una historia cronológica detallada de lo que pasó esa noche.
+2. Luego, a partir de ESA historia, escribe la coartada de cada jugador. Las coartadas DEBEN derivarse de la historia y ser coherentes con ella.
+
+REGLAS para las coartadas:
+- Cada una diferente: lugares concretos (cocina, jardín, piscina, terraza, salón, coche, camino...) y actividades reales (fumando, bebiendo, llorando, en el baño, llamando por teléfono, escuchando música, vomitando del alcohol...)
+- Algunas se contradicen sutilmente entre sí de forma coherente con la historia
+- La del asesino es mentira pero derivada lógicamente de la historia
+- NINGUNA puede ser genérica tipo "estaba en su habitación"
+
+REGLAS para las pistas:
+- Las 4 pistas deben ser fragmentos concretos de la historia construida
+- Deben revelarse progresivamente, cada una añadiendo info nueva
+- La pista 4 es FALSA pero coherente con la historia
 
 Responde SOLO en JSON sin markdown:
 {
   "crimen": "frase dramática y específica: cómo, dónde y cuándo murió ${victima}",
-  "historia_completa": "historia de 5-7 frases cronológica. Menciona a cada jugador por nombre. Di EXPLÍCITAMENTE qué hizo ${asesino}: cómo atacó a ${victima}, con qué, dónde, a qué hora. Sé concreto y dramático.",
+  "historia_completa": "historia de 5-7 frases cronológica desde la cena hasta el crimen. Menciona a cada jugador por nombre. Explica el motivo y cómo actuó ${asesino}.",
   "motivo_asesino": "motivo concreto y personal. Una frase.",
   "datos": {
     ${players.map(p=>`"${p}": "coartada de ${p} derivada de la historia. Lugar exacto + actividad concreta. Máx 20 palabras."`).join(',\n    ')}
   },
   "pistas": [
-    "pista 1: detalle físico concreto de la escena, sin revelar culpable",
-    "pista 2: algo que alguien vio u oyó según la historia",
+    "pista 1: detalle concreto de la historia, sin revelar al culpable",
+    "pista 2: algo nuevo que alguien vio u oyó según la historia",
     "pista 3: apunta indirectamente a ${asesino} sin nombrarlo",
-    "pista 4: FALSA pero muy creíble, plantada por ${asesino} para despistar"
+    "pista 4: FALSA pero coherente con la historia, plantada por ${asesino}"
   ]
 }`;
 
   let data=null;
-  try{const raw=await gemini(prompt);if(raw)data=JSON.parse(raw.replace(/```json|```/g,'').trim());}catch(e){}
+  try{
+    const raw=await gemini(prompt);
+    if(raw){data=JSON.parse(raw.replace(/```json|```/g,'').trim());}
+  }catch(e){}
 
   if(!data){
-    const coartadas=shuffle(['Fumando en la terraza, viste luz en la cocina a las 3am.','En el baño de arriba con dolor de tripa desde medianoche.','Llamando por teléfono en el jardín, oíste algo raro.','Bebiendo solo/a en el salón, te quedaste dormido/a en el sofá.','Escuchando música con auriculares en tu cuarto, no oíste nada.','En la cocina calentando algo, viste pasar una sombra.','Mirando el móvil en la terraza de arriba toda la noche.','Llorando en el coche aparcado, procesando algo de la cena.','Con los pies en la piscina a las 2am, solo/a.','Durmiendo en el sofá del salón desde las 2am.']);
+    const coartadas=shuffle(['Fumando en la terraza, viste luz en la cocina a las 3am.','En el baño de arriba con dolor de tripa desde medianoche.','Llamando por teléfono en el jardín, oíste un ruido extraño.','Bebiendo solo/a en el salón, te quedaste dormido/a en el sofá.','Escuchando música con auriculares en tu cuarto, no oíste nada.','En la cocina calentando algo, viste pasar una sombra por la ventana.','Mirando el móvil en la terraza de arriba toda la noche.','Llorando en el coche aparcado, procesando algo de la cena.','Sentado/a en el borde de la piscina a las 2am, solo/a.','En el salón viendo una película en silencio.']);
     data={
-      crimen:`${victima} apareció ${rand(['ahogado/a en la piscina','al pie de las escaleras con signos de violencia','en el jardín con marcas en el cuello'])} a las 7am`,
-      historia_completa:`Esa noche la tensión venía de la cena. ${asesino} y ${victima} habían tenido una discusión que escaló. A las 3am, cuando todos dormían, ${asesino} siguió a ${victima} al jardín y lo/la estranguló con las manos junto a la piscina. El cuerpo quedó semioculto entre los arbustos hasta que alguien lo encontró al amanecer.`,
-      motivo_asesino:`${asesino} llevaba meses guardando un secreto que ${victima} amenazaba con revelar al grupo esta misma noche.`,
-      datos:Object.fromEntries(players.map((p,i)=>[p,p===asesino?'Bajaste al jardín a las 3am con la excusa de tomar el aire. Volviste antes de que nadie se despertara.':coartadas[i%coartadas.length]])),
-      pistas:['Se encontraron marcas de dedos en el cuello de la víctima','Alguien oyó una discusión en el jardín pasadas las 2am','El asesino tenía motivos para querer silenciar a la víctima esa noche','Una testigo dice haber visto a dos personas juntas en el jardín (FALSO — solo había una)']
+      crimen:`${victima} ha aparecido ${rand(['ahogado/a en la piscina','al pie de las escaleras','en el jardín'])} esta mañana`,
+      historia_completa:`Esa noche la tensión venía de la cena. ${asesino} y ${victima} habían tenido un intercambio tenso que nadie quiso ignorar. A las 2am la mayoría dormía. ${asesino} bajó al jardín. Lo que pasó después dejó a ${victima} sin vida. A las 7am alguien encontró el cuerpo.`,
+      motivo_asesino:`${asesino} llevaba tiempo guardando un secreto que ${victima} amenazaba con revelar.`,
+      datos:Object.fromEntries(players.map((p,i)=>[p,p===asesino?'Bajaste al jardín a las 2am con la excusa de tomar el aire. No viste a nadie, o eso dices.':coartadas[i%coartadas.length]])),
+      pistas:[
+        'Se encontraron huellas húmedas que iban desde la piscina hasta la puerta trasera de la casa',
+        'Alguien oyó una discusión apagada en el jardín pasadas las 2am pero no quiso levantarse',
+        'El móvil de la víctima tenía una conversación borrada esa misma noche con alguien del grupo',
+        'Un testigo dice haber visto a dos personas juntas en el jardín esa noche — pero solo había una (FALSO)'
+      ]
     };
   }
-
-  // Inmunidad: nadie puede repetir dos rondas seguidas
-  const immR={};
-  const allP=[...players];
-  [2,3].forEach((ronda,ri)=>{
-    const prev=ri>0?(immR[ri]||[]):[];
-    const eligible=allP.filter(p=>!prev.includes(p));
-    immR[ronda]=shuffle(eligible).slice(0,Math.min(2,eligible.length));
-  });
 
   const roles={};
   players.forEach(p=>{
     let rol,desc;
     if(p===asesino){rol='asesino';desc=`Tú eres el asesino. ${data.motivo_asesino} Miente, siembra dudas, sobrevive.`;}
-    else if(p===victima){rol='victima';desc='Has sido asesinado/a. Puedes usar acciones pero no votar.';}
-    else if(complices.includes(p)){rol='complice';desc='Estás en el bando del asesino pero no sabes quién es.';}
-    else{rol='inocente';desc='Descubre al asesino.';}
-    roles[p]={rol,desc,dato:data.datos[p]||'Estabas en tu habitación',observa:observers[p],historiaCompleta:p===asesino?data.historia_completa:null};
+    else if(p===victima){rol='victima';desc='Has sido asesinado/a. Recibes pistas cada ronda. No puedes votar pero puedes usar acciones.';}
+    else if(complices.includes(p)){rol='complice';desc='Estás en el bando del asesino pero no sabes quién es. Protégele sin saberlo.';}
+    else{rol='inocente';desc='Descubre al asesino usando las pistas y las coartadas.';}
+    roles[p]={rol,desc,dato:data.datos[p]||'Estabas en tu cuarto',observa:observers[p],historiaCompleta:p===asesino?data.historia_completa:null};
   });
+
+  const immunityRounds={2:shuffle(players).slice(0,Math.min(2,players.length-1)),3:shuffle(players).slice(0,1)};
 
   await fset('game',{
     crimen:data.crimen,pistas:data.pistas,roles,asesino,victima,
     historiaCompleta:data.historia_completa,motivoAsesino:data.motivo_asesino,
     ronda:1,totalRondas:4,turnOrder:shuffle(players),currentTurnIndex:0,
-    immunityRounds:immR,publicRound:rand([2,3]),
+    immunityRounds,publicRound:rand([2,3]),
     immunityAccepted:{},immunityPenalties:{},roundVotes:{},
-    nominaciones:Object.fromEntries(players.map(p=>[p,0])),
-    turnDone:false
+    nominaciones:Object.fromEntries(players.map(p=>[p,0]))
   });
   await fset('gamePhase','roles');
 }
 
+// ROL
 async function loadMyRole(){
   const snap=await fget('game');gs=snap.val();if(!gs)return;
   const me=gs.roles[myName];if(!me)return;
@@ -616,43 +656,57 @@ async function loadMyRole(){
 
   document.getElementById('crimeText').innerHTML=`<strong>${gs.crimen}</strong>`;
   document.getElementById('datoText').textContent=me.dato;
-  // Historia completa: puede estar en me.historiaCompleta o en gs.historiaCompleta (para el asesino)
-  const historiaParaMi = myRole==='asesino' ? (gs.historiaCompleta||me.historiaCompleta||null) : null;
-  document.getElementById('historiaCard').style.display=historiaParaMi?'block':'none';
-  if(historiaParaMi) document.getElementById('historiaText').textContent=historiaParaMi;
 
-  const aEl=document.getElementById('pistasAcumCard'),tEl=document.getElementById('pistasAcumText');
+  if(me.historiaCompleta){
+    document.getElementById('historiaCard').style.display='block';
+    document.getElementById('historiaText').textContent=me.historiaCompleta;
+  }else{
+    document.getElementById('historiaCard').style.display='none';
+  }
+
+  const pistaAcumCard=document.getElementById('pistasAcumCard');
+  const pistaAcumText=document.getElementById('pistasAcumText');
   if(pistasAcum.length>0){
-    aEl.style.display='block';
-    tEl.innerHTML=pistasAcum.map(p=>p.de?`<div style="margin-bottom:0.5rem;"><span style="color:var(--apagado);font-size:0.7rem;">de ${p.de}:</span><br>${p.texto}</div>`:`<div style="margin-bottom:0.5rem;">${p.texto}</div>`).join('');
-  }else{aEl.style.display='none';}
+    pistaAcumCard.style.display='block';
+    pistaAcumText.innerHTML=pistasAcum.map(p=>
+      p.de?`<div style="margin-bottom:0.4rem;"><span style="color:var(--apagado);font-size:0.7rem;">de ${p.de}:</span> ${p.texto}</div>`
+          :`<div style="margin-bottom:0.4rem;">${p.texto}</div>`
+    ).join('');
+  }else{
+    pistaAcumCard.style.display='none';
+  }
 
   const obs=me.observa||[];
-  document.getElementById('observaText').innerHTML=obs.length?obs.map(o=>`<strong>${o}</strong>`).join(' y ')+'  — ellos no lo saben.':'No observas a nadie.';
+  document.getElementById('observaText').innerHTML=obs.length
+    ?obs.map(o=>`<strong>${o}</strong>`).join(' y ')+'  — ellos no lo saben.'
+    :'No observas a nadie esta partida.';
+
   document.getElementById('s3st').textContent=`SEÑALADOS · ronda ${gs.ronda}/4`;
 
-  if(isHost){document.getElementById('btnHostCont').style.display='block';document.getElementById('rolWait').style.display='none';}
-  else{document.getElementById('btnHostCont').style.display='none';document.getElementById('rolWait').style.display='block';}
+  if(isHost){
+    document.getElementById('btnHostContinuar').style.display='block';
+    document.getElementById('rolWait').style.display='none';
+  }else{
+    document.getElementById('btnHostContinuar').style.display='none';
+    document.getElementById('rolWait').style.display='block';
+  }
 
   if(gs.ronda>1){
     showRondaAnim(gs.ronda,gs.totalRondas,()=>goScreen('s3'));
-  }else{goScreen('s3');}
+  }else{
+    goScreen('s3');
+  }
 }
 
-function showRondaAnim(n,total,cb){
-  // Mostrar overlay de ronda sin tocar s5c
-  const ov=document.getElementById('rondaOverlay');
-  document.getElementById('rondaNum').textContent=n;
-  document.getElementById('rondaLabel').textContent=`RONDA ${n} DE ${total}`;
-  ov.style.cssText='position:fixed;inset:0;background:var(--negro);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:500;text-align:center;';
-  setTimeout(()=>{ov.style.display='none';if(cb)cb();},2200);
+window.hostContinuarARoles=async function(){
+  await fset('gamePhase','turns');
 }
 
-window.hostContinuar=async function(){await fset('gamePhase','turns');}
-
+// TURNOS
 function setupTurns(){
   if(!gs||!gs.turnOrder)return;
-  const order=gs.turnOrder,cur=gs.currentTurnIndex||0;
+  const order=gs.turnOrder;
+  const cur=gs.currentTurnIndex||0;
   document.getElementById('s4st').textContent=`SEÑALADOS · ronda ${gs.ronda}/4`;
 
   const list=document.getElementById('turnList');list.innerHTML='';
@@ -664,30 +718,43 @@ function setupTurns(){
   });
 
   const esmiTurno=order[cur]===myName;
-  const ended=cur>=order.length;
-  const btnH=document.getElementById('btnHostNext');
+  const yaAcabo=cur>=order.length;
   const waitEl=document.getElementById('turnWait');
+  const btnHost=document.getElementById('btnHostNextTurn');
 
   if(esmiTurno){
     waitEl.style.display='none';
-    btnH.style.display='none';
+    btnHost.style.display='none';
     toast('⚡ ¡Es tu turno!',3000);
     setTimeout(()=>loadMyTurn(),1500);
   }else{
     waitEl.style.display='block';
-    waitEl.textContent=ended?'todos han hablado ✓':order[cur]?`turno de ${order[cur]}...`:'esperando...';
-    if(isHost&&!ended) btnH.style.display='none'; // shown by turnDone listener
-    else if(isHost&&ended){btnH.style.display='block';btnH.textContent='Pasar a votaciones →';}
-    else btnH.style.display='none';
+    waitEl.textContent=yaAcabo?'todos han hablado ✓':order[cur]?`turno de ${order[cur]}...`:'esperando...';
+    if(isHost){
+      fget('game/turnDone').then(snap=>{
+        const done=snap.val();
+        if(done&&!yaAcabo){btnHost.style.display='block';btnHost.textContent='Siguiente turno →';}
+        else if(yaAcabo){btnHost.style.display='block';btnHost.textContent='Pasar a inmunidad →';}
+        else{btnHost.style.display='none';}
+      });
+    }else{
+      btnHost.style.display='none';
+    }
   }
 }
 
 window.hostNextTurn=async function(){
   const snap=await fget('game');gs=snap.val();
   const next=(gs.currentTurnIndex||0)+1;
-  await fset('game/turnDone',false);
-  if(next>=(gs.turnOrder||[]).length){await fset('gamePhase','voting_intro');}
-  else{await fupd('game',{currentTurnIndex:next});await fset('gamePhase','turns');}
+  await fset('game/turnDone', false);
+  if(next>=(gs.turnOrder||[]).length){
+    await fset('gamePhase','immunity');
+  }else{
+    await fupd('game',{currentTurnIndex:next});
+    // Nota: si gamePhase ya es 'turns', onValue no se dispara.
+    // El listener de currentTurnIndex maneja la actualización de pantalla.
+    await fset('gamePhase','turns');
+  }
 }
 
 async function loadMyTurn(){
@@ -695,11 +762,15 @@ async function loadMyTurn(){
   const ronda=gs.ronda;
   const hasPista=Math.random()>0.25;
 
-  // Solo mostrar pistas del sistema (sin "[de X]"), las de otros jugadores llegan por popup
-  if(hasPista&&gs.pistas){
+  if(pendingPistas.length>0){
+    const p=pendingPistas.shift();
+    document.getElementById('pistaCard').style.display='block';
+    document.getElementById('sinPista').style.display='none';
+    document.getElementById('pistaText').textContent=`[de ${p.de}]: ${p.texto}`;
+  }else if(hasPista&&gs.pistas){
     const idx=Math.min(ronda-1,gs.pistas.length-1);
     const pista=gs.pistas[idx];
-    if(!pistasAcum.find(p=>p.texto===pista&&!p.de)){
+    if(!pistasAcum.find(p=>p.texto===pista)){
       pistasAcum.push({de:null,texto:pista,ronda});
     }
     document.getElementById('pistaCard').style.display='block';
@@ -726,8 +797,10 @@ window.selAc=function(a){
 window.confirmAc=async function(){
   if(!curAction){toast('Elige una acción');return;}
   if(curAction==='pasar'){
-    await fset('game/turnDone',true);
-    goScreen('s4');return;
+    await fset('game/turnDone', true);
+    goScreen('s4');
+    toast('Turno terminado');
+    return;
   }
   const players=Object.keys((await fget('players')).val()||{}).filter(p=>p!==myName);
   const list=document.getElementById('targetList');list.innerHTML='';
@@ -747,11 +820,6 @@ window.confirmAc=async function(){
 }
 
 window.sendAcYTerminar=async function(){
-  // Read from DOM in case variable got reset
-  if(!selTarget){
-    const sel=document.querySelector('#targetList .prow.selected');
-    if(sel) selTarget=sel.dataset.name;
-  }
   if(!selTarget){toast('Elige a alguien');return;}
   const snap=await fget('game');gs=snap.val();
   const ronda=gs.ronda;
@@ -759,107 +827,85 @@ window.sendAcYTerminar=async function(){
   if(curAction==='compartir'){
     const idx=Math.min(ronda-1,(gs.pistas||[]).length-1);
     const pista=(gs.pistas||[])[idx]||'Sin pista';
-    const nid=Date.now();
-    await fset(`notifications/${selTarget}/${nid}`,{tipo:'pista',de:myName,texto:pista,ronda});
+    await fset(`notifications/${selTarget}/${Date.now()}`,{tipo:'pista',de:myName,texto:pista,ronda});
     toast(`Pista enviada a ${selTarget}`);
   }else{
     const targetObs=(gs.roles[selTarget]?.observa)||[];
-    const nid=Date.now();
     for(const obs of targetObs){
-      await fset(`notifications/${obs}/${nid+Math.random()}`,{tipo:'señal',sobre:selTarget,ronda});
+      await fset(`notifications/${obs}/${Date.now()}`,{tipo:'señal',sobre:selTarget,ronda});
     }
-    if(targetObs.length===0) toast(`Señalado ${selTarget} (sin observadores)`);
-    else toast(`Has señalado a ${selTarget}`);
+    toast(`Has señalado a ${selTarget}`);
   }
-  await fset('game/turnDone',true);
+
+  await fset('game/turnDone', true);
   goScreen('s4');
 }
 
-// VOTING INTRO
-function showVotingIntro(){
-  document.getElementById('s5cLabel').textContent='fase de votación';
-  document.getElementById('s5cWord').textContent='VOTACIONES';
-  document.getElementById('s5cSub').textContent='';
-
-  fget('game').then(s=>{
-    gs=s.val();
-    const ronda=gs?.ronda||1;
-    if(isHost){
-      document.getElementById('btnHostVoting').style.display='block';
-      document.getElementById('s5cWait').style.display='none';
-    }else{
-      document.getElementById('btnHostVoting').style.display='none';
-      document.getElementById('s5cWait').style.display='block';
-    }
-  });
-  goScreen('s5c');
-}
-
-window.hostStartImmunity=async function(){await fset('gamePhase','immunity');}
-
-// IMMUNITY
+// INMUNIDAD
 async function loadImmunity(){
   const snap=await fget('game');gs=snap.val();
   const ronda=gs.ronda;
   const immPlayers=(gs.immunityRounds||{})[ronda]||[];
   const iAmChosen=immPlayers.includes(myName);
 
-  document.getElementById('s5dSt').textContent=`SEÑALADOS · ronda ${ronda}/4`;
+  document.getElementById('s5cSt').textContent=`SEÑALADOS · ronda ${ronda}/4`;
+  document.getElementById('immInfo').innerHTML=immPlayers.length>0
+    ?`<strong>${immPlayers.join('</strong> e <strong>')}</strong> tienen la opción de ser inmunes esta ronda.`
+    :'Nadie tiene inmunidad esta ronda.';
 
-  if(iAmChosen){
-    document.getElementById('s5dEye').textContent='tienes una oferta';
-    document.getElementById('s5dTitle').innerHTML='¿TE GUSTARÍA<br>SER <span class="r">INMUNE?</span>';
-    document.getElementById('s5dSub').textContent='';
-    document.getElementById('immBox').style.display='block';
-    document.getElementById('noImmCard').style.display='none';
-    document.getElementById('btnAcImm').style.display='block';
-    document.getElementById('btnRcImm').style.display='block';
-  }else{
-    document.getElementById('s5dEye').textContent='inmunidad';
-    document.getElementById('s5dTitle').innerHTML='Esta ronda<br>hay <span class="r">inmunidad</span>';
-    document.getElementById('s5dSub').textContent='';
-    document.getElementById('immBox').style.display='none';
-    document.getElementById('noImmCard').style.display='block';
-    document.getElementById('btnAcImm').style.display='none';
-    document.getElementById('btnRcImm').style.display='block';
-    document.getElementById('btnRcImm').textContent='Continuar →';
-  }
-
-  document.getElementById('immBtns').style.display='block';
+  document.getElementById('immBox').style.display=iAmChosen?'block':'none';
+  document.getElementById('noImmCard').style.display=iAmChosen?'none':'block';
+  document.getElementById('btnAceptarImm').style.display=iAmChosen?'block':'none';
+  document.getElementById('immDecisionArea').style.display='block';
   document.getElementById('immWait').style.display='none';
-  goScreen('s5d');
+
+  goScreen('s5c');
 }
 
-function marcarDecision(){
-  document.getElementById('immBtns').style.display='none';
+function marcarImmDecision(elegido){
+  document.getElementById('immDecisionArea').style.display='none';
   document.getElementById('immWait').style.display='block';
+  toast(elegido?'Inmunidad activada. Habrá un precio...':'Continúas sin inmunidad.');
 }
 
 window.aceptarImm=async function(){
   const snap=await fget('game');gs=snap.val();
   const penalties=['p1','p2','p3','pnopista'];
-  await fupd('game',{[`immunityAccepted/${myName}`]:gs.ronda,[`immunityPenalties/${myName}`]:rand(penalties)});
+  await fupd('game',{
+    [`immunityAccepted/${myName}`]:gs.ronda,
+    [`immunityPenalties/${myName}`]:rand(penalties)
+  });
   await fset(`game/immDecision/${myName}`,true);
-  marcarDecision();checkImmDone();
+  marcarImmDecision(true);
+  checkImmDone();
 }
 
 window.rechazarImm=async function(){
   await fset(`game/immDecision/${myName}`,true);
-  marcarDecision();checkImmDone();
+  marcarImmDecision(false);
+  checkImmDone();
 }
 
 async function checkImmDone(){
   const check=async()=>{
-    const [ps,ds]=await Promise.all([fget('players'),fget('game/immDecision')]);
-    const total=Object.keys(ps.val()||{}).length;
-    const decided=Object.keys(ds.val()||{}).length;
-    if(decided>=total){await fset('game/immDecision',null);await fset('gamePhase','voting');}
-    else setTimeout(check,2000);
+    // Parar si la fase ya cambió (evita bucle infinito entre partidas)
+    const phase=(await fget('gamePhase')).val();
+    if(phase!=='immunity')return;
+    const psnap=await fget('players');
+    const total=Object.keys(psnap.val()||{}).length;
+    const dsnap=await fget('game/immDecision');
+    const decided=Object.keys(dsnap.val()||{}).length;
+    if(decided>=total){
+      await fset('game/immDecision',null);
+      await fset('gamePhase','voting');
+    }else{
+      setTimeout(check,2000);
+    }
   };
   check();
 }
 
-// VOTING
+// VOTACIÓN
 async function startVoting(){
   const snap=await fget('game');gs=snap.val();
   const ronda=gs.ronda;
@@ -873,15 +919,16 @@ async function startVoting(){
     await fset(`game/roundVotes/${myName}`,{vote:'inmune'});
     document.getElementById('btnVotar').style.display='none';
     document.getElementById('voteWait').style.display='block';
-    document.getElementById('voteWait').textContent='inmune esta ronda 🛡';
+    document.getElementById('voteWait').textContent='inmune esta ronda ✓';
     goScreen('s6');
-    waitForVoteRes();return;
+    waitForVoteResults();
+    return;
   }
 
   selVote=null;
   document.getElementById('btnVotar').style.display='block';
-  document.getElementById('btnVotar').textContent='Votar →';
   document.getElementById('voteWait').style.display='none';
+  document.getElementById('btnVotar').textContent='Votar →';
 
   const psnap=await fget('players');
   const players=Object.keys(psnap.val()||{}).filter(p=>p!==myName);
@@ -896,7 +943,8 @@ async function startVoting(){
       row.onclick=()=>{
         document.querySelectorAll('#voteList .prow').forEach(r=>{r.classList.remove('selected');const s=r.querySelector('.pst');s.textContent='votar';s.className='pst';});
         row.classList.add('selected');row.querySelector('.pst').textContent='seleccionado';row.querySelector('.pst').className='pst on';
-        selVote=name;document.getElementById('btnVotar').textContent=`Votar a ${name} →`;
+        selVote=name;
+        document.getElementById('btnVotar').textContent=`Votar a ${name} →`;
       };
     }
     list.appendChild(row);
@@ -907,41 +955,63 @@ async function startVoting(){
 window.submitVote=async function(){
   if(!selVote){toast('Elige a quién votar');return;}
   await fset(`game/roundVotes/${myName}/vote`,selVote);
+
   const snap=await fget('game');gs=snap.val();
-  const ronda=gs.ronda,isPublic=gs.publicRound===ronda;
+  const ronda=gs.ronda;
+  const isPublic=gs.publicRound===ronda;
+
   if(isPublic){
-    const ps=await fget('players');
-    for(const p of Object.keys(ps.val()||{})){if(p!==myName){const nid=Date.now()+Math.random();await fset(`notifications/${p}/${nid}`,{tipo:'voto_publico',de:myName,voto:selVote,ronda});}}
+    const psnap=await fget('players');
+    for(const p of Object.keys(psnap.val()||{})){
+      if(p!==myName) await fset(`notifications/${p}/${Date.now()}`,{tipo:'voto_publico',de:myName,voto:selVote,ronda});
+    }
   }else{
     const myObs=(gs.roles[myName]?.observa)||[];
-    for(const obs of myObs){const nid=Date.now()+Math.random();await fset(`notifications/${obs}/${nid}`,{tipo:'voto',de:myName,voto:selVote,ronda});}
+    for(const obs of myObs){
+      await fset(`notifications/${obs}/${Date.now()}`,{tipo:'voto',de:myName,voto:selVote,ronda});
+    }
   }
+
   document.getElementById('btnVotar').style.display='none';
   document.getElementById('voteWait').style.display='block';
-  waitForVoteRes();
+  waitForVoteResults();
 }
 
-function waitForVoteRes(){
+function waitForVoteResults(){
   const check=async()=>{
-    const [ps,vs]=await Promise.all([fget('players'),fget('game/roundVotes')]);
-    if(Object.keys(vs.val()||{}).length>=Object.keys(ps.val()||{}).length) await fset('gamePhase','results');
+    // Parar si la fase ya cambió
+    const phase=(await fget('gamePhase')).val();
+    if(phase!=='voting')return;
+    const psnap=await fget('players');
+    const total=Object.keys(psnap.val()||{}).length;
+    const vsnap=await fget('game/roundVotes');
+    if(Object.keys(vsnap.val()||{}).length>=total) await fset('gamePhase','results');
     else setTimeout(check,2000);
   };
   setTimeout(check,2000);
 }
 
-// RESULTS
+// RESULTADO
 async function showResults(){
   const snap=await fget('game');gs=snap.val();
-  const ronda=gs.ronda,votes=gs.roundVotes||{};
+  const ronda=gs.ronda;
+  const votes=gs.roundVotes||{};
+
   const tally={};
-  Object.values(votes).forEach(v=>{const vt=v.vote||v;if(vt&&vt!=='abstención'&&vt!=='inmune')tally[vt]=(tally[vt]||0)+1;});
+  Object.values(votes).forEach(v=>{
+    const vt=v.vote||v;
+    if(vt&&vt!=='abstención'&&vt!=='inmune') tally[vt]=(tally[vt]||0)+1;
+  });
   Object.entries(gs.immunityPenalties||{}).forEach(([p,pen])=>{
-    if((gs.immunityAccepted||{})[p]===ronda){const extra=pen==='p1'?1:pen==='p2'?2:pen==='p3'?3:0;if(extra>0)tally[p]=(tally[p]||0)+extra;}
+    if((gs.immunityAccepted||{})[p]===ronda){
+      const extra=pen==='p1'?1:pen==='p2'?2:pen==='p3'?3:0;
+      if(extra>0) tally[p]=(tally[p]||0)+extra;
+    }
   });
 
   const sorted=Object.entries(tally).sort((a,b)=>b[1]-a[1]);
-  const loser=sorted[0]?.[0]||'—',loserV=sorted[0]?.[1]||0;
+  const loser=sorted[0]?.[0]||'—';
+  const loserV=sorted[0]?.[1]||0;
 
   document.getElementById('s7st').textContent=`SEÑALADOS · ronda ${ronda}/4`;
   document.getElementById('s7title').innerHTML=`<span class="r">${loser}</span><br>bebe.`;
@@ -959,25 +1029,46 @@ async function showResults(){
 
   const nsnap=await fget(`notifications/${myName}`);
   const notifs=nsnap.val()||{};
-  const nEl=document.getElementById('s7notifs');nEl.innerHTML='';
+  const notifsEl=document.getElementById('s7notifs');notifsEl.innerHTML='';
+
   const vNots=Object.values(notifs).filter(n=>n.ronda===ronda&&(n.tipo==='voto'||n.tipo==='voto_publico'));
-  if(vNots.length){const d=document.createElement('div');d.className='notif';d.innerHTML=`<div class="nlabel">votos que tú ves</div><div class="ntext">${vNots.map(n=>`<strong>${n.de}</strong> votó a <strong>${n.voto}</strong>`).join(' · ')}</div>`;nEl.appendChild(d);}
+  if(vNots.length){
+    const d=document.createElement('div');d.className='notif';
+    d.innerHTML=`<div class="nlabel">votos que tú ves</div><div class="ntext">${vNots.map(n=>`<strong>${n.de}</strong> votó a <strong>${n.voto}</strong>`).join(' · ')}</div>`;
+    notifsEl.appendChild(d);
+  }
   const sNots=Object.values(notifs).filter(n=>n.ronda===ronda&&n.tipo==='señal');
-  if(sNots.length){const d=document.createElement('div');d.className='notif';d.innerHTML=`<div class="nlabel">señales</div><div class="ntext">Alguien señaló a ${[...new Set(sNots.map(n=>n.sobre))].map(s=>`<strong>${s}</strong>`).join(', ')}</div>`;nEl.appendChild(d);}
+  if(sNots.length){
+    const d=document.createElement('div');d.className='notif';
+    d.innerHTML=`<div class="nlabel">señales</div><div class="ntext">Alguien señaló a ${[...new Set(sNots.map(n=>n.sobre))].map(s=>`<strong>${s}</strong>`).join(', ')}</div>`;
+    notifsEl.appendChild(d);
+  }
   const pNots=Object.values(notifs).filter(n=>n.ronda===ronda&&n.tipo==='pista');
-  if(pNots.length){const d=document.createElement('div');d.className='notif';d.innerHTML=`<div class="nlabel">pistas recibidas</div><div class="ntext">${pNots.map(n=>`De <strong>${n.de}</strong>: "${n.texto}"`).join('<br>')}</div>`;nEl.appendChild(d);}
+  if(pNots.length){
+    const d=document.createElement('div');d.className='notif';
+    d.innerHTML=`<div class="nlabel">pistas recibidas</div><div class="ntext">${pNots.map(n=>`De <strong>${n.de}</strong>: "${n.texto}"`).join('<br>')}</div>`;
+    notifsEl.appendChild(d);
+  }
 
   await fset(`notifications/${myName}`,null);
-  shownNotifIds.clear();
-  await fupd('game',{[`nominaciones/${loser}`]:(gs.nominaciones?.[loser]||0)+1,[`roundVotes`]:null});
+  await fupd('game',{[`nominaciones/${loser}`]:(gs.nominaciones?.[loser]||0)+1});
 
   if(isHost){
-    const btnNR=document.getElementById('btnHostNR');
-    btnNR.style.display='block';
-    if(ronda>=4){btnNR.textContent='Ir a votación final →';btnNR.onclick=()=>fset('gamePhase','finalVoting');}
-    else{btnNR.textContent='Siguiente ronda →';btnNR.onclick=()=>hostNextRound();}
+    const btnNext=document.getElementById('btnHostNextRound');
+    btnNext.style.display='block';
+    if(ronda>=4){
+      btnNext.textContent='Ir a votación final →';
+      btnNext.onclick=()=>fset('gamePhase','finalVoting');
+    }else{
+      btnNext.textContent='Siguiente ronda →';
+      btnNext.onclick=()=>hostNextRound();
+    }
     document.getElementById('s7wait').style.display='none';
-  }else{document.getElementById('btnHostNR').style.display='none';document.getElementById('s7wait').style.display='block';}
+  }else{
+    document.getElementById('btnHostNextRound').style.display='none';
+    document.getElementById('s7wait').style.display='block';
+  }
+
   goScreen('s7');
 }
 
@@ -985,71 +1076,32 @@ window.hostNextRound=async function(){
   const snap=await fget('game');gs=snap.val();
   if(gs.ronda>=4){await fset('gamePhase','finalVoting');return;}
   const newOrder=shuffle(Object.keys((await fget('players')).val()||{}));
-  await fupd('game',{ronda:gs.ronda+1,currentTurnIndex:0,turnOrder:newOrder,roundVotes:null,immDecision:null,turnDone:false});
+  await fupd('game',{ronda:gs.ronda+1,currentTurnIndex:0,turnOrder:newOrder,roundVotes:null,immDecision:null});
   await fset('gamePhase','roles');
 }
 
-// FINAL VOTING
+// VOTACIÓN FINAL
 async function startFinalVoting(){
-  const snap=await fget('game');gs=snap.val();
-  const nom=gs.nominaciones||{};
-  const sorted=Object.entries(nom).sort((a,b)=>b[1]-a[1]);
-  const topPerson=sorted[0]?.[0]||'—';
-
-  const ov=document.getElementById('ovFinal');
-  ov.classList.add('show');
-  ['ovF1','ovF2','ovF3','ovF4','ovF5win','ovF5lose','ovF6'].forEach(id=>{document.getElementById(id).style.display='none';});
-
-  // Step 1: VOTACIÓN FINAL
-  const f1=document.getElementById('ovF1');f1.style.display='flex';
-  await delay(2500);f1.style.display='none';
-
-  // Step 2: más señalado
-  const f2=document.getElementById('ovF2');
-  document.getElementById('ovF2name').textContent=topPerson;
-  f2.style.display='flex';
-  await delay(2500);f2.style.display='none';
-
-  // Step 3: podio
-  const f3=document.getElementById('ovF3');
-  const podio=document.getElementById('ovF3podio');podio.innerHTML='';
-  f3.style.display='flex';
-  const top=sorted.slice(0,5).reverse();
-  for(let i=0;i<top.length;i++){
-    await delay(700);
-    const [name,votes]=top[i];
-    const pos=top.length-i;
-    const item=document.createElement('div');item.className='podio-item';
-    item.innerHTML=`<div class="podio-pos">${pos}º</div><div class="podio-name">${name}</div><div class="podio-votes">${votes} nom.</div>`;
-    item.style.opacity='0';item.style.transition='opacity 0.4s';
-    podio.appendChild(item);
-    setTimeout(()=>item.style.opacity='1',50);
-  }
-  await delay(2000);f3.style.display='none';
-
-  // Step 4: votación
   const psnap=await fget('players');
   const players=Object.keys(psnap.val()||{}).filter(p=>p!==myName);
   selFinal=null;
   document.getElementById('btnFinal').style.display='block';
-  document.getElementById('btnFinal').textContent='Votar →';
   document.getElementById('finalWait').style.display='none';
+  document.getElementById('btnFinal').textContent='Votar →';
 
-  const fvl=document.getElementById('finalVoteList');fvl.innerHTML='';
+  const list=document.getElementById('finalList');list.innerHTML='';
   players.forEach(name=>{
     const row=document.createElement('div');row.className='prow';row.dataset.name=name;
     row.innerHTML=`<div class="av on">${name.slice(0,2).toUpperCase()}</div><div class="pname">${name}</div><div class="pst">votar</div>`;
     row.onclick=()=>{
-      document.querySelectorAll('#finalVoteList .prow').forEach(r=>{r.classList.remove('selected');r.querySelector('.pst').textContent='votar';r.querySelector('.pst').className='pst';});
+      document.querySelectorAll('#finalList .prow').forEach(r=>{r.classList.remove('selected');r.querySelector('.pst').textContent='votar';r.querySelector('.pst').className='pst';});
       row.classList.add('selected');row.querySelector('.pst').textContent='seleccionado';row.querySelector('.pst').className='pst on';
       selFinal=name;document.getElementById('btnFinal').textContent=`Votar a ${name} →`;
     };
-    fvl.appendChild(row);
+    list.appendChild(row);
   });
-  document.getElementById('ovF4').style.display='flex';
+  goScreen('s8');
 }
-
-function delay(ms){return new Promise(r=>setTimeout(r,ms));}
 
 window.submitFinal=async function(){
   if(!selFinal){toast('Elige a alguien');return;}
@@ -1057,9 +1109,15 @@ window.submitFinal=async function(){
   document.getElementById('btnFinal').style.display='none';
   document.getElementById('finalWait').style.display='block';
   toast('Voto final enviado');
+
   const check=async()=>{
-    const [ps,fs]=await Promise.all([fget('players'),fget('game/finalVotes')]);
-    if(Object.keys(fs.val()||{}).length>=Object.keys(ps.val()||{}).length) await fset('gamePhase','reveal');
+    // Parar si la fase ya cambió
+    const phase=(await fget('gamePhase')).val();
+    if(phase!=='finalVoting')return;
+    const psnap=await fget('players');
+    const total=Object.keys(psnap.val()||{}).length;
+    const fsnap=await fget('game/finalVotes');
+    if(Object.keys(fsnap.val()||{}).length>=total) await fset('gamePhase','reveal');
     else setTimeout(check,2000);
   };
   setTimeout(check,2000);
@@ -1070,74 +1128,71 @@ async function showReveal(){
   const snap=await fget('game');gs=snap.val();
   const asesino=gs.asesino;
   const votes=gs.finalVotes||{};
-  const tally={};Object.values(votes).forEach(v=>{tally[v]=(tally[v]||0)+1;});
-  const sorted=Object.entries(tally).sort((a,b)=>b[1]-a[1]);
-  const mostVoted=sorted[0]?.[0];
+  const tally={};
+  Object.values(votes).forEach(v=>{tally[v]=(tally[v]||0)+1;});
+  const mostVoted=Object.entries(tally).sort((a,b)=>b[1]-a[1])[0]?.[0];
   const win=mostVoted===asesino;
 
-  // Ocultar step 4
-  document.getElementById('ovF4').style.display='none';
+  document.getElementById('revealName').textContent=asesino;
+  document.getElementById('revealDesc').textContent=win?'pillado/a. bebe 5 chupitos.':'sobrevivió. reparte 5 chupitos.';
 
-  if(win){
-    // Inocentes ganan
-    const wrongVoters=Object.entries(votes).filter(([p,v])=>v!==asesino).map(([p])=>p);
-    document.getElementById('ovF5accuse').textContent=mostVoted;
-    document.getElementById('ovF5wrong').textContent=wrongVoters.length>0?`${wrongVoters.join(', ')}: un chupito cada uno por votar mal`:'todos votasteis bien 🎉';
-    document.getElementById('ovF5win').style.display='flex';
-    await delay(4000);document.getElementById('ovF5win').style.display='none';
-  }else{
-    // Asesino gana
-    document.getElementById('ovF5laccuse').textContent=mostVoted||'nadie';
-    document.getElementById('ovF5real').textContent=asesino;
-    document.getElementById('ovF5lose').style.display='flex';
-    await delay(4500);document.getElementById('ovF5lose').style.display='none';
-  }
-
-  // Historia final
-  const cards=document.getElementById('ovF6cards');cards.innerHTML='';
-  const verdict=document.createElement('div');verdict.className='card red';
-  verdict.innerHTML=`<div class="clabel">veredicto</div><div class="ctext">${win?`<strong>${asesino}</strong> era el asesino. Los inocentes ganan. Bebe 5 chupitos.`:`<strong>${asesino}</strong> sobrevivió. El asesino gana. Reparte 5 chupitos.`}</div>`;
-  cards.appendChild(verdict);
+  const cards=document.getElementById('revealCards');cards.innerHTML='';
+  const c1=document.createElement('div');c1.className='card red';
+  c1.innerHTML=`<div class="clabel">veredicto</div><div class="ctext">${win?`<strong>${asesino}</strong> era el asesino. Los inocentes ganan.`:`<strong>${asesino}</strong> sobrevivió. El asesino gana.`}</div>`;
+  cards.appendChild(c1);
   if(gs.historiaCompleta){
-    const c=document.createElement('div');c.className='card';c.style.marginTop='0.5rem';
-    c.innerHTML=`<div class="clabel">lo que pasó realmente</div><div class="ctext">${gs.historiaCompleta}</div>`;
-    cards.appendChild(c);
+    const c2=document.createElement('div');c2.className='card';c2.style.marginTop='0.5rem';
+    c2.innerHTML=`<div class="clabel">lo que pasó realmente</div><div class="ctext">${gs.historiaCompleta}</div>`;
+    cards.appendChild(c2);
   }
   if(gs.motivoAsesino){
-    const c=document.createElement('div');c.className='card red';c.style.marginTop='0.5rem';
-    c.innerHTML=`<div class="clabel">motivo de ${asesino}</div><div class="ctext">${gs.motivoAsesino}</div>`;
-    cards.appendChild(c);
+    const c3=document.createElement('div');c3.className='card red';c3.style.marginTop='0.5rem';
+    c3.innerHTML=`<div class="clabel">motivo de ${asesino}</div><div class="ctext">${gs.motivoAsesino}</div>`;
+    cards.appendChild(c3);
   }
-  document.getElementById('ovF6').style.display='flex';
+  document.getElementById('revealOverlay').classList.add('show');
+}
+
+// POPUP PISTA
+window.showPistaPopup=function(de,texto){
+  document.getElementById('pistaPopupDe').textContent=`de ${de}`;
+  document.getElementById('pistaPopupTexto').textContent=texto;
+  document.getElementById('pistaPopup').classList.add('show');
+}
+window.closePistaPopup=function(){
+  document.getElementById('pistaPopup').classList.remove('show');
 }
 
 // RESET
 function resetAll(){
   fset('game',null);fset('gamePhase',null);fset('players',null);fset('notifications',null);
   myName=null;myRole=null;isHost=false;selVote=null;selFinal=null;curAction=null;selTarget=null;
-  pistasAcum=[];shownNotifIds=new Set();
+  pistasAcum=[];pendingPistas=[];listenersSetup=false;
   document.getElementById('nameList').querySelectorAll('.prow').forEach(r=>{
-    r.classList.remove('selected');r.querySelector('.pst').textContent='libre';r.querySelector('.pst').className='pst';r.querySelector('.av').className='av';
+    r.classList.remove('selected');
+    r.querySelector('.pst').textContent='libre';r.querySelector('.pst').className='pst';
+    r.querySelector('.av').className='av';
   });
   document.getElementById('btnJoin').textContent='Elige tu nombre →';
-  document.getElementById('ovFinal').classList.remove('show');
+  document.getElementById('revealOverlay').classList.remove('show');
 }
 
 window.resetRoom=function(){resetAll();toast('Sala reseteada ✓');document.getElementById('hostMenu').style.display='none';goScreen('s1');}
 window.reanudarSala=async function(){
-  await fset('players',null);await fset('game/roundVotes',null);await fset('game/immDecision',null);await fset('gamePhase',null);await fset('notifications',null);
+  await fset('players',null);await fset('game/roundVotes',null);
+  await fset('game/immDecision',null);await fset('gamePhase',null);await fset('notifications',null);
   myName=null;myRole=null;isHost=false;selVote=null;selFinal=null;curAction=null;selTarget=null;
-  pistasAcum=[];shownNotifIds=new Set();
-  document.getElementById('nameList').querySelectorAll('.prow').forEach(r=>{r.classList.remove('selected');r.querySelector('.pst').textContent='libre';r.querySelector('.pst').className='pst';r.querySelector('.av').className='av';});
+  pistasAcum=[];pendingPistas=[];listenersSetup=false;
+  document.getElementById('nameList').querySelectorAll('.prow').forEach(r=>{
+    r.classList.remove('selected');r.querySelector('.pst').textContent='libre';r.querySelector('.pst').className='pst';r.querySelector('.av').className='av';
+  });
   document.getElementById('btnJoin').textContent='Elige tu nombre →';
   document.getElementById('hostMenu').style.display='none';
-  document.getElementById('ovFinal').classList.remove('show');
+  document.getElementById('revealOverlay').classList.remove('show');
   toast('Sala vaciada — volved a entrar');goScreen('s1');
 }
-window.hideReveal=function(){resetAll();goScreen('s1');}
+window.hideReveal=function(){document.getElementById('revealOverlay').classList.remove('show');resetAll();goScreen('s1');}
 window.toggleHM=function(){const m=document.getElementById('hostMenu');m.style.display=m.style.display==='none'||!m.style.display?'block':'none';}
-window.showPP=function(de,texto){document.getElementById('ppDe').textContent=`de ${de}`;document.getElementById('ppTexto').textContent=texto;document.getElementById('pistaPopup').classList.add('show');}
-window.closePP=function(){document.getElementById('pistaPopup').classList.remove('show');}
 </script>
 </body>
 </html>
