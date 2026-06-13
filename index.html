@@ -9,226 +9,149 @@
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 :root {
   --negro: #0a0a0a; --hueso: #e8e4d9; --rojo: #c1272d;
-  --gris: #1c1c1c; --gris2: #2a2a2a; --apagado: #555;
-  --font: 'Courier Prime', monospace;
+  --gris: #1c1c1c; --apagado: #555; --font: 'Courier Prime', monospace;
 }
-html, body {
-  height: 100%; width: 100%; overflow: hidden;
-  background: var(--negro); color: var(--hueso);
-  font-family: var(--font);
-}
-/* SCREENS */
+html, body { height:100%; width:100%; overflow:hidden; background:var(--negro); color:var(--hueso); font-family:var(--font); }
+
 .screen {
-  position: fixed; inset: 0;
-  display: flex; flex-direction: column;
-  padding: env(safe-area-inset-top, 1.2rem) 1.4rem env(safe-area-inset-bottom, 1.2rem);
-  padding-top: max(env(safe-area-inset-top), 1.2rem);
-  padding-bottom: max(env(safe-area-inset-bottom), 1.2rem);
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.35s ease, transform 0.35s ease;
-  transform: translateY(12px);
-  overflow: hidden;
+  position:fixed; inset:0; display:flex; flex-direction:column;
+  padding: 1.2rem 1.4rem 1.4rem;
+  padding-top: max(env(safe-area-inset-top,0px), 1.2rem);
+  padding-bottom: max(env(safe-area-inset-bottom,0px), 1.2rem);
+  opacity:0; pointer-events:none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  transform: translateY(10px); overflow:hidden;
 }
-.screen.active {
-  opacity: 1; pointer-events: all; transform: translateY(0);
-}
-.screen.out {
-  opacity: 0; transform: translateY(-12px);
-}
+.screen.active { opacity:1; pointer-events:all; transform:translateY(0); }
+.screen.out { opacity:0; transform:translateY(-10px); }
 
-/* SCANLINE */
 .scanline {
-  position: fixed; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(193,39,45,0.12), transparent);
-  animation: scan 5s linear infinite; pointer-events: none; z-index: 999;
+  position:fixed; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg,transparent,rgba(193,39,45,0.1),transparent);
+  animation:scan 5s linear infinite; pointer-events:none; z-index:999;
 }
-@keyframes scan { from { top: 0; } to { top: 100%; } }
+@keyframes scan { from{top:0} to{top:100%} }
 
-/* STATUS */
-.status-bar {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 1.2rem; flex-shrink: 0;
-}
-.status-left { font-size: 0.58rem; color: var(--apagado); letter-spacing: 0.12em; }
-.dots { display: flex; gap: 0.3rem; }
-.dot { width: 5px; height: 5px; border-radius: 50%; background: #2a2a2a; }
-.dot.on { background: var(--rojo); box-shadow: 0 0 5px rgba(193,39,45,0.7); animation: pdot 2s ease-in-out infinite; }
+.status-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.1rem; flex-shrink:0; }
+.status-left { font-size:0.58rem; color:var(--apagado); letter-spacing:0.12em; }
+.dots { display:flex; gap:0.3rem; align-items:center; }
+.dot { width:5px; height:5px; border-radius:50%; background:#2a2a2a; }
+.dot.on { background:var(--rojo); box-shadow:0 0 5px rgba(193,39,45,0.7); animation:pdot 2s ease-in-out infinite; }
 @keyframes pdot { 0%,100%{box-shadow:0 0 4px rgba(193,39,45,0.5)} 50%{box-shadow:0 0 9px rgba(193,39,45,0.9)} }
 
-/* TYPOGRAPHY */
-.eyebrow { font-size: 0.58rem; letter-spacing: 0.28em; color: var(--rojo); text-transform: uppercase; margin-bottom: 0.3rem; }
-.title { font-size: 1.75rem; font-weight: 700; color: var(--hueso); line-height: 1.02; margin-bottom: 0.25rem; }
-.title .r { color: var(--rojo); }
-.subtitle { font-size: 0.7rem; color: var(--apagado); line-height: 1.4; margin-bottom: 1.1rem; }
+.eyebrow { font-size:0.58rem; letter-spacing:0.28em; color:var(--rojo); text-transform:uppercase; margin-bottom:0.3rem; flex-shrink:0; }
+.title { font-size:1.75rem; font-weight:700; color:var(--hueso); line-height:1.02; margin-bottom:0.25rem; flex-shrink:0; }
+.title .r { color:var(--rojo); }
+.subtitle { font-size:0.7rem; color:var(--apagado); line-height:1.4; margin-bottom:1rem; flex-shrink:0; }
 
-/* CARDS */
-.card {
-  background: var(--gris); border-radius: 10px; padding: 0.85rem 1rem;
-  margin-bottom: 0.6rem; border: 1px solid #252525; flex-shrink: 0;
-  transition: border-color 0.2s, transform 0.12s;
-}
-.card.red { border-color: rgba(193,39,45,0.5); background: #180404; }
-.card.selectable { cursor: pointer; }
-.card.selectable:active { transform: scale(0.98); }
-.card.selected { border-color: var(--rojo); background: #1a0505; }
-.card-label { font-size: 0.54rem; letter-spacing: 0.22em; color: var(--apagado); text-transform: uppercase; margin-bottom: 0.3rem; }
-.card-text { font-size: 0.82rem; color: var(--hueso); line-height: 1.45; }
-.card-text strong { color: var(--rojo); }
+.card { background:var(--gris); border-radius:10px; padding:0.85rem 1rem; margin-bottom:0.55rem; border:1px solid #252525; flex-shrink:0; transition:border-color 0.2s,transform 0.12s; }
+.card.red { border-color:rgba(193,39,45,0.4); background:#180404; }
+.card.sel { cursor:pointer; }
+.card.sel:active { transform:scale(0.98); }
+.card.selected { border-color:var(--rojo); background:#1a0505; }
+.clabel { font-size:0.54rem; letter-spacing:0.22em; color:var(--apagado); text-transform:uppercase; margin-bottom:0.3rem; }
+.ctext { font-size:0.82rem; color:var(--hueso); line-height:1.45; }
+.ctext strong { color:var(--rojo); }
 
-/* PLAYER LIST */
-.player-list { flex: 1; overflow-y: auto; scrollbar-width: none; }
-.player-list::-webkit-scrollbar { display: none; }
-.player-row {
-  display: flex; align-items: center; gap: 0.75rem;
-  padding: 0.55rem 0.4rem; border-bottom: 1px solid #181818;
-  border-radius: 6px; cursor: pointer;
-  transition: background 0.15s;
-}
-.player-row:last-child { border-bottom: none; }
-.player-row:active { background: #161616; }
-.player-row.selected { background: #1a0505; }
-.avatar {
-  width: 30px; height: 30px; border-radius: 50%;
-  background: #1a1a1a; border: 1px solid #2a2a2a;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.6rem; color: var(--apagado); flex-shrink: 0;
-  transition: border-color 0.3s, box-shadow 0.3s;
-}
-.avatar.on { border-color: var(--rojo); color: var(--hueso); box-shadow: 0 0 6px rgba(193,39,45,0.3); }
-.avatar.me { border-color: #888; color: var(--hueso); }
-.pname { font-size: 0.82rem; color: var(--hueso); flex: 1; }
-.pstatus { font-size: 0.58rem; color: var(--apagado); }
-.pstatus.on { color: var(--rojo); }
+.player-list { flex:1; overflow-y:auto; scrollbar-width:none; }
+.player-list::-webkit-scrollbar { display:none; }
+.prow { display:flex; align-items:center; gap:0.75rem; padding:0.55rem 0.4rem; border-bottom:1px solid #181818; border-radius:6px; cursor:pointer; transition:background 0.15s; }
+.prow:last-child { border-bottom:none; }
+.prow:active { background:#161616; }
+.prow.selected { background:#1a0505; }
+.av { width:30px; height:30px; border-radius:50%; background:#1a1a1a; border:1px solid #2a2a2a; display:flex; align-items:center; justify-content:center; font-size:0.6rem; color:var(--apagado); flex-shrink:0; transition:border-color 0.3s,box-shadow 0.3s; }
+.av.on { border-color:var(--rojo); color:var(--hueso); box-shadow:0 0 6px rgba(193,39,45,0.3); }
+.av.me { border-color:#888; color:var(--hueso); }
+.pname { font-size:0.82rem; color:var(--hueso); flex:1; }
+.pst { font-size:0.58rem; color:var(--apagado); }
+.pst.on { color:var(--rojo); }
 
-/* BTN */
-.btn {
-  width: 100%; padding: 0.88rem; border: none; border-radius: 8px;
-  font-family: var(--font); font-size: 0.82rem; font-weight: 700;
-  letter-spacing: 0.18em; text-transform: uppercase; cursor: pointer;
-  flex-shrink: 0; transition: all 0.15s;
-}
-.btn-primary { background: var(--rojo); color: var(--hueso); box-shadow: 0 4px 16px rgba(193,39,45,0.25); margin-top: auto; }
-.btn-primary:hover { background: #a8181e; box-shadow: 0 6px 20px rgba(193,39,45,0.4); }
-.btn-primary:active { transform: scale(0.98); }
-.btn-secondary { background: transparent; border: 1px solid #2a2a2a; color: var(--apagado); margin-top: 0.4rem; }
-.btn-secondary:hover { border-color: #3a3a3a; color: #888; }
-.btn-disabled { background: #1a1a1a; color: var(--apagado); border: 1px solid #222; margin-top: auto; cursor: not-allowed; }
+.btn { width:100%; padding:0.88rem; border:none; border-radius:8px; font-family:var(--font); font-size:0.82rem; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; cursor:pointer; flex-shrink:0; transition:all 0.15s; }
+.btn-p { background:var(--rojo); color:var(--hueso); box-shadow:0 4px 16px rgba(193,39,45,0.25); margin-top:auto; }
+.btn-p:hover { background:#a8181e; }
+.btn-p:active { transform:scale(0.98); }
+.btn-s { background:transparent; border:1px solid #2a2a2a; color:var(--apagado); margin-top:0.4rem; }
+.btn-s:hover { border-color:#3a3a3a; color:#888; }
+.btn-d { background:#1a1a1a; color:var(--apagado); border:1px solid #222; margin-top:auto; cursor:not-allowed; }
 
-/* DIVIDER */
-.divider { height: 1px; background: linear-gradient(90deg,transparent,#222,transparent); margin: 0.65rem 0; flex-shrink: 0; }
+.div { height:1px; background:linear-gradient(90deg,transparent,#222,transparent); margin:0.6rem 0; flex-shrink:0; }
 
-/* NOTIF */
-.notif { background: #160303; border-left: 2px solid var(--rojo); border-radius: 0 6px 6px 0; padding: 0.55rem 0.8rem; margin-bottom: 0.5rem; flex-shrink: 0; }
-.notif-label { font-size: 0.53rem; color: var(--rojo); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.2rem; }
-.notif-text { font-size: 0.75rem; color: var(--hueso); line-height: 1.4; }
+.notif { background:#160303; border-left:2px solid var(--rojo); border-radius:0 6px 6px 0; padding:0.55rem 0.8rem; margin-bottom:0.45rem; flex-shrink:0; }
+.nlabel { font-size:0.53rem; color:var(--rojo); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:0.2rem; }
+.ntext { font-size:0.75rem; color:var(--hueso); line-height:1.4; }
 
-/* ROL BADGE */
-.rol-badge {
-  display: inline-block; padding: 0.28rem 0.8rem; border-radius: 3px;
-  font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase;
-  font-weight: 700; margin-bottom: 0.8rem; flex-shrink: 0;
-}
-.rol-inocente { background: #181818; color: #666; border: 1px solid #2a2a2a; }
-.rol-asesino { background: #200000; color: var(--rojo); border: 1px solid rgba(193,39,45,0.5); box-shadow: 0 0 14px rgba(193,39,45,0.15); }
-.rol-victima { background: #080810; color: #5577bb; border: 1px solid #223; }
+.rol-badge { display:inline-block; padding:0.28rem 0.8rem; border-radius:3px; font-size:0.62rem; letter-spacing:0.2em; text-transform:uppercase; font-weight:700; margin-bottom:0.8rem; flex-shrink:0; }
+.rol-i { background:#181818; color:#666; border:1px solid #2a2a2a; }
+.rol-a { background:#200000; color:var(--rojo); border:1px solid rgba(193,39,45,0.5); box-shadow:0 0 14px rgba(193,39,45,0.15); }
+.rol-v { background:#080810; color:#5577bb; border:1px solid #223; }
 
-/* COUNTDOWN */
-.countdown { font-size: 1.3rem; font-weight: 700; color: var(--rojo); letter-spacing: 0.08em; flex-shrink: 0; margin-bottom: 0.4rem; }
-.countdown.urgent { animation: urgent 0.5s step-end infinite; }
-@keyframes urgent { 50% { opacity: 0.3; } }
+.countdown { font-size:1.3rem; font-weight:700; color:var(--rojo); letter-spacing:0.08em; flex-shrink:0; margin-bottom:0.4rem; }
+.countdown.urgent { animation:urgent 0.5s step-end infinite; }
+@keyframes urgent { 50%{opacity:0.3} }
 
-/* VOTE BARS */
-.vote-row { display: flex; align-items: center; gap: 0.55rem; margin-bottom: 0.5rem; }
-.vote-name { font-size: 0.7rem; color: var(--hueso); width: 55px; flex-shrink: 0; }
-.vote-bar-bg { flex: 1; height: 4px; background: #1e1e1e; border-radius: 2px; overflow: hidden; }
-.vote-bar { height: 100%; background: var(--rojo); border-radius: 2px; width: 0; transition: width 1.2s cubic-bezier(0.4,0,0.2,1); box-shadow: 0 0 6px rgba(193,39,45,0.5); }
-.vote-count { font-size: 0.68rem; color: var(--apagado); width: 14px; text-align: right; flex-shrink: 0; }
+.vrow { display:flex; align-items:center; gap:0.55rem; margin-bottom:0.5rem; }
+.vname { font-size:0.7rem; color:var(--hueso); width:55px; flex-shrink:0; }
+.vbg { flex:1; height:4px; background:#1e1e1e; border-radius:2px; overflow:hidden; }
+.vbar { height:100%; background:var(--rojo); border-radius:2px; width:0; transition:width 1.2s cubic-bezier(0.4,0,0.2,1); box-shadow:0 0 6px rgba(193,39,45,0.5); }
+.vcount { font-size:0.68rem; color:var(--apagado); width:14px; text-align:right; flex-shrink:0; }
 
-/* IMMUNITY */
-.immunity-box {
-  border: 1px dashed rgba(193,39,45,0.4); border-radius: 10px;
-  padding: 1rem; text-align: center; margin-bottom: 0.8rem; flex-shrink: 0;
-  background: #120000; animation: pborder 2s ease-in-out infinite;
-}
-@keyframes pborder { 0%,100%{border-color:rgba(193,39,45,0.25)} 50%{border-color:rgba(193,39,45,0.65)} }
-.immunity-icon { font-size: 1.5rem; display: block; margin-bottom: 0.4rem; }
-.immunity-text { font-size: 0.75rem; color: var(--hueso); line-height: 1.45; margin-bottom: 0.45rem; }
-.immunity-warning { font-size: 0.62rem; color: var(--rojo); font-style: italic; }
+.imm-box { border:1px dashed rgba(193,39,45,0.4); border-radius:10px; padding:1rem; text-align:center; margin-bottom:0.8rem; flex-shrink:0; background:#120000; animation:pb 2s ease-in-out infinite; }
+@keyframes pb { 0%,100%{border-color:rgba(193,39,45,0.25)} 50%{border-color:rgba(193,39,45,0.65)} }
+.imm-icon { font-size:1.5rem; display:block; margin-bottom:0.4rem; }
+.imm-text { font-size:0.75rem; color:var(--hueso); line-height:1.45; margin-bottom:0.45rem; }
+.imm-warn { font-size:0.62rem; color:var(--rojo); font-style:italic; }
 
-/* REVEAL */
-.reveal-overlay {
-  position: fixed; inset: 0; background: var(--negro);
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  z-index: 100; padding: 2rem; text-align: center;
-  opacity: 0; pointer-events: none; transition: opacity 0.5s;
-}
-.reveal-overlay.show { opacity: 1; pointer-events: all; }
-.reveal-label { font-size: 0.62rem; letter-spacing: 0.3em; color: var(--apagado); text-transform: uppercase; margin-bottom: 0.8rem; }
-.reveal-name { font-size: 3.2rem; font-weight: 700; color: var(--rojo); line-height: 1; margin-bottom: 0.3rem; }
-.reveal-line { width: 36px; height: 1px; background: var(--rojo); margin: 0.8rem auto; }
-.flicker { animation: flicker 0.12s ease-in-out 4; }
+.reveal-overlay { position:fixed; inset:0; background:var(--negro); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:100; padding:2rem; text-align:center; opacity:0; pointer-events:none; transition:opacity 0.5s; overflow-y:auto; }
+.reveal-overlay.show { opacity:1; pointer-events:all; }
+.rlabel { font-size:0.62rem; letter-spacing:0.3em; color:var(--apagado); text-transform:uppercase; margin-bottom:0.8rem; }
+.rname { font-size:3rem; font-weight:700; color:var(--rojo); line-height:1; margin-bottom:0.3rem; }
+.rline { width:36px; height:1px; background:var(--rojo); margin:0.8rem auto; }
+.flicker { animation:flicker 0.12s ease-in-out 4; }
 @keyframes flicker { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-/* TYPEWRITER */
-.typewriter-wrap { position: relative; }
-.tw-cursor { display: inline-block; width: 7px; height: 0.88em; background: var(--rojo); vertical-align: text-bottom; margin-left: 1px; animation: blink 0.75s step-end infinite; }
-@keyframes blink { 50% { opacity: 0; } }
+.tw-cursor { display:inline-block; width:7px; height:0.88em; background:var(--rojo); vertical-align:text-bottom; margin-left:1px; animation:blink 0.75s step-end infinite; }
+@keyframes blink { 50%{opacity:0} }
 
-/* LOADING */
-.loading { display: flex; align-items: center; gap: 0.5rem; color: var(--apagado); font-size: 0.75rem; }
-.loading-dots span { animation: ldot 1.2s ease-in-out infinite; display: inline-block; }
-.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
-.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
-@keyframes ldot { 0%,80%,100%{opacity:0.2} 40%{opacity:1} }
+.toast { position:fixed; bottom:5rem; left:50%; transform:translateX(-50%) translateY(20px); background:#1a1a1a; border:1px solid #333; border-radius:8px; padding:0.6rem 1.2rem; font-size:0.75rem; color:var(--hueso); opacity:0; transition:all 0.3s; z-index:200; white-space:nowrap; max-width:90vw; text-overflow:ellipsis; overflow:hidden; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
-/* TOAST */
-.toast {
-  position: fixed; bottom: 5rem; left: 50%; transform: translateX(-50%) translateY(20px);
-  background: #1a1a1a; border: 1px solid #333; border-radius: 8px;
-  padding: 0.6rem 1.2rem; font-size: 0.75rem; color: var(--hueso);
-  opacity: 0; transition: all 0.3s; z-index: 200; white-space: nowrap;
-}
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.scroll { flex:1; overflow-y:auto; scrollbar-width:none; }
+.scroll::-webkit-scrollbar { display:none; }
 
-/* SCROLL AREA */
-.scroll { flex: 1; overflow-y: auto; scrollbar-width: none; }
-.scroll::-webkit-scrollbar { display: none; }
+.wpulse { color:var(--apagado); font-size:0.72rem; text-align:center; margin-top:1rem; animation:wp 2s ease-in-out infinite; }
+@keyframes wp { 0%,100%{opacity:0.4} 50%{opacity:1} }
 
-/* WAITING */
-.waiting-pulse { color: var(--apagado); font-size: 0.72rem; text-align: center; margin-top: 1rem; animation: wpulse 2s ease-in-out infinite; }
-@keyframes wpulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
-
-/* PHASE INDICATOR */
-.phase-bar { display: flex; gap: 0.3rem; margin-bottom: 1rem; flex-shrink: 0; }
-.phase-pip { flex: 1; height: 2px; background: #222; border-radius: 1px; }
-.phase-pip.done { background: var(--rojo); }
-.phase-pip.active { background: rgba(193,39,45,0.5); }
+.host-menu { background:var(--gris); border:1px solid #2a2a2a; border-radius:8px; padding:0.8rem; margin-bottom:0.8rem; flex-shrink:0; display:none; }
+.host-menu-title { font-size:0.54rem; letter-spacing:0.2em; color:var(--apagado); text-transform:uppercase; margin-bottom:0.6rem; }
+.hmbtn { width:100%; padding:0.6rem; background:transparent; border:1px solid #2a2a2a; border-radius:6px; font-family:var(--font); font-size:0.75rem; color:var(--apagado); cursor:pointer; margin-bottom:0.4rem; text-align:left; transition:all 0.15s; }
+.hmbtn:hover { border-color:#3a3a3a; color:#888; }
+.hmbtn:last-child { margin-bottom:0; }
 </style>
 </head>
 <body>
-
 <div class="scanline"></div>
 <div class="toast" id="toast"></div>
+
 <div class="reveal-overlay" id="revealOverlay">
-  <div class="reveal-label">el asesino era</div>
-  <div class="reveal-name" id="revealName">—</div>
-  <div class="reveal-line"></div>
-  <div style="font-size:0.72rem;color:var(--apagado);margin-bottom:1.5rem;" id="revealDesc"></div>
+  <div class="rlabel">el asesino era</div>
+  <div class="rname flicker" id="revealName">—</div>
+  <div class="rline"></div>
+  <div style="font-size:0.72rem;color:var(--apagado);margin-bottom:1rem;" id="revealDesc"></div>
   <div id="revealCards" style="width:100%;max-width:360px;"></div>
-  <button class="btn btn-primary" style="max-width:360px;margin-top:1.5rem;" onclick="hideReveal()">Nueva partida →</button>
+  <button class="btn btn-p" style="max-width:360px;margin-top:1.5rem;" onclick="hideReveal()">Nueva partida →</button>
 </div>
 
-<!-- S0: SPLASH -->
+<!-- S0 SPLASH -->
 <div class="screen active" id="s0">
   <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:0.5rem;">
     <div style="font-size:0.6rem;letter-spacing:0.4em;color:var(--rojo);text-transform:uppercase;margin-bottom:0.5rem;">bienvenido a</div>
-    <div style="font-size:4rem;font-weight:700;color:var(--hueso);line-height:0.9;">SEÑAL<span style="color:var(--rojo);">A</span>DOS</div>
-    <div style="font-size:0.68rem;color:var(--apagado);margin-top:0.5rem;">un asesinato. una casa rural. diez sospechosos.</div>
+    <div style="font-size:4rem;font-weight:700;line-height:0.9;">SEÑAL<span style="color:var(--rojo);">A</span>DOS</div>
+    <div style="font-size:0.68rem;color:var(--apagado);margin-top:0.5rem;">un asesinato. una casa rural. nadie es inocente.</div>
   </div>
-  <button class="btn btn-primary" onclick="goScreen('s1')">Entrar →</button>
+  <button class="btn btn-p" onclick="goScreen('s1')">Entrar →</button>
 </div>
 
-<!-- S1: ELEGIR NOMBRE -->
+<!-- S1 ELEGIR NOMBRE -->
 <div class="screen" id="s1">
   <div class="status-bar">
     <span class="status-left">SEÑALADOS</span>
@@ -236,185 +159,173 @@ html, body {
   </div>
   <div class="eyebrow">sala · rural2025</div>
   <div class="title">Elige tu <span class="r">nombre</span></div>
-  <div class="subtitle">el host arranca cuando esté todo el mundo</div>
+  <div class="subtitle">el host arranca cuando estéis todos</div>
   <div class="player-list" id="nameList"></div>
-  <button class="btn btn-primary" id="btnJoin" onclick="joinGame()" style="margin-top:1rem;">Entrar como — →</button>
+  <button class="btn btn-p" id="btnJoin" onclick="joinGame()" style="margin-top:1rem;">Elige tu nombre →</button>
 </div>
 
-<!-- S2: LOBBY ESPERA -->
+<!-- S2 LOBBY -->
 <div class="screen" id="s2">
   <div class="status-bar">
     <span class="status-left" id="s2status">SEÑALADOS</span>
-    <div style="display:flex;gap:0.6rem;align-items:center;">
-      <div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div>
-      <button id="hostMenuBtn" onclick="toggleHostMenu()" style="display:none;background:none;border:none;color:var(--apagado);font-size:1.2rem;cursor:pointer;padding:0.2rem;">☰</button>
+    <div class="dots">
+      <div class="dot on"></div><div class="dot on"></div><div class="dot on"></div>
+      <button id="hmBtn" onclick="toggleHM()" style="display:none;background:none;border:none;color:var(--apagado);font-size:1.1rem;cursor:pointer;padding:0 0.2rem;margin-left:0.3rem;">☰</button>
     </div>
   </div>
-  <div id="hostMenu" style="display:none;background:var(--gris);border:1px solid #2a2a2a;border-radius:8px;padding:0.8rem;margin-bottom:0.8rem;flex-shrink:0;">
-    <div style="font-size:0.55rem;letter-spacing:0.2em;color:var(--apagado);text-transform:uppercase;margin-bottom:0.6rem;">menú del host</div>
-    <button class="btn btn-secondary" style="margin-top:0;margin-bottom:0.4rem;font-size:0.75rem;padding:0.6rem;" onclick="resetRoom()">🗑 Resetear sala</button>
-    <button class="btn btn-secondary" style="margin-top:0;font-size:0.75rem;padding:0.6rem;" onclick="reanudarPartida()">🔄 Reanudar partida</button>
+  <div class="host-menu" id="hostMenu">
+    <div class="host-menu-title">menú del host</div>
+    <button class="hmbtn" onclick="resetRoom()">🗑 Resetear sala completa</button>
+    <button class="hmbtn" onclick="reanudarSala()">🔄 Vaciar sala (mantener partida)</button>
   </div>
   <div class="eyebrow">sala de espera</div>
   <div class="title">Esperando<br>al <span class="r">host</span></div>
   <div class="subtitle" id="s2sub">cuando el host arranque, empieza</div>
   <div class="player-list" id="lobbyList"></div>
   <div id="hostControls" style="display:none;margin-top:1rem;">
-    <button class="btn btn-primary" onclick="startGame()">Arrancar partida →</button>
-    <button class="btn btn-secondary" onclick="resetRoom()">🗑 Resetear sala</button>
+    <button class="btn btn-p" onclick="startGame()">Arrancar partida →</button>
   </div>
-  <div class="waiting-pulse" id="waitingMsg">esperando que el host arranque...</div>
+  <div class="wpulse" id="waitMsg">esperando que el host arranque...</div>
 </div>
 
-<!-- S3: TU ROL -->
+<!-- S3 ROL -->
 <div class="screen" id="s3">
   <div class="status-bar">
-    <span class="status-left" id="s3status">SEÑALADOS · ronda 1/4</span>
+    <span class="status-left" id="s3st">SEÑALADOS · ronda 1/4</span>
     <div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div>
   </div>
   <div class="eyebrow">solo tú ves esto</div>
   <div class="title">Tu <span class="r">papel</span></div>
-  <div class="divider"></div>
-  <div id="rolBadge" class="rol-badge rol-inocente">👤 inocente</div>
-  <div class="card red">
-    <div class="card-label">el crimen</div>
-    <div class="card-text" id="crimeText">cargando...</div>
+  <div class="div"></div>
+  <div id="rolBadge" class="rol-badge rol-i">👤 inocente</div>
+  <div class="scroll">
+    <div class="card red">
+      <div class="clabel">el crimen</div>
+      <div class="ctext" id="crimeText">cargando...</div>
+    </div>
+    <div class="card red">
+      <div class="clabel">tu coartada</div>
+      <div class="ctext" id="datoText">cargando...</div>
+    </div>
+    <div class="card" id="historiaCard" style="display:none;">
+      <div class="clabel">🔪 historia completa — solo tú la ves</div>
+      <div class="ctext" id="historiaText"></div>
+    </div>
+    <div class="card">
+      <div class="clabel">observas los votos de</div>
+      <div class="ctext" id="observaText">—</div>
+    </div>
   </div>
-  <div class="card red">
-    <div class="card-label">tu dato de inicio</div>
-    <div class="card-text typewriter-wrap" id="datoText">cargando...<span class="tw-cursor"></span></div>
-  </div>
-  <div class="card">
-    <div class="card-label">observas los votos de</div>
-    <div class="card-text" id="observaText">—</div>
-  </div>
-  <div class="card red" id="historiaCard" style="display:none;">
-    <div class="card-label">🔪 historia completa — solo tú la ves</div>
-    <div class="card-text" id="historiaText"></div>
-  </div>
-  <button class="btn btn-primary" onclick="markReadyAndStartTurns()">Entendido →</button>
+  <button class="btn btn-p" id="btnListo" onclick="marcarListo()">Listo →</button>
 </div>
 
-<!-- S4: ESPERAR TURNO -->
+<!-- S4 ESPERAR TURNO -->
 <div class="screen" id="s4">
   <div class="status-bar">
-    <span class="status-left" id="s4status">SEÑALADOS · ronda 1/4</span>
+    <span class="status-left" id="s4st">SEÑALADOS · ronda 1/4</span>
     <div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div>
   </div>
-  <div class="phase-bar" id="phasebar4"></div>
-  <div class="eyebrow" id="s4eyebrow">fase de coartadas</div>
+  <div class="eyebrow">fase de coartadas</div>
   <div class="title">Escucha<br>las <span class="r">coartadas</span></div>
   <div class="subtitle">cuando sea tu turno te avisaremos</div>
   <div class="scroll" id="turnList"></div>
-  <div class="waiting-pulse" id="turnWaiting">esperando turno...</div>
-  <button class="btn btn-disabled" id="btnMiTurno" disabled>Tu turno →</button>
+  <div class="wpulse" id="turnWait">esperando turno...</div>
+  <button class="btn btn-d" id="btnMiTurno" disabled>Tu turno →</button>
 </div>
 
-<!-- S5: TU TURNO -->
+<!-- S5 TU TURNO -->
 <div class="screen" id="s5">
   <div class="status-bar">
-    <span class="status-left" id="s5status">SEÑALADOS · ronda 1/4</span>
+    <span class="status-left" id="s5st">SEÑALADOS · ronda 1/4</span>
     <div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div>
   </div>
-  <div class="phase-bar" id="phasebar5"></div>
   <div class="eyebrow">⚡ es tu turno</div>
   <div class="title">Da tu <span class="r">coartada</span></div>
   <div class="subtitle">en voz alta. luego elige una acción.</div>
-  <div id="pistaCard" style="display:none;" class="card red">
-    <div class="card-label">pista de esta ronda</div>
-    <div class="card-text typewriter-wrap" id="pistaText"></div>
+  <div id="pistaCard" class="card red" style="display:none;">
+    <div class="clabel">pista de esta ronda</div>
+    <div class="ctext" id="pistaText"></div>
   </div>
-  <div id="sinPista" style="display:none;" class="card">
-    <div class="card-label">pista</div>
-    <div class="card-text" style="color:var(--apagado);">esta ronda no tienes pista.</div>
+  <div id="sinPista" class="card" style="display:none;">
+    <div class="clabel">pista</div>
+    <div class="ctext" style="color:var(--apagado);">esta ronda no tienes pista.</div>
   </div>
-  <div class="divider"></div>
-  <div class="card-label" style="font-size:0.54rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--apagado);margin-bottom:0.5rem;">acción secreta — elige una</div>
-  <div class="card selectable" id="ac1" onclick="selectAction('compartir')">
-    <div class="card-text">📤 <strong>Compartir pista</strong> — mandársela a alguien</div>
-  </div>
-  <div class="card selectable" id="ac2" onclick="selectAction('señalar')">
-    <div class="card-text">👆 <strong>Señalar</strong> — señal anónima a alguien</div>
-  </div>
-  <div class="card selectable" id="ac3" onclick="selectAction('pasar')">
-    <div class="card-text" style="color:var(--apagado);">⏭ Pasar</div>
-  </div>
-  <button class="btn btn-primary" id="btnConfirmAction" onclick="confirmAction()">Confirmar →</button>
+  <div class="div"></div>
+  <div class="clabel" style="font-size:0.54rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--apagado);margin-bottom:0.5rem;">acción secreta — elige una</div>
+  <div class="card sel" id="ac1" onclick="selAc('compartir')"><div class="ctext">📤 <strong>Compartir pista</strong> — mandársela a alguien</div></div>
+  <div class="card sel" id="ac2" onclick="selAc('señalar')"><div class="ctext">👆 <strong>Señalar</strong> — señal anónima a alguien</div></div>
+  <div class="card sel" id="ac3" onclick="selAc('pasar')"><div class="ctext" style="color:var(--apagado);">⏭ Pasar</div></div>
+  <button class="btn btn-p" onclick="confirmAc()">Confirmar →</button>
 </div>
 
-<!-- S5b: ELEGIR DESTINATARIO -->
+<!-- S5b DESTINATARIO -->
 <div class="screen" id="s5b">
   <div class="status-bar">
     <span class="status-left">SEÑALADOS</span>
     <div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div>
   </div>
-  <div class="eyebrow" id="s5bEyebrow">¿a quién?</div>
+  <div class="eyebrow" id="s5bEye">¿a quién?</div>
   <div class="title">Elige<br><span class="r">destinatario</span></div>
-  <div class="subtitle" id="s5bSub">elige a quién va dirigida la acción</div>
   <div class="player-list" id="targetList"></div>
-  <button class="btn btn-primary" id="btnSendAction" onclick="sendAction()">Enviar →</button>
-  <button class="btn btn-secondary" onclick="goScreen('s5')">Volver</button>
+  <button class="btn btn-p" onclick="sendAc()">Enviar →</button>
+  <button class="btn btn-s" onclick="goScreen('s5')">Volver</button>
 </div>
 
-<!-- S5c: INMUNIDAD -->
+<!-- S5c INMUNIDAD -->
 <div class="screen" id="s5c">
   <div class="status-bar">
-    <span class="status-left" id="s5cStatus">SEÑALADOS</span>
+    <span class="status-left" id="s5cSt">SEÑALADOS</span>
     <div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div>
   </div>
   <div class="eyebrow">⚠ antes de votar</div>
   <div class="title">Oferta<br><span class="r">especial</span></div>
-  <div class="subtitle" id="s5cSub">el sistema ha elegido a algunas personas</div>
-  <div class="card">
-    <div class="card-label">todo el mundo lo ve</div>
-    <div class="card-text" id="immunityInfo">—</div>
+  <div class="card"><div class="clabel">todo el mundo lo ve</div><div class="ctext" id="immInfo">—</div></div>
+  <div class="div"></div>
+  <div class="imm-box" id="immBox" style="display:none;">
+    <span class="imm-icon">🛡</span>
+    <div class="imm-text">Si aceptas, <strong>nadie puede votarte</strong> esta ronda. Todo el mundo lo verá.</div>
+    <div class="imm-warn">protegerte tiene un precio.</div>
   </div>
-  <div class="divider"></div>
-  <div class="immunity-box" id="immunityBox" style="display:none;">
-    <span class="immunity-icon">🛡</span>
-    <div class="immunity-text">Si aceptas, <strong>nadie puede votarte</strong> esta ronda. Todo el mundo lo verá.</div>
-    <div class="immunity-warning">protegerte tiene un precio.</div>
-  </div>
-  <div class="card" id="noImmunityCard" style="display:none;">
-    <div class="card-text" style="color:var(--apagado);">No te ha tocado esta ronda.</div>
-  </div>
-  <button class="btn btn-primary" id="btnAcceptImmunity" onclick="acceptImmunity()" style="display:none;">Aceptar inmunidad →</button>
-  <button class="btn btn-secondary" id="btnRejectImmunity" onclick="rejectImmunity()">Continuar sin inmunidad</button>
+  <div class="card" id="noImmCard" style="display:none;"><div class="ctext" style="color:var(--apagado);">No te ha tocado esta ronda.</div></div>
+  <button class="btn btn-p" id="btnAceptarImm" onclick="aceptarImm()" style="display:none;">Aceptar inmunidad →</button>
+  <button class="btn btn-s" id="btnRechazarImm" onclick="rechazarImm()">Continuar sin inmunidad</button>
 </div>
 
-<!-- S6: VOTACIÓN -->
+<!-- S6 VOTACIÓN -->
 <div class="screen" id="s6">
   <div class="status-bar">
-    <span class="status-left" id="s6status">SEÑALADOS · votación</span>
+    <span class="status-left" id="s6st">SEÑALADOS · votación</span>
     <div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div>
   </div>
   <div class="eyebrow">🗳 votación</div>
   <div class="title">¿Quién <span class="r">fue?</span></div>
-  <div class="countdown" id="voteCountdown">01:00</div>
-  <div class="subtitle">solo tus observados verán tu voto</div>
+  <div class="countdown" id="vcd">01:00</div>
+  <div class="subtitle" id="s6sub">solo tus observados verán tu voto</div>
   <div class="player-list" id="voteList"></div>
-  <button class="btn btn-primary" id="btnVotar" onclick="submitVote()">Votar →</button>
+  <button class="btn btn-p" id="btnVotar" onclick="submitVote()">Votar →</button>
 </div>
 
-<!-- S7: RESULTADO -->
+<!-- S7 RESULTADO -->
 <div class="screen" id="s7">
   <div class="status-bar">
-    <span class="status-left" id="s7status">SEÑALADOS</span>
+    <span class="status-left" id="s7st">SEÑALADOS</span>
     <div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div>
   </div>
   <div class="eyebrow">resultado de ronda</div>
   <div class="title" id="s7title"><span class="r">—</span><br>bebe.</div>
-  <div class="subtitle" id="s7sub">más votado esta ronda</div>
-  <div class="divider"></div>
-  <div class="card-label" style="font-size:0.54rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--apagado);margin-bottom:0.6rem;">votos que tú ves</div>
-  <div id="voteResults"></div>
-  <div class="divider"></div>
-  <div id="observedVotes"></div>
-  <div id="s7notifs"></div>
-  <button class="btn btn-primary" id="btnNextRound" onclick="nextRound()" style="margin-top:auto;">Siguiente ronda →</button>
+  <div class="subtitle" id="s7sub">más votado/a esta ronda</div>
+  <div class="div"></div>
+  <div class="scroll">
+    <div class="clabel" style="font-size:0.54rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--apagado);margin-bottom:0.6rem;">votos que tú ves</div>
+    <div id="voteResults"></div>
+    <div class="div"></div>
+    <div id="observedVotes"></div>
+    <div id="s7notifs"></div>
+  </div>
+  <button class="btn btn-p" id="btnNext" onclick="nextRound()" style="margin-top:1rem;">Siguiente ronda →</button>
 </div>
 
-<!-- S8: FIN -->
+<!-- S8 VOTACIÓN FINAL -->
 <div class="screen" id="s8">
   <div class="status-bar">
     <span class="status-left">SEÑALADOS · final</span>
@@ -423,16 +334,15 @@ html, body {
   <div class="eyebrow">votación final</div>
   <div class="title">¿Quién <span class="r">fue?</span></div>
   <div class="subtitle">última oportunidad · los votos son públicos</div>
-  <div class="player-list" id="finalVoteList"></div>
-  <button class="btn btn-primary" id="btnFinalVote" onclick="submitFinalVote()">Votar →</button>
+  <div class="player-list" id="finalList"></div>
+  <button class="btn btn-p" id="btnFinal" onclick="submitFinal()">Votar →</button>
 </div>
 
 <script type="module">
-// ─── FIREBASE ───
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, set, get, update, onValue, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, set, get, update, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-const fbConfig = {
+const fbApp = initializeApp({
   apiKey: "AIzaSyAyZcOwXYdytFU4rCnFxtasJbo5fTW8GYY",
   authDomain: "senalados-61461.firebaseapp.com",
   databaseURL: "https://senalados-61461-default-rtdb.firebaseio.com",
@@ -440,907 +350,778 @@ const fbConfig = {
   storageBucket: "senalados-61461.firebasestorage.app",
   messagingSenderId: "17582841653",
   appId: "1:17582841653:web:8c01dbc0f9bc550ece767c"
-};
-const fbApp = initializeApp(fbConfig);
+});
 const db = getDatabase(fbApp);
-const GEMINI_KEY = "AIzaSyAQ.Ab8RN6K0lW4jsVjGAq3qaMzkeI5pSw8DHqdgCge5mPrkQHM_sw";
+const GEMINI = "AIzaSyAQ.Ab8RN6K0lW4jsVjGAq3qaMzkeI5pSw8DHqdgCge5mPrkQHM_sw";
 const ROOM = "rural2025";
-const PLAYERS = ["Sara","Ana","Lucía","Elena","Eneko","Diego","Ramón","Irene","Dani","Adriana"];
+const NAMES = ["Sara","Ana","Lucía","Elena","Eneko","Diego","Ramón","Irene","Dani","Adriana"];
 
-// ─── STATE ───
-let myName = null;
-let myRole = null;
-let myData = null;
-let currentAction = null;
-let selectedTarget = null;
-let selectedVote = null;
-let voteTimer = null;
-let gameState = {};
-let unsubscribe = null;
+// STATE
+let myName = null, myRole = null, myData = null;
+let curAction = null, selTarget = null, selVote = null, selFinal = null;
+let voteTimer = null, gs = {};
+let pendingPistas = [];
+let isHost = false;
 
-// ─── HELPERS ───
+// FIREBASE HELPERS
+const fr = p => ref(db, `${ROOM}/${p}`);
+const fset = (p,v) => set(fr(p),v);
+const fget = p => get(fr(p));
+const fupd = (p,v) => update(fr(p),v);
+const fon = (p,cb) => onValue(fr(p), s => cb(s.val()));
+
+// UI HELPERS
 window.goScreen = function(id) {
   document.querySelectorAll('.screen').forEach(s => {
-    if(s.id !== id) { s.classList.remove('active'); s.classList.add('out'); setTimeout(()=>s.classList.remove('out'),400); }
-    else { setTimeout(()=>{ s.classList.add('active'); },50); }
+    if(s.id===id){ setTimeout(()=>s.classList.add('active'),30); s.classList.remove('out'); }
+    else { s.classList.remove('active'); s.classList.add('out'); setTimeout(()=>s.classList.remove('out'),350); }
   });
 }
 
-function showToast(msg, dur=2500) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), dur);
+function toast(msg, dur=2500) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),dur);
 }
 
-function typewrite(el, text, speed=28) {
-  el.innerHTML = ''; let i = 0;
-  const cursor = '<span class="tw-cursor"></span>';
-  const iv = setInterval(()=>{
-    if(i < text.length){ el.innerHTML = text.slice(0,++i) + cursor; }
-    else { el.innerHTML = text; clearInterval(iv); }
-  }, speed);
+function typewrite(el, text, spd=25) {
+  el.innerHTML=''; let i=0;
+  const iv=setInterval(()=>{
+    if(i<text.length){ el.innerHTML=text.slice(0,++i)+'<span class="tw-cursor"></span>'; }
+    else { el.innerHTML=text; clearInterval(iv); }
+  },spd);
 }
 
-function fbRef(path) { return ref(db, `${ROOM}/${path}`); }
-function fbSet(path, val) { return set(fbRef(path), val); }
-function fbUpdate(path, val) { return update(fbRef(path), val); }
-function fbGet(path) { return get(fbRef(path)); }
-function fbListen(path, cb) { return onValue(fbRef(path), snap => cb(snap.val())); }
+function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ return [...arr].sort(()=>Math.random()-0.5); }
 
-function shuffle(arr) { return [...arr].sort(()=>Math.random()-0.5); }
-function rand(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
-
-// ─── GEMINI ───
-async function callGemini(prompt) {
+// GEMINI
+async function gemini(prompt) {
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI}`,{
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ contents:[{parts:[{text:prompt}]}], generationConfig:{temperature:1.1,maxOutputTokens:1200} })
+      body: JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:1.1,maxOutputTokens:1500}})
     });
-    const d = await res.json();
-    return d.candidates?.[0]?.content?.parts?.[0]?.text || null;
-  } catch(e) { return null; }
+    const d = await r.json();
+    return d.candidates?.[0]?.content?.parts?.[0]?.text||null;
+  } catch(e){ return null; }
 }
 
-// ─── SETUP NOMBRES ───
+// INIT NAME LIST
 window.addEventListener('DOMContentLoaded', ()=>{
   const list = document.getElementById('nameList');
-  PLAYERS.forEach(name => {
-    const row = document.createElement('div');
-    row.className = 'player-row'; row.dataset.name = name;
-    row.innerHTML = `<div class="avatar">${name.slice(0,2).toUpperCase()}</div><div class="pname">${name}</div><div class="pstatus">libre</div>`;
-    row.onclick = () => selectName(name);
+  NAMES.forEach(name=>{
+    const row=document.createElement('div');
+    row.className='prow'; row.dataset.name=name;
+    row.innerHTML=`<div class="av">${name.slice(0,2).toUpperCase()}</div><div class="pname">${name}</div><div class="pst">libre</div>`;
+    row.onclick=()=>selectName(name);
     list.appendChild(row);
   });
-  document.getElementById('btnJoin').textContent = 'Elige tu nombre →';
 
-  // Escuchar jugadores conectados
-  fbListen('players', data => {
+  fon('players', data=>{
     if(!data) return;
-    document.querySelectorAll('#nameList .player-row').forEach(row => {
-      const n = row.dataset.name;
-      const st = row.querySelector('.pstatus');
-      if(data[n]) { st.textContent='ocupado'; st.className='pstatus on'; row.querySelector('.avatar').className='avatar on'; }
-      else { st.textContent='libre'; st.className='pstatus'; row.querySelector('.avatar').className='avatar'; }
+    document.querySelectorAll('#nameList .prow').forEach(row=>{
+      const n=row.dataset.name;
+      const av=row.querySelector('.av'), st=row.querySelector('.pst');
+      if(data[n]){ av.className='av on'; st.textContent='ocupado'; st.className='pst on'; }
+      else { av.className='av'; st.textContent='libre'; st.className='pst'; }
     });
   });
 });
 
-function selectName(name) {
-  document.querySelectorAll('#nameList .player-row').forEach(r=>r.classList.remove('selected'));
-  const row = document.querySelector(`#nameList [data-name="${name}"]`);
-  row.classList.add('selected');
-  myName = name;
-  document.getElementById('btnJoin').textContent = `Soy ${name} →`;
+function selectName(name){
+  document.querySelectorAll('#nameList .prow').forEach(r=>r.classList.remove('selected'));
+  document.querySelector(`#nameList [data-name="${name}"]`).classList.add('selected');
+  myName=name;
+  document.getElementById('btnJoin').textContent=`Soy ${name} →`;
 }
 
-window.joinGame = async function() {
-  if(!myName){ showToast('Elige tu nombre primero'); return; }
-  // Block if game already started
-  const phaseSnap = await fbGet('gamePhase');
-  const phase = phaseSnap.val();
-  if(phase && phase !== 'lobby') { showToast('La partida ya ha empezado'); return; }
-  const snap = await fbGet(`players/${myName}`);
-  if(snap.val()){ showToast('Este nombre ya está cogido'); return; }
-  await fbSet(`players/${myName}`, {joined:true, ready:false});
-  
-  // Comprobar si es el primero (host)
-  const allSnap = await fbGet('players');
-  const all = allSnap.val() || {};
-  const isHost = Object.keys(all).length === 1;
-  await fbUpdate(`players/${myName}`, {isHost});
-  
-  setupLobby(isHost);
+// JOIN
+window.joinGame = async function(){
+  if(!myName){ toast('Elige tu nombre'); return; }
+  const phase=(await fget('gamePhase')).val();
+  if(phase&&phase!=='lobby'){ toast('La partida ya ha empezado'); return; }
+  if((await fget(`players/${myName}`)).val()){ toast('Nombre ocupado'); return; }
+
+  await fset(`players/${myName}`,{joined:true});
+  const all=Object.keys((await fget('players')).val()||{});
+  isHost = all.length===1;
+  await fupd(`players/${myName}`,{isHost});
+
+  setupLobby();
   goScreen('s2');
 }
 
-function setupLobby(isHost) {
-  if(isHost) {
-    document.getElementById('hostControls').style.display = 'block';
-    document.getElementById('waitingMsg').style.display = 'none';
-    document.getElementById('s2sub').textContent = 'tú eres el host — arranca cuando quieras';
-    document.getElementById('hostMenuBtn').style.display = 'block';
+function setupLobby(){
+  if(isHost){
+    document.getElementById('hostControls').style.display='block';
+    document.getElementById('waitMsg').style.display='none';
+    document.getElementById('s2sub').textContent='tú eres el host — arranca cuando quieras';
+    document.getElementById('hmBtn').style.display='block';
   }
-  
-  fbListen('players', data => {
-    const list = document.getElementById('lobbyList'); list.innerHTML = '';
+
+  fon('players', data=>{
+    const list=document.getElementById('lobbyList'); list.innerHTML='';
     if(!data) return;
-    Object.keys(data).forEach(name => {
-      const row = document.createElement('div');
-      row.className = 'player-row';
-      const isMe = name === myName;
-      row.innerHTML = `<div class="avatar ${isMe?'me':'on'}">${name.slice(0,2).toUpperCase()}</div><div class="pname">${name}${isMe?' (tú)':''}</div><div class="pstatus on">dentro</div>`;
+    Object.keys(data).forEach(name=>{
+      const row=document.createElement('div'); row.className='prow';
+      const isme=name===myName;
+      row.innerHTML=`<div class="av ${isme?'me':'on'}">${name.slice(0,2).toUpperCase()}</div><div class="pname">${name}${isme?' (tú)':''}</div><div class="pst on">dentro</div>`;
       list.appendChild(row);
     });
   });
-  
-  fbListen('gamePhase', phase => {
-    if(phase === 'roles') loadMyRole();
-    if(phase === 'immunity') loadImmunity();
-    if(phase === 'voting') startVoting();
-    if(phase === 'results') showResults();
-    if(phase === 'finalVoting') startFinalVoting();
-    if(phase === 'reveal') showFinalReveal();
+
+  // MAIN GAME LISTENER
+  fon('gamePhase', phase=>{
+    if(!phase||!myName) return;
+    if(phase==='roles') loadMyRole();
+    if(phase==='turns') { fget('game').then(s=>{ gs=s.val(); setupTurns(); goScreen('s4'); }); }
+    if(phase==='immunity') loadImmunity();
+    if(phase==='voting') startVoting();
+    if(phase==='results') showResults();
+    if(phase==='finalVoting') startFinalVoting();
+    if(phase==='reveal') showReveal();
   });
 
-  // Real-time notifications listener
-  fbListen(`notifications/${myName}`, notifs => {
+  // currentTurnIndex listener — para jugadores atascados
+  fon('game/currentTurnIndex', idx=>{
+    if(idx===null||idx===undefined||!myName) return;
+    fget('game').then(s=>{
+      if(!s.val()) return;
+      gs=s.val();
+      const active=document.querySelector('.screen.active')?.id;
+      if(active==='s4') setupTurns();
+    });
+  });
+
+  // Notificaciones en tiempo real
+  fon(`notifications/${myName}`, notifs=>{
     if(!notifs) return;
-    Object.values(notifs).forEach(n => {
-      if(n._shown) return;
-      if(n.tipo === 'pista') {
-        showToast(`📤 Pista de ${n.de}: "${n.texto.slice(0,40)}..."`, 5000);
-        // Store for later display
-        if(!window._pendingPistas) window._pendingPistas = [];
-        window._pendingPistas.push(n);
+    Object.values(notifs).forEach(n=>{
+      if(n.tipo==='pista'){
+        toast(`📤 Pista de ${n.de}: "${n.texto.slice(0,50)}..."`, 5000);
+        pendingPistas.push(n);
       }
-      if(n.tipo === 'señal') {
-        showToast(`👆 Alguien ha señalado a ${n.sobre}`, 3000);
-      }
+      if(n.tipo==='señal') toast(`👆 Alguien ha señalado a ${n.sobre}`, 3000);
     });
   });
 }
 
-// ─── START GAME ───
-window.startGame = async function() {
-  const snap = await fbGet('players');
-  const players = Object.keys(snap.val() || {});
-  if(players.length < 3){ showToast('Mínimo 3 jugadores'); return; }
-  
-  showToast('Generando partida con IA...', 5000);
-  
-  // Asignar roles
-  const shuffled = shuffle(players);
-  const asesino = shuffled[0];
-  const victima = shuffled[1];
-  const complices = shuffled.slice(2, 4);
-  const inocentes = shuffled.slice(4);
-  
-  // Asignar observadores (cada jugador observa 1-2 aleatorios)
-  const observers = {};
-  players.forEach(p => {
-    const others = players.filter(x => x !== p);
-    const count = Math.random() > 0.5 ? 2 : 1;
-    observers[p] = shuffle(others).slice(0, count);
+// START GAME
+window.startGame = async function(){
+  const players=Object.keys((await fget('players')).val()||{});
+  if(players.length<3){ toast('Mínimo 3 jugadores'); return; }
+  toast('Generando historia con IA...', 6000);
+
+  const shuffled=shuffle(players);
+  const asesino=shuffled[0], victima=shuffled[1];
+  const complices=shuffled.slice(2,4);
+
+  const observers={};
+  players.forEach(p=>{
+    const others=players.filter(x=>x!==p);
+    observers[p]=shuffle(others).slice(0,Math.random()>0.5?2:1);
   });
-  
-  // Generar historia completa con IA
-  const crimePrompt = `Eres el narrador de un juego de misterio en una casa rural española.
+
+  const prompt=`Eres el narrador de un juego de misterio en una casa rural española.
 
 JUGADORES: ${players.join(', ')}
 VÍCTIMA (ha muerto esta noche): ${victima}
-ASESINO (el culpable real, nadie lo sabe): ${asesino}
+ASESINO (el culpable real, nadie lo sabe excepto él): ${asesino}
 
-PROCESO: Primero construye la historia completa de lo que pasó esa noche. Luego, a partir de esa historia, escribe la coartada de cada jugador — lo que cada uno estaba haciendo en los momentos clave. Las coartadas DEBEN ser coherentes con la historia: si en la historia alguien oyó voces, su coartada debe reflejar que estaba despierto. Si alguien estaba en la cocina según la historia, su coartada lo confirma o lo contradice con lógica. La coartada del asesino es una mentira que suena creíble pero que choca sutilmente con alguna pista.
+INSTRUCCIONES:
+1. Primero construye una historia completa y coherente de lo que pasó esa noche.
+2. A partir de esa historia, escribe la coartada de cada jugador. Las coartadas DEBEN derivarse de la historia — si alguien oyó algo según la historia, su coartada lo menciona. Si dos personas estaban cerca según la historia, sus coartadas pueden contradecirse sutilmente.
+3. La coartada del asesino es mentira pero suena muy creíble.
+4. Cada coartada debe ser específica y diferente: lugares concretos de una casa rural (cocina, jardín, piscina, terraza, salón, coche, camino...) y actividades reales (fumando, bebiendo, llorando, en el baño, llamando por teléfono, escuchando música, mirando el móvil, vomitando del alcohol...).
+5. Las pistas deben ser fragmentos coherentes de la historia que van revelando qué pasó.
 
-Las coartadas deben:
-- Ser 100% coherentes con la historia que has creado
-- Ser todas distintas — lugares concretos de la casa rural (cocina, jardín, piscina, terraza, salón, coche, camino...) y actividades reales (fumando, bebiendo, llorando, en el baño, llamando, escuchando música, mirando el móvil...)
-- Algunas se contradicen sutilmente entre sí (dos personas dicen estar en sitios distintos pero la historia sugiere que se cruzaron)
-- La del asesino suena perfecta pero choca con al menos una pista
-
-Responde SOLO en JSON sin markdown ni texto extra:
+Responde SOLO en JSON sin markdown:
 {
-  "crimen": "frase dramática y específica de una línea: cómo, dónde y cuándo murió ${victima}",
-  "historia_completa": "historia de 5-7 frases que narra cronológicamente lo que pasó desde la cena hasta el crimen. Menciona a cada jugador por nombre con su papel real esa noche. Explica el motivo de ${asesino} y cómo ejecutó el crimen.",
-  "motivo_asesino": "motivo concreto y personal. Algo que viene de antes del rural, con historia detrás.",
+  "crimen": "frase dramática y específica: cómo, dónde y cuándo murió ${victima}",
+  "historia_completa": "historia de 5-7 frases cronológica desde la cena hasta el crimen. Menciona a cada jugador por nombre con su papel real esa noche. Explica el motivo de ${asesino} y cómo ejecutó el crimen.",
+  "motivo_asesino": "motivo concreto y personal con historia detrás. Una frase.",
   "datos": {
-    ${players.map(p => `"${p}": "coartada de ${p} coherente con la historia: dónde estaba exactamente en los momentos clave, qué hacía. Máximo 20 palabras. Debe ser única y derivarse directamente de la historia."`).join(',\n    ')}
+    ${players.map(p=>`"${p}": "coartada de ${p} derivada directamente de la historia: lugar exacto y actividad concreta esa noche. Máximo 20 palabras. Única y diferente al resto."`).join(',\n    ')}
   },
   "pistas": [
-    "pista ronda 1: detalle físico o temporal de la historia que da info sin revelar al culpable",
-    "pista ronda 2: algo que alguien vio u oyó esa noche, coherente con la historia",
-    "pista ronda 3: detalle que empieza a señalar indirectamente a ${asesino} sin nombrarlo",
-    "pista ronda 4: pista FALSA muy creíble que ${asesino} ha plantado, contradice algo real de la historia"
+    "ronda 1: detalle físico o temporal concreto que da info sin revelar al culpable",
+    "ronda 2: algo que alguien vio u oyó, coherente con la historia",
+    "ronda 3: detalle que apunta indirectamente a ${asesino} sin nombrarlo",
+    "ronda 4: pista FALSA muy creíble que ${asesino} ha plantado para despistar"
   ]
 }`;
 
-  let crimeData = null;
+  let data=null;
   try {
-    const raw = await callGemini(crimePrompt);
-    if(raw) {
-      const clean = raw.replace(/```json|```/g,'').trim();
-      crimeData = JSON.parse(clean);
-    }
-  } catch(e) { console.log('Gemini error:', e); }
-  
-  if(!crimeData) {
-    const crimenes = [
-      `${victima} ha aparecido ahogado/a en la piscina esta mañana`,
-      `${victima} ha caído misteriosamente por las escaleras`,
-      `${victima} ha aparecido envenenado/a con el café de la mañana`
-    ];
-    const coartadasFallback = ['Fumando en la terraza, viste luz en la cocina pero no bajaste.', 'En el baño de arriba con dolor de estómago desde medianoche.', 'Llamando por teléfono al jardín, escuchaste algo raro pero pensaste que era el viento.', 'Bebiendo solo/a en el salón, te quedaste dormido/a en el sofá.', 'Escuchando música con auriculares, no oíste nada de nada.', 'En la cocina calentando algo, viste pasar una sombra por el jardín.', 'Mirando el móvil en la terraza de arriba, no bajaste en toda la noche.', 'Llorando en el coche aparcado, estabas procesando una conversación de antes.', 'Con los pies en la piscina a las 2am, estabas solo/a.', 'Durmiendo profundamente, no te enteraste de nada hasta la mañana.'];
-    const shuffledCoartadas = [...coartadasFallback].sort(()=>Math.random()-0.5);
-    crimeData = {
-      crimen: rand(crimenes),
-      historia_completa: `Esa noche la tensión en la casa era palpable. ${asesino} y ${victima} llevaban horas evitándose después de lo que pasó en la cena. A las 3am la casa estaba casi en silencio. Alguien bajó al jardín. ${victima} apareció a las 7am. Nadie oyó nada, o eso dicen.`,
-      motivo_asesino: `${asesino} llevaba tiempo guardando un secreto que ${victima} amenazaba con revelar al grupo.`,
-      datos: Object.fromEntries(players.map((p, i) => [p, p === asesino ? `Bajaste al jardín a las 3am con la excusa de tomar el aire. Volviste antes de que nadie se despertara.` : shuffledCoartadas[i % shuffledCoartadas.length]])),
-      pistas: [
-        `Se encontraron huellas mojadas que iban desde la piscina hasta la puerta trasera`,
-        `Alguien oyó voces en el jardín pasadas las 2am pero no quiso levantarse`,
-        `El móvil de la víctima tenía una conversación borrada esa misma noche`,
-        `Una testigo dice haber visto a dos personas juntas en el jardín (FALSO — solo había una)`
-      ]
+    const raw=await gemini(prompt);
+    if(raw){ data=JSON.parse(raw.replace(/```json|```/g,'').trim()); }
+  } catch(e){}
+
+  if(!data){
+    const coartadas=['Fumando en la terraza, viste luz en la cocina a las 3am.','En el baño de arriba con dolor de tripa desde medianoche.','Llamando por teléfono en el jardín, oíste algo raro.','Bebiendo solo/a en el salón, te quedaste dormido/a en el sofá.','Escuchando música con auriculares, no oíste nada.','En la cocina calentando algo, viste pasar una sombra.','Mirando el móvil en la terraza de arriba toda la noche.','Llorando en el coche, estabas procesando algo.','Con los pies en la piscina a las 2am, solo/a.','Durmiendo en el sofá del salón desde las 2am.'];
+    const sc=shuffle(coartadas);
+    data={
+      crimen:`${victima} ha aparecido ${rand(['ahogado/a en la piscina','al pie de las escaleras','en el jardín con signos de violencia'])} esta mañana`,
+      historia_completa:`Esa noche la tensión era palpable desde la cena. ${asesino} y ${victima} llevaban horas evitándose. A las 3am la casa estaba casi en silencio. Alguien bajó al jardín. ${victima} apareció a las 7am. Nadie oyó nada, o eso dicen.`,
+      motivo_asesino:`${asesino} llevaba tiempo guardando un secreto que ${victima} amenazaba con revelar al grupo.`,
+      datos:Object.fromEntries(players.map((p,i)=>[p,p===asesino?'Bajaste al jardín a las 3am con la excusa de tomar el aire. Volviste antes de que nadie se despertara.':sc[i%sc.length]])),
+      pistas:['Se encontraron huellas mojadas desde la piscina hasta la puerta trasera','Alguien oyó voces en el jardín pasadas las 2am','El móvil de la víctima tenía una conversación borrada esa misma noche','Una persona dice haber visto a dos personas juntas en el jardín (FALSO)']
     };
   }
-  
-  // Construir roles por jugador
-  const roleAssignments = {};
-  players.forEach(p => {
-    let rol, desc;
-    if(p === asesino) { rol='asesino'; desc=`Tú eres el asesino. Motivo: ${crimeData.motivo_asesino} Miente, siembra dudas, sobrevive.`; }
-    else if(p === victima) { rol='victima'; desc='Has sido asesinado/a. Recibes pistas extra cada ronda. No puedes votar pero puedes usar acciones.'; }
-    else if(complices.includes(p)) { rol='complice'; desc='Estás en el bando del asesino, pero no sabes quién es. Intenta protegerle sin saberlo.'; }
-    else { rol='inocente'; desc='Descubre quién fue el asesino usando las pistas y las coartadas.'; }
-    const dato = crimeData.datos[p] || 'Estabas en tu habitación';
-    const historiaParaAsesino = p === asesino ? crimeData.historia_completa : null;
-    roleAssignments[p] = { rol, desc, dato, observa: observers[p], historiaCompleta: historiaParaAsesino };
+
+  const roles={};
+  players.forEach(p=>{
+    let rol,desc;
+    if(p===asesino){rol='asesino';desc=`Tú eres el asesino. ${data.motivo_asesino} Miente, siembra dudas, sobrevive.`;}
+    else if(p===victima){rol='victima';desc='Has sido asesinado/a. Recibes pistas cada ronda. No puedes votar pero puedes usar acciones.';}
+    else if(complices.includes(p)){rol='complice';desc='Estás en el bando del asesino pero no sabes quién es. Protégele sin saberlo.';}
+    else{rol='inocente';desc='Descubre al asesino usando las pistas y las coartadas.';}
+    roles[p]={rol,desc,dato:data.datos[p]||'Estabas en tu habitación',observa:observers[p],historiaCompleta:p===asesino?data.historia_completa:null};
   });
-  
-  // Determinar rondas de inmunidad (rondas 2 y 3)
-  const immunityRounds = {
-    2: shuffle(players).slice(0, 2),
-    3: shuffle(players).slice(0, 1)
+
+  const immunityRounds={2:shuffle(players).slice(0,Math.min(2,players.length-1)),3:shuffle(players).slice(0,1)};
+  const publicRound=rand([2,3]);
+
+  await fset('game',{
+    crimen:data.crimen, pistas:data.pistas, roles, asesino, victima,
+    historiaCompleta:data.historia_completa, motivoAsesino:data.motivo_asesino,
+    ronda:1, totalRondas:4, turnOrder:shuffle(players), currentTurnIndex:0,
+    immunityRounds, publicRound, immunityAccepted:{}, immunityPenalties:{},
+    roundVotes:{}, nominaciones:Object.fromEntries(players.map(p=>[p,0]))
+  });
+  await fset('gamePhase','roles');
+}
+
+// LOAD MY ROLE
+async function loadMyRole(){
+  const snap=await fget('game');
+  gs=snap.val(); if(!gs) return;
+  const me=gs.roles[myName];
+  if(!me) return;
+  myRole=me.rol; myData=me;
+
+  const badge=document.getElementById('rolBadge');
+  if(myRole==='asesino'){badge.className='rol-badge rol-a';badge.textContent='🔪 asesino';}
+  else if(myRole==='victima'){badge.className='rol-badge rol-v';badge.textContent='💀 víctima';}
+  else{badge.className='rol-badge rol-i';badge.textContent=myRole==='complice'?'🤝 aliado':'👤 inocente';}
+
+  document.getElementById('crimeText').innerHTML=`<strong>${gs.crimen}</strong>`;
+  document.getElementById('datoText').textContent=me.dato;
+
+  if(me.historiaCompleta){
+    document.getElementById('historiaCard').style.display='block';
+    document.getElementById('historiaText').textContent=me.historiaCompleta;
+  }
+
+  const obs=me.observa||[];
+  document.getElementById('observaText').innerHTML=obs.length
+    ?obs.map(o=>`<strong>${o}</strong>`).join(' y ')+'  — ellos no lo saben.'
+    :'No observas a nadie esta partida.';
+
+  document.getElementById('s3st').textContent=`SEÑALADOS · ronda ${gs.ronda}/4`;
+  goScreen('s3');
+}
+
+// LISTO (todos tienen que pulsar)
+window.marcarListo = async function(){
+  await fset(`game/listos/${myName}`,true);
+  document.getElementById('btnListo').textContent='Esperando a los demás...';
+  document.getElementById('btnListo').disabled=true;
+  document.getElementById('btnListo').className='btn btn-d';
+
+  const check=async()=>{
+    const [psnap,lsnap]=await Promise.all([fget('players'),fget('game/listos')]);
+    const total=Object.keys(psnap.val()||{}).length;
+    const listos=Object.keys(lsnap.val()||{}).length;
+    if(listos>=total){
+      await fset('game/listos',null);
+      await fset('gamePhase','turns');
+    } else {
+      setTimeout(check,2000);
+    }
   };
-  
-  // Determinar ronda pública
-  const publicRound = rand([2, 3]);
-  
-  await fbSet('game', {
-    crimen: crimeData.crimen,
-    historiaCompleta: crimeData.historia_completa || null,
-    motivoAsesino: crimeData.motivo_asesino || null,
-    pistas: crimeData.pistas,
-    roles: roleAssignments,
-    asesino,
-    victima,
-    ronda: 1,
-    totalRondas: 4,
-    turnOrder: shuffle(players),
-    currentTurnIndex: 0,
-    votes: {},
-    immunityRounds,
-    publicRound,
-    immunityAccepted: {},
-    immunityPenalties: {},
-    roundVotes: {},
-    nominaciones: Object.fromEntries(players.map(p=>[p,0]))
-  });
-  
-  await fbSet('gamePhase', 'roles');
+  check();
 }
 
-// ─── LOAD MY ROLE ───
-async function loadMyRole() {
-  const snap = await fbGet('game');
-  const game = snap.val();
-  gameState = game;
-  
-  const me = game.roles[myName];
-  myRole = me.rol; myData = me;
-  
-  // Badge
-  const badge = document.getElementById('rolBadge');
-  if(myRole==='asesino'){ badge.className='rol-badge rol-asesino'; badge.textContent='🔪 asesino'; }
-  else if(myRole==='victima'){ badge.className='rol-badge rol-victima'; badge.textContent='💀 víctima'; }
-  else if(myRole==='complice'){ badge.className='rol-badge rol-inocente'; badge.textContent='🤝 aliado'; }
-  else { badge.className='rol-badge rol-inocente'; badge.textContent='👤 inocente'; }
-  
-  // Crimen
-  document.getElementById('crimeText').innerHTML = `<strong>${game.crimen}</strong>`;
-  
-  // Dato
-  typewrite(document.getElementById('datoText'), me.dato);
-  
-  // Observa
-  const obs = me.observa || [];
-  document.getElementById('observaText').innerHTML = obs.length
-    ? obs.map(o=>`<strong>${o}</strong>`).join(' y ') + ' — ellos no lo saben.'
-    : 'No observas a nadie esta partida.';
-  
-  // Historia completa solo para el asesino
-  if(me.historiaCompleta) {
-    document.getElementById("historiaCard").style.display="block";
-    document.getElementById("historiaText").textContent = me.historiaCompleta;
-  } else {
-    document.getElementById("historiaCard").style.display="none";
-  }
-  
-  // Update status
-  document.getElementById("s3status").textContent = `SEÑALADOS · ronda ${game.ronda}/4`;
-  goScreen("s3");
-}
+// TURNS
+function setupTurns(){
+  if(!gs||!gs.turnOrder) return;
+  const order=gs.turnOrder;
+  const cur=gs.currentTurnIndex||0;
 
-async function markReadyAndStartTurns() {
-  await fbSet(`game/readyForTurns/${myName}`, true);
-  const psnap = await fbGet("players");
-  const allPlayers = Object.keys(psnap.val()||{});
-  const readySnap = await fbGet("game/readyForTurns");
-  const ready = Object.keys(readySnap.val()||{});
-  if(ready.length >= allPlayers.length) {
-    await fbSet("game/readyForTurns", null);
-    await fbSet("gamePhase","turns");
-  } else {
-    goScreen("s4");
-  }
-}
+  document.getElementById('s4st').textContent=`SEÑALADOS · ronda ${gs.ronda}/4`;
 
-// ─── TURNS ───
-function setupTurns() {
-  const game = gameState;
-  if(!game || !game.turnOrder) return;
-  const order = game.turnOrder;
-  
-  // Update turn list
-  const list = document.getElementById('turnList'); list.innerHTML = '';
-  order.forEach((name, i) => {
-    const done = i < game.currentTurnIndex;
-    const current = i === game.currentTurnIndex;
-    const row = document.createElement('div');
-    row.className = 'player-row';
-    row.innerHTML = `<div class="avatar ${done?'on':current?'me':''}">${name.slice(0,2).toUpperCase()}</div><div class="pname">${name}${name===myName?' (tú)':''}</div><div class="pstatus ${done?'on':''}">${done?'listo':current?'⚡ ahora':'—'}</div>`;
+  const list=document.getElementById('turnList'); list.innerHTML='';
+  order.forEach((name,i)=>{
+    const done=i<cur, active=i===cur;
+    const row=document.createElement('div'); row.className='prow';
+    row.innerHTML=`<div class="av ${done?'on':active?'me':''}">${name.slice(0,2).toUpperCase()}</div><div class="pname">${name}${name===myName?' (tú)':''}</div><div class="pst ${done?'on':''}">${done?'listo':active?'⚡ ahora':'—'}</div>`;
     list.appendChild(row);
   });
-  
-  // Is it my turn?
-  if(order[game.currentTurnIndex] === myName) {
-    document.getElementById("turnWaiting").style.display="none";
-    document.getElementById("btnMiTurno").disabled=false;
-    document.getElementById("btnMiTurno").className="btn btn-primary";
-    document.getElementById("btnMiTurno").onclick = () => loadMyTurn();
-    showToast("⚡ ¡Es tu turno!", 3000);
-    setTimeout(() => loadMyTurn(), 1500);
+
+  const esmiTurno=order[cur]===myName;
+  const waitEl=document.getElementById('turnWait');
+  const btnEl=document.getElementById('btnMiTurno');
+
+  if(esmiTurno){
+    waitEl.style.display='none';
+    btnEl.disabled=false; btnEl.className='btn btn-p';
+    btnEl.onclick=()=>loadMyTurn();
+    toast('⚡ ¡Es tu turno!',3000);
+    setTimeout(()=>loadMyTurn(),1500);
   } else {
-    document.getElementById("turnWaiting").style.display="block";
-    document.getElementById("btnMiTurno").disabled=true;
-    document.getElementById("btnMiTurno").className="btn btn-disabled";
-    const cur = order[game.currentTurnIndex];
-    document.getElementById("turnWaiting").textContent = cur ? "turno de " + cur + "..." : "esperando turno...";
+    waitEl.style.display='block';
+    waitEl.textContent=order[cur]?`turno de ${order[cur]}...`:'esperando...';
+    btnEl.disabled=true; btnEl.className='btn btn-d';
   }
 }
 
-async function loadMyTurn() {
-  const snap = await fbGet('game');
-  gameState = snap.val();
-  const game = gameState;
-  const ronda = game.ronda;
-  
-  // Pista aleatoria (30% de probabilidad de no tener)
-  const hasPista = Math.random() > 0.3;
-  if(hasPista && game.pistas) {
-    const pistaIdx = Math.min(ronda-1, game.pistas.length-1);
-    const pista = game.pistas[pistaIdx];
+async function loadMyTurn(){
+  const snap=await fget('game'); gs=snap.val();
+  const ronda=gs.ronda;
+  const hasPista=Math.random()>0.25;
+
+  if(pendingPistas.length>0){
+    const p=pendingPistas.shift();
     document.getElementById('pistaCard').style.display='block';
     document.getElementById('sinPista').style.display='none';
-    typewrite(document.getElementById('pistaText'), pista);
+    typewrite(document.getElementById('pistaText'),`[de ${p.de}]: ${p.texto}`);
+  } else if(hasPista&&gs.pistas){
+    const idx=Math.min(ronda-1,gs.pistas.length-1);
+    document.getElementById('pistaCard').style.display='block';
+    document.getElementById('sinPista').style.display='none';
+    typewrite(document.getElementById('pistaText'),gs.pistas[idx]);
   } else {
     document.getElementById('pistaCard').style.display='none';
     document.getElementById('sinPista').style.display='block';
   }
-  
-  document.getElementById('s5status').textContent=`SEÑALADOS · ronda ${ronda}/4`;
-  currentAction=null;
+
+  document.getElementById('s5st').textContent=`SEÑALADOS · ronda ${ronda}/4`;
+  curAction=null;
   ['ac1','ac2','ac3'].forEach(id=>document.getElementById(id).classList.remove('selected'));
-  
-  // Show any pending pistas received from others
-  if(window._pendingPistas && window._pendingPistas.length > 0) {
-    const p = window._pendingPistas[0];
-    document.getElementById('pistaCard').style.display='block';
-    document.getElementById('sinPista').style.display='none';
-    typewrite(document.getElementById('pistaText'), `[de ${p.de}]: ${p.texto}`);
-    window._pendingPistas = window._pendingPistas.slice(1);
-  }
-  
   goScreen('s5');
 }
 
-window.selectAction = function(action) {
-  currentAction = action;
-  document.getElementById('ac1').classList.toggle('selected', action==='compartir');
-  document.getElementById('ac2').classList.toggle('selected', action==='señalar');
-  document.getElementById('ac3').classList.toggle('selected', action==='pasar');
+window.selAc=function(a){
+  curAction=a;
+  document.getElementById('ac1').classList.toggle('selected',a==='compartir');
+  document.getElementById('ac2').classList.toggle('selected',a==='señalar');
+  document.getElementById('ac3').classList.toggle('selected',a==='pasar');
 }
 
-window.confirmAction = async function() {
-  if(!currentAction){ showToast('Elige una acción'); return; }
-  if(currentAction === 'pasar') {
-    await advanceTurn();
-    return;
-  }
-  // Elegir destinatario
-  const snap = await fbGet('players');
-  const players = Object.keys(snap.val()||{}).filter(p=>p!==myName);
-  const list = document.getElementById('targetList'); list.innerHTML='';
-  selectedTarget = null;
-  players.forEach(name => {
-    const row = document.createElement('div');
-    row.className='player-row';
-    row.dataset.name=name;
-    row.innerHTML=`<div class="avatar on">${name.slice(0,2).toUpperCase()}</div><div class="pname">${name}</div><div class="pstatus">elegir</div>`;
+window.confirmAc=async function(){
+  if(!curAction){toast('Elige una acción');return;}
+  if(curAction==='pasar'){await advanceTurn();return;}
+
+  const players=Object.keys((await fget('players')).val()||{}).filter(p=>p!==myName);
+  const list=document.getElementById('targetList'); list.innerHTML='';
+  selTarget=null;
+  players.forEach(name=>{
+    const row=document.createElement('div'); row.className='prow'; row.dataset.name=name;
+    row.innerHTML=`<div class="av on">${name.slice(0,2).toUpperCase()}</div><div class="pname">${name}</div><div class="pst">elegir</div>`;
     row.onclick=()=>{
-      document.querySelectorAll('#targetList .player-row').forEach(r=>{r.classList.remove('selected');r.querySelector('.pstatus').textContent='elegir';});
-      row.classList.add('selected'); row.querySelector('.pstatus').textContent='seleccionado'; row.querySelector('.pstatus').className='pstatus on';
-      selectedTarget=name;
+      document.querySelectorAll('#targetList .prow').forEach(r=>{r.classList.remove('selected');r.querySelector('.pst').textContent='elegir';r.querySelector('.pst').className='pst';});
+      row.classList.add('selected'); row.querySelector('.pst').textContent='seleccionado'; row.querySelector('.pst').className='pst on';
+      selTarget=name;
     };
     list.appendChild(row);
   });
-  document.getElementById('s5bEyebrow').textContent = currentAction==='compartir'?'compartir pista':'señalar';
-  document.getElementById('s5bSub').textContent = currentAction==='compartir'?'¿a quién le mandas tu pista?':'¿a quién señalas?';
+  document.getElementById('s5bEye').textContent=curAction==='compartir'?'compartir pista':'señalar';
   goScreen('s5b');
 }
 
-window.sendAction = async function() {
-  if(!selectedTarget){ showToast('Elige un destinatario'); return; }
-  const snap = await fbGet('game');
-  const game = snap.val();
-  
-  if(currentAction==='compartir') {
-    const pistaIdx = Math.min(game.ronda-1, (game.pistas||[]).length-1);
-    const pista = (game.pistas||[])[pistaIdx] || 'Sin pista';
-    await fbSet(`notifications/${selectedTarget}/${Date.now()}`, {
-      tipo:'pista', de:myName, texto:pista, ronda:game.ronda
-    });
-    showToast(`Pista enviada a ${selectedTarget}`);
+window.sendAc=async function(){
+  if(!selTarget){toast('Elige a alguien');return;}
+  const snap=await fget('game'); gs=snap.val();
+  const ronda=gs.ronda;
+
+  if(curAction==='compartir'){
+    const idx=Math.min(ronda-1,(gs.pistas||[]).length-1);
+    const pista=(gs.pistas||[])[idx]||'Sin pista';
+    await fset(`notifications/${selTarget}/${Date.now()}`,{tipo:'pista',de:myName,texto:pista,ronda});
+    toast(`Pista enviada a ${selTarget}`);
   } else {
-    // Señalar — va a los observadores del target
-    const targetObs = game.roles[selectedTarget]?.observa || [];
-    for(const obs of targetObs) {
-      await fbSet(`notifications/${obs}/${Date.now()}`, {
-        tipo:'señal', sobre:selectedTarget, ronda:game.ronda
-      });
+    const targetObs=(gs.roles[selTarget]?.observa)||[];
+    for(const obs of targetObs){
+      await fset(`notifications/${obs}/${Date.now()}`,{tipo:'señal',sobre:selTarget,ronda});
     }
-    showToast(`Has señalado a ${selectedTarget}`);
+    toast(`Has señalado a ${selTarget}`);
   }
   await advanceTurn();
 }
 
-async function advanceTurn() {
-  const snap = await fbGet('game');
-  const game = snap.val();
-  const next = (game.currentTurnIndex||0)+1;
-  
-  if(next >= (game.turnOrder||[]).length) {
-    // Fin de coartadas → inmunidad
-    await fbSet('gamePhase','immunity');
+async function advanceTurn(){
+  const snap=await fget('game'); gs=snap.val();
+  const next=(gs.currentTurnIndex||0)+1;
+  if(next>=(gs.turnOrder||[]).length){
+    await fset('gamePhase','immunity');
   } else {
-    await fbUpdate('game',{currentTurnIndex:next});
-    await fbSet('gamePhase','turns_update_'+Date.now());
-    await fbSet('gamePhase','turns');
+    await fupd('game',{currentTurnIndex:next});
+    await fset('gamePhase','turns');
   }
 }
 
-// ─── IMMUNITY ───
-async function loadImmunity() {
-  const snap = await fbGet('game');
-  const game = snap.val();
-  gameState = game;
-  const ronda = game.ronda;
-  const immunityPlayers = (game.immunityRounds||{})[ronda] || [];
-  
-  document.getElementById('s5cStatus').textContent=`SEÑALADOS · ronda ${ronda}/4`;
-  const iAmChosen = immunityPlayers.includes(myName);
-  
-  document.getElementById('immunityInfo').innerHTML = immunityPlayers.length > 0
-    ? `<strong>${immunityPlayers.join('</strong> e <strong>')}</strong> tienen la opción de ser inmunes esta ronda.`
-    : 'Nadie tiene la opción de inmunidad esta ronda.';
-  
-  document.getElementById('immunityBox').style.display = iAmChosen ? 'block':'none';
-  document.getElementById('noImmunityCard').style.display = iAmChosen ? 'none':'block';
-  document.getElementById('btnAcceptImmunity').style.display = iAmChosen ? 'block':'none';
-  
+// IMMUNITY
+async function loadImmunity(){
+  const snap=await fget('game'); gs=snap.val();
+  const ronda=gs.ronda;
+  const immPlayers=(gs.immunityRounds||{})[ronda]||[];
+  const iAmChosen=immPlayers.includes(myName);
+
+  document.getElementById('s5cSt').textContent=`SEÑALADOS · ronda ${ronda}/4`;
+  document.getElementById('immInfo').innerHTML=immPlayers.length>0
+    ?`<strong>${immPlayers.join('</strong> e <strong>')}</strong> tienen la opción de ser inmunes esta ronda.`
+    :'Nadie tiene inmunidad esta ronda.';
+
+  document.getElementById('immBox').style.display=iAmChosen?'block':'none';
+  document.getElementById('noImmCard').style.display=iAmChosen?'none':'block';
+  document.getElementById('btnAceptarImm').style.display=iAmChosen?'block':'none';
   goScreen('s5c');
 }
 
-window.acceptImmunity = async function() {
-  const snap = await fbGet('game');
-  const game = snap.val();
-  const ronda = game.ronda;
-  const penalties = ['penalty_votos_1','penalty_votos_2','penalty_votos_3','penalty_sin_pista','penalty_sin_accion'];
-  const penalty = rand(penalties);
-  await fbUpdate('game', {
-    [`immunityAccepted/${myName}`]: ronda,
-    [`immunityPenalties/${myName}`]: penalty
+window.aceptarImm=async function(){
+  const snap=await fget('game'); gs=snap.val();
+  const penalties=['p1','p2','p3','pnopista','pnoaccion'];
+  await fupd('game',{
+    [`immunityAccepted/${myName}`]:gs.ronda,
+    [`immunityPenalties/${myName}`]:rand(penalties)
   });
-  showToast('Inmunidad activada. Hay un precio...');
-  await checkImmunityDone();
+  toast('Inmunidad activada. Habrá un precio...');
+  await checkImmDone();
 }
 
-window.rejectImmunity = async function() {
-  await checkImmunityDone();
+window.rechazarImm=async function(){
+  await checkImmDone();
 }
 
-async function checkImmunityDone() {
-  const snap = await fbGet('game');
-  const game = snap.val();
-  const ronda = game.ronda;
-  const immunityPlayers = (game.immunityRounds||{})[ronda] || [];
-  const accepted = game.immunityAccepted||{};
-  const allDecided = immunityPlayers.every(p => accepted[p] || true);
-  if(allDecided) await fbSet('gamePhase','voting');
+async function checkImmDone(){
+  // Mark that I've decided
+  const snap=await fget('game'); gs=snap.val();
+  await fset(`game/immDecision/${myName}`,true);
+
+  const psnap=await fget('players');
+  const total=Object.keys(psnap.val()||{}).length;
+
+  const check=async()=>{
+    const dsnap=await fget('game/immDecision');
+    const decided=Object.keys(dsnap.val()||{}).length;
+    if(decided>=total){
+      await fset('game/immDecision',null);
+      await fset('gamePhase','voting');
+    } else {
+      setTimeout(check,2000);
+    }
+  };
+  check();
 }
 
-// ─── VOTING ───
-async function startVoting() {
-  const snap = await fbGet('game');
-  const game = snap.val();
-  gameState = game;
-  const ronda = game.ronda;
-  const isPublic = game.publicRound === ronda;
-  
-  document.getElementById('s6status').textContent=`SEÑALADOS · ronda ${ronda}/4`;
-  document.querySelector('#s6 .subtitle').textContent = isPublic
-    ? '⚠️ esta ronda los votos son públicos'
-    : 'solo tus observados verán tu voto';
-  
-  const snap2 = await fbGet('players');
-  const players = Object.keys(snap2.val()||{}).filter(p=>p!==myName);
-  
-  // Check if I'm immune
-  const immuneRound = (game.immunityAccepted||{})[myName];
-  if(immuneRound === ronda) {
-    showToast('Estás inmune esta ronda');
-    goScreen('s7'); // skip to results observer
-    await waitForResults();
+// VOTING
+async function startVoting(){
+  const snap=await fget('game'); gs=snap.val();
+  const ronda=gs.ronda;
+  const isPublic=gs.publicRound===ronda;
+
+  document.getElementById('s6st').textContent=`SEÑALADOS · ronda ${ronda}/4`;
+  document.getElementById('s6sub').textContent=isPublic?'⚠️ esta ronda los votos son públicos':'solo tus observados verán tu voto';
+
+  const psnap=await fget('players');
+  const players=Object.keys(psnap.val()||{}).filter(p=>p!==myName);
+
+  // Check immune
+  if((gs.immunityAccepted||{})[myName]===ronda){
+    toast('Estás inmune esta ronda');
+    await fset(`game/roundVotes/${myName}`,{vote:'inmune'});
+    waitForVoteResults();
+    goScreen('s7');
+    document.getElementById('s7title').innerHTML='<span class="r">Contando</span><br>votos...';
     return;
   }
-  
-  // Apply penalty: auto votes
-  const penalty = (game.immunityPenalties||{})[myName];
-  let autoVotes = 0;
-  if(penalty === 'penalty_votos_1') autoVotes=1;
-  if(penalty === 'penalty_votos_2') autoVotes=2;
-  if(penalty === 'penalty_votos_3') autoVotes=3;
-  if(autoVotes > 0) await fbUpdate('game',{[`roundVotes/${myName}/autoVotes`]:autoVotes});
-  
-  // Build vote list
-  const voteList = document.getElementById('voteList'); voteList.innerHTML='';
-  selectedVote=null;
-  players.forEach(name => {
-    const row = document.createElement('div');
-    row.className='player-row'; row.dataset.name=name;
-    const immThisRound = (game.immunityAccepted||{})[name] === ronda;
-    if(immThisRound){ row.innerHTML=`<div class="avatar">${name.slice(0,2).toUpperCase()}</div><div class="pname" style="color:var(--apagado)">${name} 🛡</div><div class="pstatus">inmune</div>`; return; }
-    row.innerHTML=`<div class="avatar on">${name.slice(0,2).toUpperCase()}</div><div class="pname">${name}</div><div class="pstatus">votar</div>`;
-    row.onclick=()=>{
-      document.querySelectorAll('#voteList .player-row').forEach(r=>{r.classList.remove('selected');r.querySelector('.pstatus').textContent='votar';r.querySelector('.pstatus').className='pstatus';});
-      row.classList.add('selected'); row.querySelector('.pstatus').textContent='seleccionado'; row.querySelector('.pstatus').className='pstatus on';
-      selectedVote=name;
-      document.getElementById('btnVotar').textContent=`Votar a ${name} →`;
-    };
-    voteList.appendChild(row);
+
+  // Auto votes from penalty
+  const pen=(gs.immunityPenalties||{})[myName];
+  if(pen==='p1'||pen==='p2'||pen==='p3'){
+    const extra=pen==='p1'?1:pen==='p2'?2:3;
+    await fupd('game',{[`roundVotes/${myName}/autoPenalty`]:extra});
+  }
+
+  selVote=null;
+  const list=document.getElementById('voteList'); list.innerHTML='';
+  players.forEach(name=>{
+    const immThisRound=(gs.immunityAccepted||{})[name]===ronda;
+    const row=document.createElement('div'); row.className='prow'; row.dataset.name=name;
+    if(immThisRound){
+      row.innerHTML=`<div class="av">${name.slice(0,2).toUpperCase()}</div><div class="pname" style="color:var(--apagado)">${name} 🛡</div><div class="pst">inmune</div>`;
+    } else {
+      row.innerHTML=`<div class="av on">${name.slice(0,2).toUpperCase()}</div><div class="pname">${name}</div><div class="pst">votar</div>`;
+      row.onclick=()=>{
+        document.querySelectorAll('#voteList .prow').forEach(r=>{r.classList.remove('selected');const s=r.querySelector('.pst');s.textContent='votar';s.className='pst';});
+        row.classList.add('selected'); row.querySelector('.pst').textContent='seleccionado'; row.querySelector('.pst').className='pst on';
+        selVote=name;
+        document.getElementById('btnVotar').textContent=`Votar a ${name} →`;
+      };
+    }
+    list.appendChild(row);
   });
-  
-  // Countdown
+
   let secs=60;
-  const cd=document.getElementById('voteCountdown');
+  const cd=document.getElementById('vcd');
   if(voteTimer) clearInterval(voteTimer);
   voteTimer=setInterval(()=>{
     secs--;
     cd.textContent=`00:${String(secs).padStart(2,'0')}`;
     if(secs<=10) cd.classList.add('urgent');
-    if(secs<=0){ clearInterval(voteTimer); submitVote(); }
+    if(secs<=0){clearInterval(voteTimer);voteTimer=null;submitVote();}
   },1000);
-  
+
   goScreen('s6');
 }
 
-window.submitVote = async function() {
-  if(voteTimer){ clearInterval(voteTimer); voteTimer=null; }
-  if(!selectedVote){ showToast('Voto anulado — no elegiste'); await fbSet(`game/roundVotes/${myName}/vote`,'abstención'); }
-  else await fbSet(`game/roundVotes/${myName}/vote`, selectedVote);
-  
-  // Notify observers
-  const snap = await fbGet('game');
-  const game = snap.val();
-  const isPublic = game.publicRound === game.ronda;
-  
-  if(isPublic) {
-    // Notify everyone
-    const psnap = await fbGet('players');
-    for(const p of Object.keys(psnap.val()||{})){
-      if(p!==myName) await fbSet(`notifications/${p}/${Date.now()}`,{tipo:'voto_publico',de:myName,voto:selectedVote,ronda:game.ronda});
-    }
-  } else {
-    const myObs = (game.roles[myName]?.observa)||[];
-    for(const obs of myObs){
-      await fbSet(`notifications/${obs}/${Date.now()}`,{tipo:'voto',de:myName,voto:selectedVote,ronda:game.ronda});
+window.submitVote=async function(){
+  if(voteTimer){clearInterval(voteTimer);voteTimer=null;}
+  const vote=selVote||'abstención';
+  await fset(`game/roundVotes/${myName}/vote`,vote);
+
+  const snap=await fget('game'); gs=snap.val();
+  const ronda=gs.ronda;
+  const isPublic=gs.publicRound===ronda;
+
+  if(selVote){
+    if(isPublic){
+      const psnap=await fget('players');
+      for(const p of Object.keys(psnap.val()||{})){
+        if(p!==myName) await fset(`notifications/${p}/${Date.now()}`,{tipo:'voto_publico',de:myName,voto:selVote,ronda});
+      }
+    } else {
+      const myObs=(gs.roles[myName]?.observa)||[];
+      for(const obs of myObs){
+        await fset(`notifications/${obs}/${Date.now()}`,{tipo:'voto',de:myName,voto:selVote,ronda});
+      }
     }
   }
-  showToast('Voto enviado');
-  await waitForResults();
-}
 
-async function waitForResults() {
-  const snap = await fbGet('players');
-  const total = Object.keys(snap.val()||{}).length;
-  
-  const checkVotes = async () => {
-    const vsnap = await fbGet('game/roundVotes');
-    const votes = vsnap.val()||{};
-    const counted = Object.keys(votes).length;
-    if(counted >= total) await fbSet('gamePhase','results');
-    else setTimeout(checkVotes, 2000);
-  };
-  setTimeout(checkVotes, 2000);
+  toast('Voto enviado');
+  document.getElementById('s7title').innerHTML='<span class="r">Contando</span><br>votos...';
   goScreen('s7');
-  // show waiting state
-  document.getElementById('s7title').innerHTML='<span class="r">contando</span><br>votos...';
+  waitForVoteResults();
 }
 
-// ─── RESULTS ───
-async function showResults() {
-  const snap = await fbGet('game');
-  const game = snap.val();
-  gameState = game;
-  const ronda = game.ronda;
-  const votes = game.roundVotes||{};
-  
-  // Count
-  const tally = {};
-  Object.values(votes).forEach(v=>{ const vt=v.vote||v; if(vt&&vt!=='abstención') tally[vt]=(tally[vt]||0)+1; });
-  
-  // Auto votes (immunity penalty)
-  Object.entries(game.immunityPenalties||{}).forEach(([p,pen])=>{
-    if((game.immunityAccepted||{})[p]===ronda){
-      const extra = pen==='penalty_votos_1'?1:pen==='penalty_votos_2'?2:pen==='penalty_votos_3'?3:0;
+function waitForVoteResults(){
+  const check=async()=>{
+    const psnap=await fget('players');
+    const total=Object.keys(psnap.val()||{}).length;
+    const vsnap=await fget('game/roundVotes');
+    const counted=Object.keys(vsnap.val()||{}).length;
+    if(counted>=total) await fset('gamePhase','results');
+    else setTimeout(check,2000);
+  };
+  setTimeout(check,2000);
+}
+
+// RESULTS
+async function showResults(){
+  const snap=await fget('game'); gs=snap.val();
+  const ronda=gs.ronda;
+  const votes=gs.roundVotes||{};
+
+  const tally={};
+  Object.values(votes).forEach(v=>{
+    const vt=v.vote||v;
+    if(vt&&vt!=='abstención'&&vt!=='inmune') tally[vt]=(tally[vt]||0)+1;
+    if(v.autoPenalty) tally[Object.keys(votes).find(k=>votes[k]===v)]=((tally[Object.keys(votes).find(k=>votes[k]===v)])||0)+v.autoPenalty;
+  });
+
+  // Penalty votes
+  Object.entries(gs.immunityPenalties||{}).forEach(([p,pen])=>{
+    if((gs.immunityAccepted||{})[p]===ronda){
+      const extra=pen==='p1'?1:pen==='p2'?2:pen==='p3'?3:0;
       if(extra>0) tally[p]=(tally[p]||0)+extra;
     }
   });
-  
-  const sorted = Object.entries(tally).sort((a,b)=>b[1]-a[1]);
-  const loser = sorted[0]?.[0] || '—';
-  const loserVotes = sorted[0]?.[1] || 0;
-  
-  document.getElementById('s7status').textContent=`SEÑALADOS · ronda ${ronda}/4`;
+
+  const sorted=Object.entries(tally).sort((a,b)=>b[1]-a[1]);
+  const loser=sorted[0]?.[0]||'—';
+  const loserV=sorted[0]?.[1]||0;
+
+  document.getElementById('s7st').textContent=`SEÑALADOS · ronda ${ronda}/4`;
   document.getElementById('s7title').innerHTML=`<span class="r">${loser}</span><br>bebe.`;
-  document.getElementById('s7sub').textContent=`más votado/a · ${loserVotes} voto${loserVotes!==1?'s':''}`;
-  
-  // Bars
-  const resultsEl = document.getElementById('voteResults'); resultsEl.innerHTML='';
-  const max = sorted[0]?.[1]||1;
+  document.getElementById('s7sub').textContent=`más votado/a · ${loserV} chupito${loserV!==1?'s':''}`;
+
+  const resEl=document.getElementById('voteResults'); resEl.innerHTML='';
+  const max=sorted[0]?.[1]||1;
   sorted.slice(0,5).forEach(([name,count],i)=>{
-    const row = document.createElement('div'); row.className='vote-row';
-    const pct = Math.round((count/max)*100);
-    row.innerHTML=`<div class="vote-name">${name}</div><div class="vote-bar-bg"><div class="vote-bar" id="vbar_${i}" style="--target-width:${pct}%"></div></div><div class="vote-count">${count}</div>`;
-    resultsEl.appendChild(row);
-    setTimeout(()=>{ const b=document.getElementById(`vbar_${i}`); if(b)b.style.width=pct+'%'; },200+i*150);
+    const pct=Math.round((count/max)*100);
+    const row=document.createElement('div'); row.className='vrow';
+    row.innerHTML=`<div class="vname">${name}</div><div class="vbg"><div class="vbar" id="vb${i}"></div></div><div class="vcount">${count}</div>`;
+    resEl.appendChild(row);
+    setTimeout(()=>{ const b=document.getElementById(`vb${i}`); if(b)b.style.width=pct+'%'; },200+i*150);
   });
-  
-  // Notifs (observed votes + received signals)
-  const nsnap = await fbGet(`notifications/${myName}`);
-  const notifs = nsnap.val()||{};
-  const s7notifs = document.getElementById('s7notifs'); s7notifs.innerHTML='';
-  const observedVotesEl = document.getElementById('observedVotes'); observedVotesEl.innerHTML='';
-  
-  const voteNotifs = Object.values(notifs).filter(n=>n.ronda===ronda&&(n.tipo==='voto'||n.tipo==='voto_publico'));
-  if(voteNotifs.length){
-    const div=document.createElement('div'); div.className='notif';
-    div.innerHTML=`<div class="notif-label">votos de tus observados</div><div class="notif-text">${voteNotifs.map(n=>`<strong>${n.de}</strong> votó a <strong>${n.voto}</strong>`).join(' · ')}</div>`;
-    observedVotesEl.appendChild(div);
+
+  // Notifs
+  const nsnap=await fget(`notifications/${myName}`);
+  const notifs=nsnap.val()||{};
+  const obsEl=document.getElementById('observedVotes'); obsEl.innerHTML='';
+  const notifsEl=document.getElementById('s7notifs'); notifsEl.innerHTML='';
+
+  const vNots=Object.values(notifs).filter(n=>n.ronda===ronda&&(n.tipo==='voto'||n.tipo==='voto_publico'));
+  if(vNots.length){
+    const d=document.createElement('div'); d.className='notif';
+    d.innerHTML=`<div class="nlabel">votos que tú ves</div><div class="ntext">${vNots.map(n=>`<strong>${n.de}</strong> votó a <strong>${n.voto}</strong>`).join(' · ')}</div>`;
+    obsEl.appendChild(d);
   }
-  
-  const signalNotifs = Object.values(notifs).filter(n=>n.ronda===ronda&&n.tipo==='señal');
-  if(signalNotifs.length){
-    const div=document.createElement('div'); div.className='notif';
-    div.innerHTML=`<div class="notif-label">señales recibidas</div><div class="notif-text">Alguien ha señalado a ${[...new Set(signalNotifs.map(n=>n.sobre))].map(s=>`<strong>${s}</strong>`).join(', ')}</div>`;
-    s7notifs.appendChild(div);
+
+  const sNots=Object.values(notifs).filter(n=>n.ronda===ronda&&n.tipo==='señal');
+  if(sNots.length){
+    const d=document.createElement('div'); d.className='notif';
+    d.innerHTML=`<div class="nlabel">señales recibidas</div><div class="ntext">Alguien señaló a ${[...new Set(sNots.map(n=>n.sobre))].map(s=>`<strong>${s}</strong>`).join(', ')}</div>`;
+    notifsEl.appendChild(d);
   }
-  
-  const pistaNotifs = Object.values(notifs).filter(n=>n.ronda===ronda&&n.tipo==='pista');
-  if(pistaNotifs.length){
-    const div=document.createElement('div'); div.className='notif';
-    div.innerHTML=`<div class="notif-label">pistas recibidas</div><div class="notif-text">${pistaNotifs.map(n=>`De <strong>${n.de}</strong>: "${n.texto}"`).join('<br>')}</div>`;
-    s7notifs.appendChild(div);
+
+  const pNots=Object.values(notifs).filter(n=>n.ronda===ronda&&n.tipo==='pista');
+  if(pNots.length){
+    const d=document.createElement('div'); d.className='notif';
+    d.innerHTML=`<div class="nlabel">pistas recibidas</div><div class="ntext">${pNots.map(n=>`De <strong>${n.de}</strong>: "${n.texto}"`).join('<br>')}</div>`;
+    notifsEl.appendChild(d);
   }
-  
-  // Limpiar notifs usadas
-  await fbSet(`notifications/${myName}`, null);
-  
-  // Nominación
-  await fbUpdate('game',{[`nominaciones/${loser}`]:(game.nominaciones?.[loser]||0)+1});
-  
-  // Next round button
-  document.getElementById('btnNextRound').style.display='block';
-  
-  // Check if last round
-  if(ronda >= 4) {
-    document.getElementById('btnNextRound').textContent='Votación final →';
-    document.getElementById('btnNextRound').onclick=()=>fbSet('gamePhase','finalVoting');
+
+  await fset(`notifications/${myName}`,null);
+  await fupd('game',{[`nominaciones/${loser}`]:(gs.nominaciones?.[loser]||0)+1});
+
+  const btnNext=document.getElementById('btnNext');
+  if(ronda>=4){
+    btnNext.textContent='Votación final →';
+    btnNext.onclick=()=>fset('gamePhase','finalVoting');
   } else {
-    document.getElementById('btnNextRound').textContent='Siguiente ronda →';
+    btnNext.textContent='Siguiente ronda →';
   }
-  
+
   goScreen('s7');
 }
 
-window.nextRound = async function() {
-  const snap = await fbGet('game');
-  const game = snap.val();
-  if(game.ronda >= 4) {
-    await fbSet('gamePhase','finalVoting');
-    return;
-  }
-  const newRonda = game.ronda+1;
-  const newOrder = shuffle(Object.keys((await fbGet('players')).val()||{}));
-  await fbUpdate('game',{ronda:newRonda, currentTurnIndex:0, turnOrder:newOrder, roundVotes:null});
-  await fbSet('gamePhase','roles');
+window.nextRound=async function(){
+  const snap=await fget('game'); gs=snap.val();
+  if(gs.ronda>=4){await fset('gamePhase','finalVoting');return;}
+  const newOrder=shuffle(Object.keys((await fget('players')).val()||{}));
+  await fupd('game',{ronda:gs.ronda+1,currentTurnIndex:0,turnOrder:newOrder,roundVotes:null,immDecision:null});
+  await fset('gamePhase','roles');
 }
 
-// ─── FINAL VOTING ───
-async function startFinalVoting() {
-  const snap = await fbGet('game');
-  gameState = snap.val();
-  const snap2 = await fbGet('players');
-  const players = Object.keys(snap2.val()||{}).filter(p=>p!==myName);
-  
-  const list=document.getElementById('finalVoteList'); list.innerHTML='';
-  selectedVote=null;
+// FINAL VOTING
+async function startFinalVoting(){
+  const snap=await fget('game'); gs=snap.val();
+  const psnap=await fget('players');
+  const players=Object.keys(psnap.val()||{}).filter(p=>p!==myName);
+  selFinal=null;
+
+  const list=document.getElementById('finalList'); list.innerHTML='';
   players.forEach(name=>{
-    const row=document.createElement('div'); row.className='player-row'; row.dataset.name=name;
-    row.innerHTML=`<div class="avatar on">${name.slice(0,2).toUpperCase()}</div><div class="pname">${name}</div><div class="pstatus">votar</div>`;
+    const row=document.createElement('div'); row.className='prow'; row.dataset.name=name;
+    row.innerHTML=`<div class="av on">${name.slice(0,2).toUpperCase()}</div><div class="pname">${name}</div><div class="pst">votar</div>`;
     row.onclick=()=>{
-      document.querySelectorAll('#finalVoteList .player-row').forEach(r=>{r.classList.remove('selected');r.querySelector('.pstatus').textContent='votar';r.querySelector('.pstatus').className='pstatus';});
-      row.classList.add('selected'); row.querySelector('.pstatus').textContent='seleccionado'; row.querySelector('.pstatus').className='pstatus on';
-      selectedVote=name;
-      document.getElementById('btnFinalVote').textContent=`Votar a ${name} →`;
+      document.querySelectorAll('#finalList .prow').forEach(r=>{r.classList.remove('selected');r.querySelector('.pst').textContent='votar';r.querySelector('.pst').className='pst';});
+      row.classList.add('selected'); row.querySelector('.pst').textContent='seleccionado'; row.querySelector('.pst').className='pst on';
+      selFinal=name;
+      document.getElementById('btnFinal').textContent=`Votar a ${name} →`;
     };
     list.appendChild(row);
   });
   goScreen('s8');
 }
 
-window.submitFinalVote = async function() {
-  if(!selectedVote){ showToast('Elige a alguien'); return; }
-  await fbSet(`game/finalVotes/${myName}`, selectedVote);
-  showToast('Voto final enviado');
-  
-  const snap=await fbGet('players');
-  const total=Object.keys(snap.val()||{}).length;
-  const checkFinal=async()=>{
-    const fsnap=await fbGet('game/finalVotes');
-    if(Object.keys(fsnap.val()||{}).length>=total) await fbSet('gamePhase','reveal');
-    else setTimeout(checkFinal,2000);
+window.submitFinal=async function(){
+  if(!selFinal){toast('Elige a alguien');return;}
+  await fset(`game/finalVotes/${myName}`,selFinal);
+  toast('Voto final enviado');
+
+  const check=async()=>{
+    const psnap=await fget('players');
+    const total=Object.keys(psnap.val()||{}).length;
+    const fsnap=await fget('game/finalVotes');
+    if(Object.keys(fsnap.val()||{}).length>=total) await fset('gamePhase','reveal');
+    else setTimeout(check,2000);
   };
-  setTimeout(checkFinal,2000);
+  setTimeout(check,2000);
 }
 
-// ─── REVEAL ───
-async function showFinalReveal() {
-  const snap=await fbGet('game');
-  const game=snap.val();
-  const asesino=game.asesino;
-  const votes=game.finalVotes||{};
+// REVEAL
+async function showReveal(){
+  const snap=await fget('game'); gs=snap.val();
+  const asesino=gs.asesino;
+  const votes=gs.finalVotes||{};
   const tally={};
   Object.values(votes).forEach(v=>{tally[v]=(tally[v]||0)+1;});
   const mostVoted=Object.entries(tally).sort((a,b)=>b[1]-a[1])[0]?.[0];
-  const winners=mostVoted===asesino?'los inocentes':'el asesino';
-  
+  const win=mostVoted===asesino;
+
   document.getElementById('revealName').textContent=asesino;
-  document.getElementById('revealName').classList.add('flicker');
-  document.getElementById('revealDesc').textContent=winners==='los inocentes'?'pillado/a. bebe 5 chorritos al cubata.':'sobrevivió. reparte 8 dedos.';
-  
+  document.getElementById('revealDesc').textContent=win?'pillado/a. bebe 5 chupitos.':'sobrevivió. reparte 5 chupitos.';
+
   const cards=document.getElementById('revealCards'); cards.innerHTML='';
   const c1=document.createElement('div'); c1.className='card red';
-  c1.innerHTML=`<div class="card-label">veredicto</div><div class="card-text">${winners==='los inocentes'?`<strong>${asesino}</strong> era el asesino. Los inocentes ganan.`:`<strong>${asesino}</strong> sobrevivió. El asesino gana. Reparte 8 chorritos al cubata de quien quiera.`}</div>`;
+  c1.innerHTML=`<div class="clabel">veredicto</div><div class="ctext">${win?`<strong>${asesino}</strong> era el asesino. Los inocentes ganan.`:`<strong>${asesino}</strong> sobrevivió. El asesino gana.`}</div>`;
   cards.appendChild(c1);
-  const c2=document.createElement("div"); c2.className="card"; c2.style.marginTop="0.5rem";
-  c2.innerHTML=`<div class="card-label">lo que pasó realmente</div><div class="card-text">${game.historiaCompleta||game.crimen}</div>`;
-  cards.appendChild(c2);
-  if(game.motivoAsesino) {
-    const c3=document.createElement("div"); c3.className="card red"; c3.style.marginTop="0.5rem";
-    c3.innerHTML=`<div class="card-label">motivo de ${asesino}</div><div class="card-text">${game.motivoAsesino}</div>`;
+
+  if(gs.historiaCompleta){
+    const c2=document.createElement('div'); c2.className='card'; c2.style.marginTop='0.5rem';
+    c2.innerHTML=`<div class="clabel">lo que pasó realmente</div><div class="ctext">${gs.historiaCompleta}</div>`;
+    cards.appendChild(c2);
+  }
+  if(gs.motivoAsesino){
+    const c3=document.createElement('div'); c3.className='card red'; c3.style.marginTop='0.5rem';
+    c3.innerHTML=`<div class="clabel">motivo de ${asesino}</div><div class="ctext">${gs.motivoAsesino}</div>`;
     cards.appendChild(c3);
   }
-  
+
   document.getElementById('revealOverlay').classList.add('show');
 }
 
-function resetAll() {
-  fbSet('game',null); fbSet('gamePhase',null); fbSet('players',null); fbSet('notifications',null);
-  myName=null; myRole=null; myData=null; selectedVote=null; currentAction=null;
-  document.getElementById('nameList').querySelectorAll('.player-row').forEach(r=>{
+// RESET
+function resetAll(){
+  fset('game',null); fset('gamePhase',null); fset('players',null); fset('notifications',null);
+  myName=null; myRole=null; myData=null; selVote=null; selFinal=null; curAction=null; selTarget=null;
+  pendingPistas=[];
+  document.getElementById('nameList').querySelectorAll('.prow').forEach(r=>{
     r.classList.remove('selected');
-    r.querySelector('.pstatus').textContent='libre';
-    r.querySelector('.pstatus').className='pstatus';
-    r.querySelector('.avatar').className='avatar';
+    r.querySelector('.pst').textContent='libre'; r.querySelector('.pst').className='pst';
+    r.querySelector('.av').className='av';
   });
   document.getElementById('btnJoin').textContent='Elige tu nombre →';
+  document.getElementById('btnListo').textContent='Listo →';
+  document.getElementById('btnListo').disabled=false;
+  document.getElementById('btnListo').className='btn btn-p';
 }
 
-window.resetRoom = async function() {
-  resetAll();
-  showToast('Sala reseteada ✓');
+window.resetRoom=function(){
+  resetAll(); toast('Sala reseteada ✓');
   document.getElementById('hostMenu').style.display='none';
   goScreen('s1');
 }
 
-window.toggleHostMenu = function() {
-  const m = document.getElementById('hostMenu');
-  m.style.display = m.style.display === 'none' ? 'block' : 'none';
-}
-
-window.reanudarPartida = async function() {
-  // Reset only players and gamePhase, keep game data
-  await fbSet('players', null);
-  await fbSet('gamePhase', null);
-  await fbSet('game/roundVotes', null);
-  await fbSet('game/readyForTurns', null);
-  myName=null; myRole=null; myData=null; selectedVote=null; currentAction=null;
-  document.getElementById('nameList').querySelectorAll('.player-row').forEach(r=>{
+window.reanudarSala=async function(){
+  await fset('players',null); await fset('game/listos',null); await fset('game/roundVotes',null);
+  await fset('game/immDecision',null); await fset('gamePhase',null); await fset('notifications',null);
+  myName=null; myRole=null; myData=null; selVote=null; selFinal=null; curAction=null; selTarget=null;
+  pendingPistas=[];
+  document.getElementById('nameList').querySelectorAll('.prow').forEach(r=>{
     r.classList.remove('selected');
-    r.querySelector('.pstatus').textContent='libre';
-    r.querySelector('.pstatus').className='pstatus';
-    r.querySelector('.avatar').className='avatar';
+    r.querySelector('.pst').textContent='libre'; r.querySelector('.pst').className='pst';
+    r.querySelector('.av').className='av';
   });
   document.getElementById('btnJoin').textContent='Elige tu nombre →';
   document.getElementById('hostMenu').style.display='none';
-  showToast('Sala reseteada — volved a entrar');
+  toast('Sala vaciada — volved a entrar');
   goScreen('s1');
 }
 
 window.hideReveal=function(){
   document.getElementById('revealOverlay').classList.remove('show');
-  resetAll();
-  goScreen('s1');
+  resetAll(); goScreen('s1');
 }
 
-// ─── LISTEN TURNS ───
-fbListen("gamePhase", phase=>{
-  if(!myName||!phase) return;
-  if(phase==="turns"||phase.startsWith("turns_update")) {
-    fbGet("game").then(snap=>{
-      gameState=snap.val();
-      const activeScreen = document.querySelector(".screen.active")?.id;
-      if(activeScreen !== "s5" && activeScreen !== "s5b") goScreen("s4");
-      setTimeout(()=>setupTurns(), 400);
-    });
-  }
-  if(phase==="immunity") loadImmunity();
-  if(phase==="voting") startVoting();
-  if(phase==="results") showResults();
-  if(phase==="finalVoting") startFinalVoting();
-  if(phase==="reveal") showFinalReveal();
-  if(phase==="roles" && myName) loadMyRole();
-});
-
-// Also listen to currentTurnIndex changes for stuck players
-fbListen("game/currentTurnIndex", idx=>{
-  if(!myName||idx===null||idx===undefined) return;
-  fbGet("game").then(snap=>{
-    if(!snap.val()) return;
-    gameState=snap.val();
-    const activeScreen = document.querySelector(".screen.active")?.id;
-    if(activeScreen === "s4") setupTurns();
-  });
-});
-
-// ─── EXPOSE GLOBALS ───
-window.joinGame=window.joinGame;
-window.markReadyAndStartTurns=markReadyAndStartTurns;
-window.startGame=window.startGame;
-window.selectName=selectName;
+window.toggleHM=function(){
+  const m=document.getElementById('hostMenu');
+  m.style.display=m.style.display==='none'||!m.style.display?'block':'none';
+}
 </script>
 </body>
 </html>
