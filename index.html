@@ -251,8 +251,9 @@ html,body { height:100%; width:100%; overflow:hidden; background:var(--negro); c
   <div class="scroll" id="turnList"></div>
   <div class="wpulse" id="turnWait">esperando turno...</div>
   <!-- HOST: botón para avanzar al siguiente turno -->
-  <button class="btn btn-d" id="btnHostNextTurn" style="display:none;" onclick="hostNextTurn()">Siguiente turno →</button>
-  <button class="btn btn-d" id="btnMiTurno" disabled>Tu turno →</button>
+  <button class="btn btn-s" id="btnHostNextTurn" style="display:none;" onclick="hostNextTurn()">Siguiente turno →</button>
+  <!-- btn mi turno hidden, auto-navigate happens -->
+  <div id="btnMiTurno" style="display:none;"></div>
 </div>
 
 <!-- S5 MI TURNO -->
@@ -509,6 +510,28 @@ function setupLobby(){
     });
   });
 
+  // Listen to turnDone to update host button
+  fon('game/turnDone',done=>{
+    if(!isHost||!myName)return;
+    const active=document.querySelector('.screen.active')?.id;
+    if(active!=='s4')return;
+    const btnHost=document.getElementById('btnHostNextTurn');
+    fget('game').then(s=>{
+      if(!s.val())return;
+      const g=s.val();
+      const yaAcabo=(g.currentTurnIndex||0)>=(g.turnOrder||[]).length;
+      if(done&&!yaAcabo){
+        btnHost.style.display='block';
+        btnHost.textContent='Siguiente turno →';
+      }else if(yaAcabo){
+        btnHost.style.display='block';
+        btnHost.textContent='Pasar a inmunidad →';
+      }else{
+        btnHost.style.display='none';
+      }
+    });
+  });
+
   fon(`notifications/${myName}`,notifs=>{
     if(!notifs)return;
     Object.values(notifs).forEach(n=>{
@@ -701,29 +724,40 @@ function setupTurns(){
   const esmiTurno=order[cur]===myName;
   const yaAcabo=cur>=order.length;
 
-  // Host button
-  const btnHost=document.getElementById('btnHostNextTurn');
-  if(isHost&&!yaAcabo){
-    btnHost.style.display='block';
-    btnHost.textContent=`Siguiente turno (${order[cur]}) →`;
-    btnHost.className='btn btn-s';
-  }else{
-    btnHost.style.display='none';
-  }
-
   const waitEl=document.getElementById('turnWait');
   const btnEl=document.getElementById('btnMiTurno');
+  const btnHost=document.getElementById('btnHostNextTurn');
 
   if(esmiTurno){
+    // Es mi turno — auto navegar, sin botones
     waitEl.style.display='none';
-    btnEl.disabled=false;btnEl.className='btn btn-p';
-    btnEl.onclick=()=>loadMyTurn();
+    btnEl.style.display='none';
+    btnHost.style.display='none';
     toast('⚡ ¡Es tu turno!',3000);
     setTimeout(()=>loadMyTurn(),1500);
   }else{
+    // No es mi turno
+    btnEl.style.display='none';
     waitEl.style.display='block';
-    waitEl.textContent=yaAcabo?'todos han hablado':order[cur]?`turno de ${order[cur]}...`:'esperando...';
-    btnEl.disabled=true;btnEl.className='btn btn-d';
+    waitEl.textContent=yaAcabo?'todos han hablado ✓':order[cur]?`turno de ${order[cur]}...`:'esperando...';
+
+    // Host ve el botón para avanzar SOLO si el jugador actual ya terminó
+    if(isHost){
+      fget('game/turnDone').then(snap=>{
+        const done=snap.val();
+        if(done&&!yaAcabo){
+          btnHost.style.display='block';
+          btnHost.textContent=`Siguiente turno →`;
+        }else if(yaAcabo){
+          btnHost.style.display='block';
+          btnHost.textContent='Pasar a inmunidad →';
+        }else{
+          btnHost.style.display='none';
+        }
+      });
+    }else{
+      btnHost.style.display='none';
+    }
   }
 }
 
@@ -731,6 +765,7 @@ function setupTurns(){
 window.hostNextTurn=async function(){
   const snap=await fget('game');gs=snap.val();
   const next=(gs.currentTurnIndex||0)+1;
+  await fset('game/turnDone', false);
   if(next>=(gs.turnOrder||[]).length){
     await fset('gamePhase','immunity');
   }else{
@@ -780,7 +815,7 @@ window.selAc=function(a){
 window.confirmAc=async function(){
   if(!curAction){toast('Elige una acción');return;}
   if(curAction==='pasar'){
-    // Pasar = termina mi turno directamente, host decide cuándo avanzar
+    await fset('game/turnDone', true);
     goScreen('s4');
     toast('Turno terminado');
     return;
@@ -822,7 +857,8 @@ window.sendAcYTerminar=async function(){
     toast(`Has señalado a ${selTarget}`);
   }
 
-  // Volver a la pantalla de turno — el host decide cuándo avanzar
+  // Marcar turno como terminado y volver
+  await fset('game/turnDone', true);
   goScreen('s4');
 }
 
