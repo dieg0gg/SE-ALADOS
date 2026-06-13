@@ -732,11 +732,18 @@ function setupTurns() {
   
   // Is it my turn?
   if(order[game.currentTurnIndex] === myName) {
-    document.getElementById('turnWaiting').style.display='none';
-    document.getElementById('btnMiTurno').disabled=false;
-    document.getElementById('btnMiTurno').className='btn btn-primary';
-    document.getElementById('btnMiTurno').onclick = () => loadMyTurn();
-    showToast('⚡ ¡Es tu turno!', 3000);
+    document.getElementById("turnWaiting").style.display="none";
+    document.getElementById("btnMiTurno").disabled=false;
+    document.getElementById("btnMiTurno").className="btn btn-primary";
+    document.getElementById("btnMiTurno").onclick = () => loadMyTurn();
+    showToast("⚡ ¡Es tu turno!", 3000);
+    setTimeout(() => loadMyTurn(), 1500);
+  } else {
+    document.getElementById("turnWaiting").style.display="block";
+    document.getElementById("btnMiTurno").disabled=true;
+    document.getElementById("btnMiTurno").className="btn btn-disabled";
+    const cur = order[game.currentTurnIndex];
+    document.getElementById("turnWaiting").textContent = cur ? "turno de " + cur + "..." : "esperando turno...";
   }
 }
 
@@ -1186,19 +1193,22 @@ window.hideReveal=function(){
 }
 
 // ─── LISTEN TURNS ───
-fbListen('gamePhase', phase=>{
+// ─── LISTEN TURNS ───
+fbListen("gamePhase", phase=>{
   if(!myName||!phase) return;
-  if(phase==='turns'||phase.startsWith('turns_update')) {
-    fbGet('game').then(snap=>{gameState=snap.val();setupTurns();});
-    if(document.querySelector('.screen.active')?.id!=='s5'&&document.querySelector('.screen.active')?.id!=='s5b')
-      goScreen('s4');
+  if(phase==="turns"||phase.startsWith("turns_update")) {
+    fbGet("game").then(snap=>{
+      gameState=snap.val();
+      goScreen("s4");
+      setTimeout(()=>setupTurns(), 300);
+    });
   }
-  if(phase==='immunity') loadImmunity();
-  if(phase==='voting') startVoting();
-  if(phase==='results') showResults();
-  if(phase==='finalVoting') startFinalVoting();
-  if(phase==='reveal') showFinalReveal();
-  if(phase==='roles' && myName) loadMyRole();
+  if(phase==="immunity") loadImmunity();
+  if(phase==="voting") startVoting();
+  if(phase==="results") showResults();
+  if(phase==="finalVoting") startFinalVoting();
+  if(phase==="reveal") showFinalReveal();
+  if(phase==="roles" && myName) loadMyRole();
 });
 
 // ─── EXPOSE GLOBALS ───
