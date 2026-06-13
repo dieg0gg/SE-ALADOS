@@ -510,22 +510,25 @@ function setupLobby(){
     });
   });
 
-  // Listen to turnDone to update host button
+  // Listen to turnDone to update host button — siempre, sin comprobar pantalla
   fon('game/turnDone',done=>{
     if(!isHost||!myName)return;
-    const active=document.querySelector('.screen.active')?.id;
-    if(active!=='s4')return;
     const btnHost=document.getElementById('btnHostNextTurn');
     fget('game').then(s=>{
       if(!s.val())return;
-      const g=s.val();
-      const yaAcabo=(g.currentTurnIndex||0)>=(g.turnOrder||[]).length;
+      gs=s.val();
+      const yaAcabo=(gs.currentTurnIndex||0)>=(gs.turnOrder||[]).length;
       if(done&&!yaAcabo){
         btnHost.style.display='block';
         btnHost.textContent='Siguiente turno →';
+        // Si el host estaba en s5 (era su turno), volver a s4
+        const active=document.querySelector('.screen.active')?.id;
+        if(active==='s5'||active==='s5b') goScreen('s4');
       }else if(yaAcabo){
         btnHost.style.display='block';
         btnHost.textContent='Pasar a inmunidad →';
+        const active=document.querySelector('.screen.active')?.id;
+        if(active==='s5'||active==='s5b') goScreen('s4');
       }else{
         btnHost.style.display='none';
       }
