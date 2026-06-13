@@ -645,8 +645,7 @@ Responde SOLO en JSON sin markdown ni texto extra:
   "historia_completa": "historia de 5-7 frases que narra cronológicamente lo que pasó desde la cena hasta el crimen. Menciona a cada jugador por nombre con su papel real esa noche. Explica el motivo de ${asesino} y cómo ejecutó el crimen.",
   "motivo_asesino": "motivo concreto y personal. Algo que viene de antes del rural, con historia detrás.",
   "datos": {
-    ${players.map(p => `"${p}": "coartada de ${p} coherente con la historia: dónde estaba exactamente en los momentos clave, qué hacía. Máximo 20 palabras. Debe ser única y derivarse directamente de la historia."`).join(',
-    ')}
+    ${players.map(p => `"${p}": "coartada de ${p} coherente con la historia: dónde estaba exactamente en los momentos clave, qué hacía. Máximo 20 palabras. Debe ser única y derivarse directamente de la historia."`).join(',\n    ')}
   },
   "pistas": [
     "pista ronda 1: detalle físico o temporal de la historia que da info sin revelar al culpable",
