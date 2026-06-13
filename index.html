@@ -280,6 +280,10 @@ html, body {
     <div class="card-label">observas los votos de</div>
     <div class="card-text" id="observaText">—</div>
   </div>
+  <div class="card red" id="historiaCard" style="display:none;">
+    <div class="card-label">🔪 historia completa — solo tú la ves</div>
+    <div class="card-text" id="historiaText"></div>
+  </div>
   <button class="btn btn-primary" onclick="markReadyAndStartTurns()">Entendido →</button>
 </div>
 
@@ -591,20 +595,24 @@ window.startGame = async function() {
     observers[p] = shuffle(others).slice(0, count);
   });
   
-  // Generar crimen e inmunidad aleatoria
-  const crimePrompt = `Genera un crimen absurdo y dramático para un juego de mesa en una casa rural española con estos jugadores: ${players.join(', ')}. 
-La víctima es ${victima}. El asesino es ${asesino}.
-Responde SOLO en JSON con este formato exacto, sin markdown:
+  // Generar historia completa con IA
+  const crimePrompt = `Eres el narrador de un juego de misterio en una casa rural española. Los jugadores son: ${players.join(', ')}. La víctima es ${victima}. El asesino es ${asesino}.
+
+Crea una historia de asesinato coherente, dramática y divertida ambientada en una casa rural. La historia debe involucrar a TODOS los jugadores con roles concretos esa noche.
+
+Responde SOLO en JSON sin markdown:
 {
-  "crimen": "descripción del crimen en una frase dramática (ej: Ramón ha aparecido ahogado en la piscina)",
+  "crimen": "frase dramática de una línea sobre cómo murió ${victima}",
+  "historia_completa": "historia detallada de 4-6 frases que explica qué pasó esa noche, quién estaba dónde, qué motivó el crimen, cómo lo hizo ${asesino}. Menciona a todos los jugadores con detalles concretos.",
+  "motivo_asesino": "una frase sobre por qué ${asesino} lo hizo",
   "datos": {
-    ${players.map(p=>`"${p}": "dato de coartada corto y concreto para ${p}, máximo 15 palabras, que sitúe a la persona en un lugar o actividad esa noche"`).join(',\n    ')}
+    ${players.map(p=>`"${p}": "dato concreto de dónde estaba o qué hacía ${p} esa noche, coherente con la historia, máximo 15 palabras"`).join(',\n    ')}
   },
   "pistas": [
-    "pista coherente con el crimen 1",
-    "pista coherente con el crimen 2", 
-    "pista coherente con el crimen 3",
-    "pista coherente con el crimen 4 (esta es FALSA, plantada por el asesino)"
+    "pista ronda 1: detalle concreto de la historia que ayuda a deducir algo (no revela al asesino)",
+    "pista ronda 2: otro detalle concreto que añade información nueva",
+    "pista ronda 3: detalle que empieza a apuntar hacia el culpable indirectamente",
+    "pista ronda 4: detalle FALSO plantado por el asesino para despistar, debe sonar creíble"
   ]
 }`;
 
@@ -615,24 +623,24 @@ Responde SOLO en JSON con este formato exacto, sin markdown:
       const clean = raw.replace(/```json|```/g,'').trim();
       crimeData = JSON.parse(clean);
     }
-  } catch(e) {}
+  } catch(e) { console.log('Gemini error:', e); }
   
   if(!crimeData) {
-    // Fallback
     const crimenes = [
       `${victima} ha aparecido ahogado/a en la piscina esta mañana`,
       `${victima} ha caído misteriosamente por las escaleras`,
-      `${victima} ha aparecido envenenado/a con el café de la mañana`,
-      `${victima} ha desaparecido y han encontrado sus zapatillas en el jardín`
+      `${victima} ha aparecido envenenado/a con el café de la mañana`
     ];
     crimeData = {
       crimen: rand(crimenes),
-      datos: Object.fromEntries(players.map(p=>[p, `Estabas en tu habitación cuando ocurrió todo`])),
+      historia_completa: `Esa noche todo parecía normal hasta que ${asesino} y ${victima} tuvieron una discusión por algo que pasó en la cena. Nadie más lo oyó. A las 3am alguien bajó al jardín. A las 7am encontraron a ${victima}.`,
+      motivo_asesino: `${asesino} llevaba tiempo guardando un secreto que ${victima} amenazaba con revelar.`,
+      datos: Object.fromEntries(players.map(p=>[p, p === asesino ? `Estabas despierto/a. Bajaste al jardín a las 3am.` : `Estabas durmiendo cuando ocurrió todo`])),
       pistas: [
-        "El crimen ocurrió antes de las 3am",
-        "Había más de una persona en la escena",
-        "El asesino conocía el lugar perfectamente",
-        "Se oyó un ruido extraño en la cocina (FALSA)"
+        `La víctima tuvo una discusión en la cena con alguien del grupo`,
+        `Alguien salió al jardín pasadas las 2am`,
+        `El asesino tenía un motivo que venía de antes del rural`,
+        `Se encontró una nota en la habitación de la víctima (FALSA)`
       ]
     };
   }
@@ -641,11 +649,13 @@ Responde SOLO en JSON con este formato exacto, sin markdown:
   const roleAssignments = {};
   players.forEach(p => {
     let rol, desc;
-    if(p === asesino) { rol='asesino'; desc='Tú eres el asesino. Miente, siembra dudas, sobrevive.'; }
-    else if(p === victima) { rol='victima'; desc='Has sido asesinado/a. Recibes pistas extra. No puedes votar.'; }
-    else if(complices.includes(p)) { rol='complice'; desc='Estás en el bando del asesino, pero no sabes quién es.'; }
-    else { rol='inocente'; desc='Descubre quién fue el asesino.'; }
-    roleAssignments[p] = { rol, desc, dato: crimeData.datos[p] || 'Estabas durmiendo', observa: observers[p] };
+    if(p === asesino) { rol='asesino'; desc=`Tú eres el asesino. Motivo: ${crimeData.motivo_asesino} Miente, siembra dudas, sobrevive.`; }
+    else if(p === victima) { rol='victima'; desc='Has sido asesinado/a. Recibes pistas extra cada ronda. No puedes votar pero puedes usar acciones.'; }
+    else if(complices.includes(p)) { rol='complice'; desc='Estás en el bando del asesino, pero no sabes quién es. Intenta protegerle sin saberlo.'; }
+    else { rol='inocente'; desc='Descubre quién fue el asesino usando las pistas y las coartadas.'; }
+    const dato = crimeData.datos[p] || 'Estabas en tu habitación';
+    const historiaParaAsesino = p === asesino ? crimeData.historia_completa : null;
+    roleAssignments[p] = { rol, desc, dato, observa: observers[p], historiaCompleta: historiaParaAsesino };
   });
   
   // Determinar rondas de inmunidad (rondas 2 y 3)
@@ -659,6 +669,8 @@ Responde SOLO en JSON con este formato exacto, sin markdown:
   
   await fbSet('game', {
     crimen: crimeData.crimen,
+    historiaCompleta: crimeData.historia_completa || null,
+    motivoAsesino: crimeData.motivo_asesino || null,
     pistas: crimeData.pistas,
     roles: roleAssignments,
     asesino,
@@ -706,6 +718,14 @@ async function loadMyRole() {
   document.getElementById('observaText').innerHTML = obs.length
     ? obs.map(o=>`<strong>${o}</strong>`).join(' y ') + ' — ellos no lo saben.'
     : 'No observas a nadie esta partida.';
+  
+  // Historia completa solo para el asesino
+  if(me.historiaCompleta) {
+    document.getElementById("historiaCard").style.display="block";
+    document.getElementById("historiaText").textContent = me.historiaCompleta;
+  } else {
+    document.getElementById("historiaCard").style.display="none";
+  }
   
   // Update status
   document.getElementById("s3status").textContent = `SEÑALADOS · ronda ${game.ronda}/4`;
@@ -1168,15 +1188,20 @@ async function showFinalReveal() {
   
   document.getElementById('revealName').textContent=asesino;
   document.getElementById('revealName').classList.add('flicker');
-  document.getElementById('revealDesc').textContent=winners==='los inocentes'?'pillado/a. bebe 5 dedos.':'sobrevivió. reparte 8 dedos.';
+  document.getElementById('revealDesc').textContent=winners==='los inocentes'?'pillado/a. bebe 5 chorritos al cubata.':'sobrevivió. reparte 8 dedos.';
   
   const cards=document.getElementById('revealCards'); cards.innerHTML='';
   const c1=document.createElement('div'); c1.className='card red';
-  c1.innerHTML=`<div class="card-label">veredicto</div><div class="card-text">${winners==='los inocentes'?`<strong>${asesino}</strong> era el asesino. Los inocentes ganan.`:`<strong>${asesino}</strong> sobrevivió. El asesino gana. Reparte 8 dedos.`}</div>`;
+  c1.innerHTML=`<div class="card-label">veredicto</div><div class="card-text">${winners==='los inocentes'?`<strong>${asesino}</strong> era el asesino. Los inocentes ganan.`:`<strong>${asesino}</strong> sobrevivió. El asesino gana. Reparte 8 chorritos al cubata de quien quiera.`}</div>`;
   cards.appendChild(c1);
-  const c2=document.createElement('div'); c2.className='card'; c2.style.marginTop='0.5rem';
-  c2.innerHTML=`<div class="card-label">la víctima era</div><div class="card-text"><strong>${game.victima}</strong> — ${game.crimen}</div>`;
+  const c2=document.createElement("div"); c2.className="card"; c2.style.marginTop="0.5rem";
+  c2.innerHTML=`<div class="card-label">lo que pasó realmente</div><div class="card-text">${game.historiaCompleta||game.crimen}</div>`;
   cards.appendChild(c2);
+  if(game.motivoAsesino) {
+    const c3=document.createElement("div"); c3.className="card red"; c3.style.marginTop="0.5rem";
+    c3.innerHTML=`<div class="card-label">motivo de ${asesino}</div><div class="card-text">${game.motivoAsesino}</div>`;
+    cards.appendChild(c3);
+  }
   
   document.getElementById('revealOverlay').classList.add('show');
 }
