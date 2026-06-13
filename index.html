@@ -253,6 +253,7 @@ html, body {
   <div class="player-list" id="lobbyList"></div>
   <div id="hostControls" style="display:none;margin-top:1rem;">
     <button class="btn btn-primary" onclick="startGame()">Arrancar partida →</button>
+    <button class="btn btn-secondary" onclick="resetRoom()">🗑 Resetear sala</button>
   </div>
   <div class="waiting-pulse" id="waitingMsg">esperando que el host arranque...</div>
 </div>
@@ -1160,12 +1161,28 @@ async function showFinalReveal() {
   document.getElementById('revealOverlay').classList.add('show');
 }
 
+function resetAll() {
+  fbSet('game',null); fbSet('gamePhase',null); fbSet('players',null); fbSet('notifications',null);
+  myName=null; myRole=null; myData=null; selectedVote=null; currentAction=null;
+  document.getElementById('nameList').querySelectorAll('.player-row').forEach(r=>{
+    r.classList.remove('selected');
+    r.querySelector('.pstatus').textContent='libre';
+    r.querySelector('.pstatus').className='pstatus';
+    r.querySelector('.avatar').className='avatar';
+  });
+  document.getElementById('btnJoin').textContent='Elige tu nombre →';
+}
+
+window.resetRoom = async function() {
+  resetAll();
+  showToast('Sala reseteada ✓');
+  goScreen('s1');
+}
+
 window.hideReveal=function(){
   document.getElementById('revealOverlay').classList.remove('show');
-  fbSet('game',null); fbSet('gamePhase',null); fbSet('players',null); fbSet('notifications',null);
+  resetAll();
   goScreen('s1');
-  document.getElementById('nameList').querySelectorAll('.player-row').forEach(r=>{r.classList.remove('selected');});
-  myName=null; myRole=null; myData=null;
 }
 
 // ─── LISTEN TURNS ───
