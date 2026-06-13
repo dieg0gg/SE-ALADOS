@@ -131,6 +131,14 @@ html, body { height:100%; width:100%; overflow:hidden; background:var(--negro); 
 <body>
 <div class="scanline"></div>
 <div class="toast" id="toast"></div>
+<div id="pistaPopup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:300;display:none;align-items:center;justify-content:center;padding:1.5rem;">
+  <div style="background:#1c1c1c;border:1px solid rgba(193,39,45,0.5);border-radius:12px;padding:1.4rem;max-width:320px;width:100%;">
+    <div style="font-size:0.55rem;letter-spacing:0.2em;color:var(--rojo);text-transform:uppercase;margin-bottom:0.4rem;">📤 pista recibida</div>
+    <div style="font-size:0.7rem;color:var(--apagado);margin-bottom:0.7rem;" id="pistaPopupDe">de —</div>
+    <div style="font-size:0.88rem;color:var(--hueso);line-height:1.5;margin-bottom:1.2rem;" id="pistaPopupTexto"></div>
+    <button onclick="closePistaPopup()" style="width:100%;padding:0.75rem;background:var(--rojo);color:var(--hueso);border:none;border-radius:8px;font-family:var(--font);font-size:0.8rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;">Entendido →</button>
+  </div>
+</div>
 
 <div class="reveal-overlay" id="revealOverlay">
   <div class="rlabel">el asesino era</div>
@@ -499,10 +507,11 @@ function setupLobby(){
     if(!notifs) return;
     Object.values(notifs).forEach(n=>{
       if(n.tipo==='pista'){
-        toast(`📤 Pista de ${n.de}: "${n.texto.slice(0,50)}..."`, 5000);
+        // Show full pista in a popup card
+        showPistaPopup(n.de, n.texto);
         pendingPistas.push(n);
       }
-      if(n.tipo==='señal') toast(`👆 Alguien ha señalado a ${n.sobre}`, 3000);
+      if(n.tipo==='señal') toast(`👆 Alguien ha señalado a ${n.sobre}`, 4000);
     });
   });
 }
@@ -753,6 +762,8 @@ window.sendAc=async function(){
 
 async function advanceTurn(){
   const snap=await fget('game'); gs=snap.val();
+  // Only advance if it's still my turn (prevent double-advance)
+  if(gs.turnOrder[gs.currentTurnIndex||0]!==myName) return;
   const next=(gs.currentTurnIndex||0)+1;
   if(next>=(gs.turnOrder||[]).length){
     await fset('gamePhase','immunity');
@@ -1089,6 +1100,17 @@ function resetAll(){
   document.getElementById('btnListo').textContent='Listo →';
   document.getElementById('btnListo').disabled=false;
   document.getElementById('btnListo').className='btn btn-p';
+}
+
+window.showPistaPopup=function(de, texto){
+  const popup=document.getElementById('pistaPopup');
+  document.getElementById('pistaPopupDe').textContent=`de ${de}`;
+  document.getElementById('pistaPopupTexto').textContent=texto;
+  popup.style.display='flex';
+}
+
+window.closePistaPopup=function(){
+  document.getElementById('pistaPopup').style.display='none';
 }
 
 window.resetRoom=function(){
