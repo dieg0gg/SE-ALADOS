@@ -101,6 +101,21 @@ html,body { height:100%; width:100%; overflow:hidden; background:var(--negro); c
 .ronda-label { font-size:0.7rem; letter-spacing:0.4em; color:var(--apagado); text-transform:uppercase; margin-top:0.5rem; animation:rondaIn 0.5s ease 0.1s both; }
 @keyframes rondaIn { from{opacity:0;transform:scale(0.8)} to{opacity:1;transform:scale(1)} }
 
+/* VOTACION / FINAL DRAMA OVERLAY */
+.drama-overlay { position:fixed; inset:0; background:var(--negro); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:160; padding:2rem; text-align:center; opacity:0; pointer-events:none; transition:opacity 0.5s; }
+.drama-overlay.show { opacity:1; pointer-events:all; }
+.drama-big { font-size:4rem; font-weight:700; color:var(--rojo); line-height:1; animation:rondaIn 0.5s ease; }
+.drama-sub { font-size:0.7rem; letter-spacing:0.35em; color:var(--apagado); text-transform:uppercase; margin-top:0.6rem; animation:rondaIn 0.5s ease 0.15s both; }
+.drama-name { font-size:3.5rem; font-weight:700; color:var(--hueso); margin-top:1rem; animation:rondaIn 0.6s ease 0.3s both; }
+.drama-label { font-size:0.58rem; letter-spacing:0.28em; color:var(--apagado); text-transform:uppercase; margin-bottom:0.4rem; animation:rondaIn 0.4s ease; }
+.podio-list { width:100%; max-width:320px; margin-top:1.2rem; }
+.podio-item { display:flex; align-items:center; gap:0.8rem; margin-bottom:0.9rem; opacity:0; transform:translateX(-24px); transition:opacity 0.5s, transform 0.5s; }
+.podio-item.show { opacity:1; transform:translateX(0); }
+.podio-rank { font-size:1.6rem; font-weight:700; color:var(--rojo); width:28px; flex-shrink:0; text-align:right; }
+.podio-name { font-size:1.1rem; font-weight:700; color:var(--hueso); flex:1; text-align:left; }
+.podio-votes { font-size:0.72rem; color:var(--apagado); }
+@keyframes dramaticIn { from{opacity:0;transform:scale(1.15)} to{opacity:1;transform:scale(1)} }
+
 .toast { position:fixed; bottom:5rem; left:50%; transform:translateX(-50%) translateY(20px); background:#1a1a1a; border:1px solid #333; border-radius:8px; padding:0.6rem 1.2rem; font-size:0.75rem; color:var(--hueso); opacity:0; transition:all 0.3s; z-index:200; white-space:nowrap; max-width:90vw; overflow:hidden; text-overflow:ellipsis; }
 .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
@@ -142,6 +157,11 @@ html,body { height:100%; width:100%; overflow:hidden; background:var(--negro); c
 <div class="ronda-overlay" id="rondaOverlay">
   <div class="ronda-num" id="rondaNum">2</div>
   <div class="ronda-label" id="rondaLabel">RONDA 2 DE 4</div>
+</div>
+
+<!-- DRAMA OVERLAY (votación + final) -->
+<div class="drama-overlay" id="dramaOverlay">
+  <div id="dramaContent"></div>
 </div>
 
 <!-- REVEAL -->
@@ -300,8 +320,9 @@ html,body { height:100%; width:100%; overflow:hidden; background:var(--negro); c
     <span class="status-left" id="s5cSt">SEÑALADOS</span>
     <div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div>
   </div>
-  <div class="eyebrow">⚠ antes de votar</div>
-  <div class="title">Oferta<br><span class="r">especial</span></div>
+  <div class="eyebrow" id="s5cEye">⚡ decisión importante</div>
+  <div class="title" id="s5cTitle">¿Te gustaría<br>ser <span class="r">inmune?</span></div>
+  <div class="subtitle" id="s5cSub">recuerda que tus decisiones tienen consecuencias</div>
   <div class="card"><div class="clabel">todo el mundo lo ve</div><div class="ctext" id="immInfo">—</div></div>
   <div class="div"></div>
   <div class="imm-box" id="immBox" style="display:none;">
@@ -360,7 +381,7 @@ html,body { height:100%; width:100%; overflow:hidden; background:var(--negro); c
     <div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div>
   </div>
   <div class="eyebrow">votación final</div>
-  <div class="title">¿Quién <span class="r">fue?</span></div>
+  <div class="title">¿A quién <span class="r">expulsas?</span></div>
   <div class="subtitle">última oportunidad · los votos son públicos</div>
   <div class="player-list" id="finalList"></div>
   <button class="btn btn-p" id="btnFinal" onclick="submitFinal()">Votar →</button>
@@ -388,6 +409,7 @@ const NAMES = ["Sara","Ana","Lucía","Elena","Eneko","Diego","Ramón","Irene","D
 let myName=null, myRole=null, isHost=false;
 let curAction=null, selTarget=null, selVote=null, selFinal=null;
 let gs={}, pistasAcum=[], pendingPistas=[];
+let processedNotifKeys=new Set();
 
 const fr = p => ref(db,`${ROOM}/${p}`);
 const fset = (p,v) => set(fr(p),v);
@@ -417,6 +439,31 @@ function showRondaAnim(n, total, cb){
   document.getElementById('rondaLabel').textContent=`RONDA ${n} DE ${total}`;
   ov.classList.add('show');
   setTimeout(()=>{ov.classList.remove('show');setTimeout(cb,400);},2000);
+}
+
+// Drama overlay: muestra pasos encadenados
+function showDrama(steps, onDone){
+  const overlay=document.getElementById('dramaOverlay');
+  const content=document.getElementById('dramaContent');
+  let i=0;
+  function next(){
+    if(i>=steps.length){
+      overlay.classList.remove('show');
+      setTimeout(()=>{content.innerHTML='';if(onDone)onDone();},500);
+      return;
+    }
+    const step=steps[i++];
+    // fade out briefly then swap content
+    overlay.style.opacity='0';
+    setTimeout(()=>{
+      content.innerHTML=step.html;
+      overlay.style.opacity='';
+      overlay.classList.add('show');
+      if(step.afterShow) setTimeout(step.afterShow,80);
+      setTimeout(next,step.dur);
+    },i===1?0:300);
+  }
+  next();
 }
 
 async function gemini(prompt){
@@ -510,7 +557,7 @@ function setupLobby(){
     });
   });
 
-  // Listen to turnDone to update host button — siempre, sin comprobar pantalla
+  // Listen to turnDone to update host button
   fon('game/turnDone',done=>{
     if(!isHost||!myName)return;
     const btnHost=document.getElementById('btnHostNextTurn');
@@ -521,7 +568,6 @@ function setupLobby(){
       if(done&&!yaAcabo){
         btnHost.style.display='block';
         btnHost.textContent='Siguiente turno →';
-        // Si el host estaba en s5 (era su turno), volver a s4
         const active=document.querySelector('.screen.active')?.id;
         if(active==='s5'||active==='s5b') goScreen('s4');
       }else if(yaAcabo){
@@ -537,7 +583,9 @@ function setupLobby(){
 
   fon(`notifications/${myName}`,notifs=>{
     if(!notifs)return;
-    Object.values(notifs).forEach(n=>{
+    Object.entries(notifs).forEach(([key,n])=>{
+      if(processedNotifKeys.has(key))return;
+      processedNotifKeys.add(key);
       if(n.tipo==='pista'){
         showPistaPopup(n.de,n.texto);
         pistasAcum.push({de:n.de,texto:n.texto,ronda:n.ronda});
@@ -586,7 +634,7 @@ REGLAS para las pistas:
 Responde SOLO en JSON sin markdown:
 {
   "crimen": "frase dramática y específica: cómo, dónde y cuándo murió ${victima}",
-  "historia_completa": "historia de 5-7 frases cronológica desde la cena hasta el crimen. Menciona a cada jugador por nombre. Explica el motivo y cómo actuó ${asesino}.",
+  "historia_completa": "historia de 5-7 frases cronológica desde la cena hasta el crimen. Menciona a cada jugador por nombre. Describe EXPLÍCITAMENTE y sin eufemismos cómo ${asesino} mató a ${victima}: el método exacto (estrangulamiento, golpe, ahogamiento, veneno...), el lugar preciso, el momento exacto y el motivo. No uses frases vagas como 'lo que pasó después' o 'el resto es historia'. El asesinato debe quedar completamente claro.",
   "motivo_asesino": "motivo concreto y personal. Una frase.",
   "datos": {
     ${players.map(p=>`"${p}": "coartada de ${p} derivada de la historia. Lugar exacto + actividad concreta. Máx 20 palabras."`).join(',\n    ')}
@@ -609,8 +657,8 @@ Responde SOLO en JSON sin markdown:
     const coartadas=shuffle(['Fumando en la terraza, viste luz en la cocina a las 3am.','En el baño de arriba con dolor de tripa desde medianoche.','Llamando por teléfono en el jardín, oíste un ruido extraño.','Bebiendo solo/a en el salón, te quedaste dormido/a en el sofá.','Escuchando música con auriculares en tu cuarto, no oíste nada.','En la cocina calentando algo, viste pasar una sombra por la ventana.','Mirando el móvil en la terraza de arriba toda la noche.','Llorando en el coche aparcado, procesando algo de la cena.','Sentado/a en el borde de la piscina a las 2am, solo/a.','En el salón viendo una película en silencio.']);
     data={
       crimen:`${victima} ha aparecido ${rand(['ahogado/a en la piscina','al pie de las escaleras','en el jardín'])} esta mañana`,
-      historia_completa:`Esa noche la tensión venía de la cena. ${asesino} y ${victima} habían tenido un intercambio tenso que nadie quiso ignorar. A las 2am la mayoría dormía. ${asesino} bajó al jardín. Lo que pasó después dejó a ${victima} sin vida. A las 7am alguien encontró el cuerpo.`,
-      motivo_asesino:`${asesino} llevaba tiempo guardando un secreto que ${victima} amenazaba con revelar.`,
+      historia_completa:`Esa noche la tensión venía de la cena: ${asesino} y ${victima} tuvieron una discusión sobre un secreto que ${victima} amenazaba con revelar. A las 2am, cuando el resto dormía, ${asesino} siguió a ${victima} al jardín. Allí le golpeó en la cabeza con una botella de vino vacía que había en la terraza, y después lo empujó a la piscina para simular un accidente. El cuerpo fue encontrado flotando a las 7am.`,
+      motivo_asesino:`${asesino} llevaba tiempo guardando un secreto que ${victima} amenazaba con revelar esa misma noche.`,
       datos:Object.fromEntries(players.map((p,i)=>[p,p===asesino?'Bajaste al jardín a las 2am con la excusa de tomar el aire. No viste a nadie, o eso dices.':coartadas[i%coartadas.length]])),
       pistas:[
         'Se encontraron huellas húmedas que iban desde la piscina hasta la puerta trasera de la casa',
@@ -732,19 +780,16 @@ function setupTurns(){
   const btnHost=document.getElementById('btnHostNextTurn');
 
   if(esmiTurno){
-    // Es mi turno — auto navegar, sin botones
     waitEl.style.display='none';
     btnEl.style.display='none';
     btnHost.style.display='none';
     toast('⚡ ¡Es tu turno!',3000);
     setTimeout(()=>loadMyTurn(),1500);
   }else{
-    // No es mi turno
     btnEl.style.display='none';
     waitEl.style.display='block';
     waitEl.textContent=yaAcabo?'todos han hablado ✓':order[cur]?`turno de ${order[cur]}...`:'esperando...';
 
-    // Host ve el botón para avanzar SOLO si el jugador actual ya terminó
     if(isHost){
       fget('game/turnDone').then(snap=>{
         const done=snap.val();
@@ -786,11 +831,11 @@ async function loadMyTurn(){
     const p=pendingPistas.shift();
     document.getElementById('pistaCard').style.display='block';
     document.getElementById('sinPista').style.display='none';
-    document.getElementById('pistaText').textContent=`[de ${p.de}]: ${p.texto}`;
+    // Solo mostramos el texto, sin prefijo de remitente
+    document.getElementById('pistaText').textContent=p.texto;
   }else if(hasPista&&gs.pistas){
     const idx=Math.min(ronda-1,gs.pistas.length-1);
     const pista=gs.pistas[idx];
-    // Track in pistasAcum if not already there
     if(!pistasAcum.find(p=>p.texto===pista)){
       pistasAcum.push({de:null,texto:pista,ronda});
     }
@@ -823,7 +868,6 @@ window.confirmAc=async function(){
     toast('Turno terminado');
     return;
   }
-  // Compartir o señalar: ir a elegir destinatario
   const players=Object.keys((await fget('players')).val()||{}).filter(p=>p!==myName);
   const list=document.getElementById('targetList');list.innerHTML='';
   selTarget=null;
@@ -841,7 +885,6 @@ window.confirmAc=async function(){
   goScreen('s5b');
 }
 
-// Enviar pista/señal Y terminar turno en un solo paso
 window.sendAcYTerminar=async function(){
   if(!selTarget){toast('Elige a alguien');return;}
   const snap=await fget('game');gs=snap.val();
@@ -860,36 +903,54 @@ window.sendAcYTerminar=async function(){
     toast(`Has señalado a ${selTarget}`);
   }
 
-  // Marcar turno como terminado y volver
   await fset('game/turnDone', true);
   goScreen('s4');
 }
 
-// INMUNIDAD
+// INMUNIDAD — primero muestra overlay de VOTACIONES, luego la pantalla
 async function loadImmunity(){
   const snap=await fget('game');gs=snap.val();
   const ronda=gs.ronda;
-  const immPlayers=(gs.immunityRounds||{})[ronda]||[];
+
+  // Excluir jugadores que ya fueron inmunes la ronda anterior (no dos seguidas)
+  const prevAccepted=Object.entries(gs.immunityAccepted||{})
+    .filter(([,r])=>r===ronda-1)
+    .map(([p])=>p);
+  const immPlayers=((gs.immunityRounds||{})[ronda]||[]).filter(p=>!prevAccepted.includes(p));
+
   const iAmChosen=immPlayers.includes(myName);
 
-  document.getElementById('s5cSt').textContent=`SEÑALADOS · ronda ${ronda}/4`;
-  document.getElementById('immInfo').innerHTML=immPlayers.length>0
-    ?`<strong>${immPlayers.join('</strong> e <strong>')}</strong> tienen la opción de ser inmunes esta ronda.`
-    :'Nadie tiene inmunidad esta ronda.';
+  // Mostrar overlay "VOTACIONES" primero
+  showDrama([{
+    html:`<div class="drama-sub" style="margin-bottom:0.6rem;">ronda ${ronda} de ${gs.totalRondas}</div><div class="drama-big">VOTACIONES</div>`,
+    dur:2200
+  }],()=>{
+    // Configurar la pantalla de inmunidad
+    document.getElementById('s5cSt').textContent=`SEÑALADOS · ronda ${ronda}/4`;
 
-  document.getElementById('immBox').style.display=iAmChosen?'block':'none';
-  document.getElementById('noImmCard').style.display=iAmChosen?'none':'block';
-  document.getElementById('btnAceptarImm').style.display=iAmChosen?'block':'none';
+    if(iAmChosen){
+      document.getElementById('s5cTitle').innerHTML='¿Te gustaría<br>ser <span class="r">inmune?</span>';
+      document.getElementById('s5cSub').textContent='recuerda que tus decisiones tienen consecuencias';
+    }else{
+      document.getElementById('s5cTitle').innerHTML='Decisión<br><span class="r">importante</span>';
+      document.getElementById('s5cSub').textContent='alguien puede ser inmune en esta votación';
+    }
 
-  // Mostrar decisión pendiente, ocultar waiting
-  document.getElementById('immDecisionArea').style.display='block';
-  document.getElementById('immWait').style.display='none';
+    document.getElementById('immInfo').innerHTML=immPlayers.length>0
+      ?`<strong>${immPlayers.join('</strong> y <strong>')}</strong> tienen la opción de ser inmunes esta ronda.`
+      :'Nadie tiene inmunidad disponible esta ronda.';
 
-  goScreen('s5c');
+    document.getElementById('immBox').style.display=iAmChosen?'block':'none';
+    document.getElementById('noImmCard').style.display=iAmChosen?'none':'block';
+    document.getElementById('btnAceptarImm').style.display=iAmChosen?'block':'none';
+    document.getElementById('immDecisionArea').style.display='block';
+    document.getElementById('immWait').style.display='none';
+
+    goScreen('s5c');
+  });
 }
 
 function marcarImmDecision(elegido){
-  // Resaltar la elección
   document.getElementById('immDecisionArea').style.display='none';
   document.getElementById('immWait').style.display='block';
   toast(elegido?'Inmunidad activada. Habrá un precio...':'Continúas sin inmunidad.');
@@ -1075,7 +1136,6 @@ async function showResults(){
   await fset(`notifications/${myName}`,null);
   await fupd('game',{[`nominaciones/${loser}`]:(gs.nominaciones?.[loser]||0)+1});
 
-  // Solo el host puede avanzar
   if(isHost){
     const btnNext=document.getElementById('btnHostNextRound');
     btnNext.style.display='block';
@@ -1103,28 +1163,84 @@ window.hostNextRound=async function(){
   await fset('gamePhase','roles');
 }
 
-// FINAL
+// FINAL VOTING — secuencia dramática
 async function startFinalVoting(){
   const snap=await fget('game');gs=snap.val();
   const psnap=await fget('players');
-  const players=Object.keys(psnap.val()||{}).filter(p=>p!==myName);
-  selFinal=null;
-  document.getElementById('btnFinal').style.display='block';
-  document.getElementById('finalWait').style.display='none';
-  document.getElementById('btnFinal').textContent='Votar →';
+  const allPlayers=Object.keys(psnap.val()||{});
 
-  const list=document.getElementById('finalList');list.innerHTML='';
-  players.forEach(name=>{
-    const row=document.createElement('div');row.className='prow';row.dataset.name=name;
-    row.innerHTML=`<div class="av on">${name.slice(0,2).toUpperCase()}</div><div class="pname">${name}</div><div class="pst">votar</div>`;
-    row.onclick=()=>{
-      document.querySelectorAll('#finalList .prow').forEach(r=>{r.classList.remove('selected');r.querySelector('.pst').textContent='votar';r.querySelector('.pst').className='pst';});
-      row.classList.add('selected');row.querySelector('.pst').textContent='seleccionado';row.querySelector('.pst').className='pst on';
-      selFinal=name;document.getElementById('btnFinal').textContent=`Votar a ${name} →`;
-    };
-    list.appendChild(row);
+  // Calcular podio de nominaciones
+  const noms=gs.nominaciones||{};
+  const podioSorted=allPlayers
+    .map(p=>({name:p,votes:noms[p]||0}))
+    .sort((a,b)=>b.votes-a.votes);
+
+  // Persona más señalada
+  const masSeñalada=podioSorted[0]?.name||'—';
+
+  // Construir HTML del podio (orden: 3º → 2º → 1º)
+  const podioItems=podioSorted.slice(0,Math.min(podioSorted.length,5));
+  const podioReversed=[...podioItems].reverse(); // de menor a mayor para ir revelando
+  const medallas=['🥇','🥈','🥉','4º','5º'];
+
+  function buildPodioHTML(){
+    return `
+      <div class="drama-label" style="margin-bottom:1rem;">personas más nominadas</div>
+      <div class="podio-list" id="podioList">
+        ${podioItems.map((p,i)=>`<div class="podio-item" id="podio-${i}">
+          <div class="podio-rank">${medallas[i]||`${i+1}º`}</div>
+          <div class="podio-name">${p.name}</div>
+          <div class="podio-votes">${p.votes} nominacion${p.votes!==1?'es':''}</div>
+        </div>`).join('')}
+      </div>`;
+  }
+
+  const steps=[
+    {
+      html:`<div class="drama-big" style="font-size:3.2rem;letter-spacing:0.05em;">VOTACIÓN<br>FINAL</div><div class="drama-sub" style="margin-top:0.8rem;">ha llegado el momento de la verdad</div>`,
+      dur:2800
+    },
+    {
+      html:`<div class="drama-label">la persona más señalada ha sido...</div><div class="drama-name" style="animation:dramaticIn 0.7s ease both;">${masSeñalada}</div>`,
+      dur:3000
+    },
+    {
+      html:buildPodioHTML(),
+      dur:podioItems.length*1400+1200,
+      afterShow:()=>{
+        // Revelar de abajo a arriba con retraso
+        [...podioItems].reverse().forEach((_,ri)=>{
+          const i=podioItems.length-1-ri;
+          setTimeout(()=>{
+            const el=document.getElementById(`podio-${i}`);
+            if(el) el.classList.add('show');
+          },ri*1300+300);
+        });
+      }
+    }
+  ];
+
+  showDrama(steps,()=>{
+    // Configurar la pantalla de votación
+    selFinal=null;
+    document.getElementById('btnFinal').style.display='block';
+    document.getElementById('finalWait').style.display='none';
+    document.getElementById('btnFinal').textContent='Votar →';
+
+    const players=allPlayers.filter(p=>p!==myName);
+    const list=document.getElementById('finalList');list.innerHTML='';
+    players.forEach(name=>{
+      const row=document.createElement('div');row.className='prow';row.dataset.name=name;
+      row.innerHTML=`<div class="av on">${name.slice(0,2).toUpperCase()}</div><div class="pname">${name}</div><div class="pst">votar</div>`;
+      row.onclick=()=>{
+        document.querySelectorAll('#finalList .prow').forEach(r=>{r.classList.remove('selected');r.querySelector('.pst').textContent='votar';r.querySelector('.pst').className='pst';});
+        row.classList.add('selected');row.querySelector('.pst').textContent='seleccionado';row.querySelector('.pst').className='pst on';
+        selFinal=name;document.getElementById('btnFinal').textContent=`Expulsar a ${name} →`;
+      };
+      list.appendChild(row);
+    });
+    goScreen('s8');
   });
-  goScreen('s8');
 }
 
 window.submitFinal=async function(){
@@ -1144,7 +1260,7 @@ window.submitFinal=async function(){
   setTimeout(check,2000);
 }
 
-// REVEAL
+// REVEAL — secuencia dramática de storytelling
 async function showReveal(){
   const snap=await fget('game');gs=snap.val();
   const asesino=gs.asesino;
@@ -1154,24 +1270,69 @@ async function showReveal(){
   const mostVoted=Object.entries(tally).sort((a,b)=>b[1]-a[1])[0]?.[0];
   const win=mostVoted===asesino;
 
-  document.getElementById('revealName').textContent=asesino;
-  document.getElementById('revealDesc').textContent=win?'pillado/a. bebe 5 chupitos.':'sobrevivió. reparte 5 chupitos.';
+  // Quiénes votaron al asesino (correcto) y quiénes no
+  const votosCorrectos=Object.entries(votes).filter(([,v])=>v===asesino).map(([p])=>p);
+  const votosErroneos=Object.entries(votes).filter(([,v])=>v!==asesino).map(([p])=>p);
 
-  const cards=document.getElementById('revealCards');cards.innerHTML='';
-  const c1=document.createElement('div');c1.className='card red';
-  c1.innerHTML=`<div class="clabel">veredicto</div><div class="ctext">${win?`<strong>${asesino}</strong> era el asesino. Los inocentes ganan.`:`<strong>${asesino}</strong> sobrevivió. El asesino gana.`}</div>`;
-  cards.appendChild(c1);
-  if(gs.historiaCompleta){
-    const c2=document.createElement('div');c2.className='card';c2.style.marginTop='0.5rem';
-    c2.innerHTML=`<div class="clabel">lo que pasó realmente</div><div class="ctext">${gs.historiaCompleta}</div>`;
-    cards.appendChild(c2);
+  let dramaSteps=[];
+
+  if(win){
+    // Pillaron al asesino
+    dramaSteps=[
+      {
+        html:`<div class="drama-label">habéis acusado a...</div><div class="drama-name" style="animation:dramaticIn 0.7s ease both;">${mostVoted}</div>`,
+        dur:3000
+      },
+      {
+        html:`<div class="drama-big" style="font-size:2.8rem;color:var(--hueso);">HABÉIS DESCUBIERTO<br><span style="color:var(--rojo);">SU COARTADA</span></div><div class="drama-sub" style="margin-top:0.8rem;">enhorabuena</div>`,
+        dur:3000
+      },
+      ...(votosErroneos.length>0?[{
+        html:`<div class="drama-label" style="margin-bottom:1rem;">pero estos se equivocaron...</div>
+        ${votosErroneos.map(p=>`<div style="font-size:1.2rem;font-weight:700;color:var(--apagado);margin-bottom:0.4rem;">${p}</div>`).join('')}
+        <div style="font-size:0.75rem;color:var(--rojo);margin-top:1rem;font-style:italic;">un chupito cada uno</div>`,
+        dur:3500
+      }]:[])
+    ];
+  }else{
+    // No pillaron al asesino
+    dramaSteps=[
+      {
+        html:`<div class="drama-big" style="font-size:2.4rem;">Seguís teniendo<br>un criminal<br><span style="color:var(--rojo);">entre vosotros</span></div>`,
+        dur:3200
+      },
+      {
+        html:`<div class="drama-label">habéis acusado a...</div><div class="drama-name" style="color:var(--apagado);animation:dramaticIn 0.7s ease both;">${mostVoted||'—'}</div>`,
+        dur:2800
+      },
+      {
+        html:`<div class="drama-label" style="margin-bottom:0.6rem;">sin embargo el criminal es...</div><div class="drama-name" style="animation:dramaticIn 0.7s ease both;">${asesino}</div>`,
+        dur:3500
+      }
+    ];
   }
-  if(gs.motivoAsesino){
-    const c3=document.createElement('div');c3.className='card red';c3.style.marginTop='0.5rem';
-    c3.innerHTML=`<div class="clabel">motivo de ${asesino}</div><div class="ctext">${gs.motivoAsesino}</div>`;
-    cards.appendChild(c3);
-  }
-  document.getElementById('revealOverlay').classList.add('show');
+
+  showDrama(dramaSteps,()=>{
+    // Mostrar el reveal final clásico
+    document.getElementById('revealName').textContent=asesino;
+    document.getElementById('revealDesc').textContent=win?`pillado/a. ${asesino} bebe 5 chupitos.`:`sobrevivió. ${asesino} reparte 5 chupitos.`;
+
+    const cards=document.getElementById('revealCards');cards.innerHTML='';
+    const c1=document.createElement('div');c1.className='card red';
+    c1.innerHTML=`<div class="clabel">veredicto</div><div class="ctext">${win?`<strong>${asesino}</strong> era el asesino. Los inocentes ganan.`:`<strong>${asesino}</strong> sobrevivió. El asesino gana.`}</div>`;
+    cards.appendChild(c1);
+    if(gs.historiaCompleta){
+      const c2=document.createElement('div');c2.className='card';c2.style.marginTop='0.5rem';
+      c2.innerHTML=`<div class="clabel">lo que pasó realmente</div><div class="ctext">${gs.historiaCompleta}</div>`;
+      cards.appendChild(c2);
+    }
+    if(gs.motivoAsesino){
+      const c3=document.createElement('div');c3.className='card red';c3.style.marginTop='0.5rem';
+      c3.innerHTML=`<div class="clabel">motivo de ${asesino}</div><div class="ctext">${gs.motivoAsesino}</div>`;
+      cards.appendChild(c3);
+    }
+    document.getElementById('revealOverlay').classList.add('show');
+  });
 }
 
 // POPUP PISTA
@@ -1188,7 +1349,7 @@ window.closePistaPopup=function(){
 function resetAll(){
   fset('game',null);fset('gamePhase',null);fset('players',null);fset('notifications',null);
   myName=null;myRole=null;isHost=false;selVote=null;selFinal=null;curAction=null;selTarget=null;
-  pistasAcum=[];pendingPistas=[];
+  pistasAcum=[];pendingPistas=[];processedNotifKeys=new Set();
   document.getElementById('nameList').querySelectorAll('.prow').forEach(r=>{
     r.classList.remove('selected');
     r.querySelector('.pst').textContent='libre';r.querySelector('.pst').className='pst';
@@ -1202,7 +1363,7 @@ window.reanudarSala=async function(){
   await fset('players',null);await fset('game/listos',null);await fset('game/roundVotes',null);
   await fset('game/immDecision',null);await fset('gamePhase',null);await fset('notifications',null);
   myName=null;myRole=null;isHost=false;selVote=null;selFinal=null;curAction=null;selTarget=null;
-  pistasAcum=[];pendingPistas=[];
+  pistasAcum=[];pendingPistas=[];processedNotifKeys=new Set();
   document.getElementById('nameList').querySelectorAll('.prow').forEach(r=>{
     r.classList.remove('selected');r.querySelector('.pst').textContent='libre';r.querySelector('.pst').className='pst';r.querySelector('.av').className='av';
   });
