@@ -610,40 +610,106 @@ window.startGame=async function(){
     observers[p]=shuffle(others).slice(0,Math.random()>0.5?2:1);
   });
 
-  const prompt=`Eres el narrador de un juego de misterio en una casa rural española.
+  // Variedad forzada: objeto + acción + lugar se combinan independientemente
+  // Variedad forzada: objeto + acción + lugar se combinan independientemente
+  const objetos=shuffle([
+    'una botella de ron vacía','una sartén de hierro','el cable del cargador',
+    'un adorno de cerámica del salón','una piedra grande del jardín','sus propias manos',
+    'un cojín del sofá','una cuerda de tender que había en la terraza',
+    'el jarrón de la entrada','un palo de golf que estaba en el maletero',
+    'un taser','un cuchillo de cocina',
+    'el cuerno arrancado del ciervo disecado que colgaba del salón',
+    'un bidón de gasolina y un mechero'
+  ]);
+  const acciones=shuffle([
+    `golpeó a ${victima} en la nuca`,
+    `estranguló a ${victima}`,
+    `asfixió a ${victima}`,
+    `golpeó repetidamente a ${victima} en la cabeza`,
+    `empujó a ${victima} con fuerza`,
+    `apuñaló a ${victima}`,
+    `quemó vivo/a a ${victima}`
+  ]);
+  const lugarCrimen=shuffle([
+    'en el pasillo de arriba, junto a las habitaciones',
+    'en la cocina, a oscuras',
+    'en el baño de la planta baja',
+    'al borde de la piscina',
+    `en las escaleras, cuando ${victima} bajaba`,
+    'en el jardín, lejos de las ventanas',
+    'en la terraza de arriba',
+    'en el cuarto de la caldera',
+    'dentro del coche aparcado en la entrada',
+    'en la piscina'
+  ]);
+  const metodos=`${acciones[0]} con ${objetos[0]} ${lugarCrimen[0]}`;
 
-JUGADORES: ${players.join(', ')}
+  const motivos=shuffle([
+    `${victima} le contó a la pareja de ${asesino} que era adicto/a — eso destrozó la relación. Esa tarde ${asesino} confirmó por fin que fue ${victima} quien mandó ese mensaje`,
+    `${asesino} atropelló a alguien hace tres años y se dio a la fuga. ${victima} lo sabía y llevaba meses cobrándole silencio en favores y dinero — esa noche subió el precio`,
+    `${asesino} descubrió durante la cena que ${victima} llevaba meses enviando capturas de sus mensajes privados a su ex para hundir su relación, y que lo había conseguido`,
+    `${victima} firmó un contrato a nombre de ${asesino} sin su permiso hace dos años, dejándole con una deuda que aún arrastra. Esa noche lo admitió delante de todos sin pedir perdón`,
+    `${asesino} llevaba años creyendo que había perdido a su mejor amigo/a por culpa propia. Esa noche ${victima} admitió borracho/a que fue ${victima} quien saboteó esa relación desde dentro`,
+    `${victima} le echó la culpa a ${asesino} de un accidente de tráfico que en realidad causó ${victima} — ${asesino} perdió el carné, pagó la multa y lo creyó merecido durante años. Esa noche alguien mencionó un detalle que lo cambió todo`,
+    `${victima} tenía un vídeo de ${asesino} en su momento más oscuro y llevaba meses usándolo para pedirle favores, dinero y silencio. Esa noche, delante de todos, pidió demasiado`,
+    `${victima} publicó de forma anónima hace dos años una historia sobre ${asesino} en redes que destruyó su reputación y le costó su relación más seria. Esa noche, borracho/a, ${victima} usó una frase que solo el autor de esa publicación podía saber`
+  ])[0];
+
+  const zonas=['la piscina','el jardín','la terraza de arriba','el salón','la cocina','el pasillo de arriba','las escaleras','la entrada','el coche aparcado fuera','el borde de la piscina a oscuras'];
+  const actividades=shuffle([
+    'fumando y mirando el móvil','bebiendo vino directamente de la botella','llamando a alguien en voz baja',
+    'vomitando del alcohol','llorando sin que nadie lo viera','escuchando música con auriculares',
+    'mirando las estrellas tumbado/a en el suelo','discutiendo por mensaje con alguien de fuera',
+    'dormitando en el sofá con la tele puesta','calentando algo en el microondas a las 3am',
+    'buscando paracetamol en el botiquín','mandando audios de voz en el jardín','jugando al solitario en el móvil',
+    'bañándose en la piscina a oscuras','sentado/a en el escalón de la entrada fumando'
+  ]);
+
+  const prompt=`Eres el guionista de un thriller de misterio en una casa rural española. Tu trabajo es crear UNA HISTORIA ÚNICA, específica y sorprendente, NO genérica.
+
+JUGADORES PRESENTES: ${players.join(', ')}
 VÍCTIMA: ${victima}
-ASESINO: ${asesino}
+ASESINO/A: ${asesino}
+MÉTODO DEL CRIMEN (obligatorio, no lo cambies): ${asesino} ${metodos}.
+MOTIVO (obligatorio, no lo cambies): ${motivos}.
 
-PROCESO OBLIGATORIO:
-1. Construye primero una historia cronológica detallada de lo que pasó esa noche.
-2. Luego, a partir de ESA historia, escribe la coartada de cada jugador. Las coartadas DEBEN derivarse de la historia y ser coherentes con ella.
+LA CASA TIENE: piscina exterior, jardín, terraza de arriba, terraza baja, salón, cocina, baño planta baja, baño planta alta, escaleras con barandilla de hierro, pasillo de arriba, entrada principal, habitaciones, coche aparcado en la entrada.
 
-REGLAS para las coartadas:
-- Cada una diferente: lugares concretos (cocina, jardín, piscina, terraza, salón, coche, camino...) y actividades reales (fumando, bebiendo, llorando, en el baño, llamando por teléfono, escuchando música, vomitando del alcohol...)
-- Algunas se contradicen sutilmente entre sí de forma coherente con la historia
-- La del asesino es mentira pero derivada lógicamente de la historia
-- NINGUNA puede ser genérica tipo "estaba en su habitación"
+═══ FASE 1: CONSTRUYE LA HISTORIA ═══
+Crea una línea temporal concreta desde las 22h hasta las 3am. Asigna a cada jugador un lugar y actividad ESPECÍFICA en momentos concretos de la noche. La historia debe incluir:
+- Una tensión en la cena (quién dijo qué, quién se fue antes)
+- Movimientos de ${asesino} y ${victima} que los acercan al momento del crimen
+- Al menos 2 jugadores que SIN QUERER vieron u oyeron algo relevante sin saberlo
+- El momento exacto y lugar donde ${asesino} ejecutó el crimen usando el método indicado
+- Qué hizo ${asesino} después para disimular
 
-REGLAS para las pistas:
-- Las 4 pistas deben ser fragmentos concretos de la historia que construida
-- Deben revelarse progresivamente, cada una añadiendo info nueva
-- La pista 4 es FALSA pero coherente con la historia
+═══ FASE 2: COARTADAS (derivadas al 100% de la historia) ═══
+Cada coartada debe:
+- Referenciar el lugar y momento exacto que esa persona vivió en la historia
+- Ser VERIFICABLE o REFUTABLE con lo que otros vieron
+- Contener un detalle sensorial concreto (olía a..., oíste..., viste la luz de...)
+- La coartada de ${asesino} debe ser LO QUE DICE que estaba haciendo, no lo que realmente hizo
 
-Responde SOLO en JSON sin markdown:
+═══ FASE 3: PISTAS (fragmentos reales de la historia) ═══
+Las 4 pistas son evidencias físicas o testimonios que EXISTEN en la historia que construiste:
+- Pista 1 (ronda 1): evidencia física en la escena del crimen, sin nombrar al culpable
+- Pista 2 (ronda 2): algo que alguien vio u oyó esa noche sin entender qué era, que ahora cobra sentido
+- Pista 3 (ronda 3): detalle que contradice la coartada de ${asesino} o lo/la sitúa cerca del crimen
+- Pista 4 (ronda 4): COMPLETAMENTE FALSA, plantada por ${asesino}, que desvía la sospecha hacia otra persona
+
+Responde SOLO con este JSON exacto, sin markdown, sin explicaciones:
 {
-  "crimen": "frase dramática y específica: cómo, dónde y cuándo murió ${victima}",
-  "historia_completa": "historia de 5-7 frases cronológica desde la cena hasta el crimen. Menciona a cada jugador por nombre. Describe EXPLÍCITAMENTE y sin eufemismos cómo ${asesino} mató a ${victima}: el método exacto (estrangulamiento, golpe, ahogamiento, veneno...), el lugar preciso, el momento exacto y el motivo. No uses frases vagas como 'lo que pasó después' o 'el resto es historia'. El asesinato debe quedar completamente claro.",
-  "motivo_asesino": "motivo concreto y personal. Una frase.",
+  "crimen": "una frase impactante de máx 15 palabras: qué le pasó a ${victima}, dónde y cuándo fue encontrado/a",
+  "historia_completa": "la historia completa en 6-8 frases. Narra cronológicamente. Menciona a ${players.join(', ')} por nombre con lo que hizo cada uno. Describe explícitamente cómo ${asesino} usó el método indicado para matar a ${victima}, el lugar exacto, la hora y qué hizo después para no levantar sospechas.",
+  "motivo_asesino": "${motivos}",
   "datos": {
-    ${players.map(p=>`"${p}": "coartada de ${p} derivada de la historia. Lugar exacto + actividad concreta. Máx 20 palabras."`).join(',\n    ')}
+    ${players.map(p=>`"${p}": "coartada real de ${p}: lugar exacto en la casa + actividad específica que estaba haciendo + un detalle sensorial concreto. Máx 25 palabras."`).join(',\n    ')}
   },
   "pistas": [
-    "pista 1: detalle concreto de la historia, sin revelar al culpable",
-    "pista 2: algo nuevo que alguien vio u oyó según la historia",
-    "pista 3: apunta indirectamente a ${asesino} sin nombrarlo",
-    "pista 4: FALSA pero coherente con la historia, plantada por ${asesino}"
+    "pista 1 — evidencia física en la escena, concreta y verificable, sin nombrar al culpable",
+    "pista 2 — testimonio de alguien que vio u oyó algo esa noche sin entender qué era",
+    "pista 3 — detalle que sitúa a ${asesino} cerca del crimen o contradice su coartada, sin nombrarlo/a directamente",
+    "pista 4 — FALSA: dato inventado por ${asesino} que apunta a otra persona del grupo de forma creíble"
   ]
 }`;
 
