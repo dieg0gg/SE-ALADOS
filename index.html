@@ -715,7 +715,8 @@ ${players.map(p=>{
     const hora=rand(['a las 2am','a las 2:30am','pasadas las 3am','cerca de las 2am']);
     const lugarCorto=lugarCrimen[0].replace(', a oscuras','').replace(', lejos de las ventanas','').replace(', junto a las habitaciones','');
     const testigo=rand(players.filter(p=>p!==asesino&&p!==victima));
-    const culpableFalso=rand(players.filter(p=>p!==asesino&&p!==victima&&p!==testigo));
+    const culpableFalsoArr=players.filter(p=>p!==asesino&&p!==victima&&p!==testigo);
+    const culpableFalso=culpableFalsoArr.length>0?rand(culpableFalsoArr):rand(players.filter(p=>p!==asesino&&p!==victima));
 
     // Coartadas coherentes con el lugar del crimen (el asesino NO puede estar en el mismo sitio que dice)
     const zonasLibres=shuffle([
@@ -756,7 +757,7 @@ ${players.map(p=>{
         `Cerca de la escena se encontró ${objetos[0]} — tenía marcas recientes y nadie recuerda haberlo dejado ahí`,
         `${testigo} oyó ${hora} un ruido en ${lugarCorto} pero lo achacó al viento o al alcohol`,
         `Alguien que dice estar en otro sitio ${hora} fue visto/a cerca de ${lugarCorto} justo a esa hora`,
-        `Hay un mensaje de voz en el móvil de ${victima} que implica directamente a ${culpableFalso} — pero fue enviado después de que ${victima} muriera (FALSO)`
+        `Hay un mensaje de voz en el móvil de ${victima} que implica directamente a ${culpableFalso} — pero fue enviado después de que ${victima} muriera`
       ]
     };
   }
@@ -772,7 +773,17 @@ ${players.map(p=>{
   });
 
   const noVictima=players.filter(p=>p!==victima);
-  const immunityRounds={2:shuffle(noVictima).slice(0,Math.min(2,noVictima.length-1)),3:shuffle(noVictima).slice(0,1)};
+  // Inmunidad: 1 o 2 rondas aleatorias, número de jugadores proporcional al grupo
+  const numRondasImm=rand([1,1,2]); // más probable que sea 1 sola vez
+  const rondasPool=shuffle([1,2,3,4]);
+  const rondasElegidas=rondasPool.slice(0,numRondasImm);
+  const immunityRounds={};
+  rondasElegidas.forEach(r=>{
+    // Más jugadores = más candidatos, máximo la mitad del grupo
+    const maxCandidatos=Math.max(1,Math.floor(noVictima.length/2));
+    const numCandidatos=Math.floor(Math.random()*maxCandidatos)+1;
+    immunityRounds[r]=shuffle(noVictima).slice(0,numCandidatos);
+  });
 
   await fset('game',{
     crimen:data.crimen,pistas:data.pistas,roles,asesino,victima,
@@ -858,6 +869,20 @@ function setupTurns(){
   document.getElementById('s4st').textContent=`SEÑALADOS · ronda ${gs.ronda}/4`;
 
   const list=document.getElementById('turnList');list.innerHTML='';
+
+  // ¿Alguien tiene pnopista esta ronda? Aviso público para todos
+  const ronda=gs.ronda;
+  const pnopistPlayer=order.find(p=>
+    gs.immunityPenalties?.[p]==='pnopista' &&
+    gs.immunityAccepted?.[p]===ronda-1
+  );
+  if(pnopistPlayer){
+    const banner=document.createElement('div');
+    banner.style.cssText='background:#120000;border:1px solid rgba(193,39,45,0.4);border-radius:8px;padding:0.65rem 0.9rem;margin-bottom:0.6rem;';
+    banner.innerHTML=`<div style="font-size:0.52rem;letter-spacing:0.2em;color:var(--rojo);text-transform:uppercase;margin-bottom:0.2rem;">⚠ consecuencia de inmunidad</div><div style="font-size:0.75rem;color:var(--hueso)"><strong>${pnopistPlayer}</strong> no tiene pista esta ronda por haber aceptado inmunidad.</div>`;
+    list.appendChild(banner);
+  }
+
   order.forEach((name,i)=>{
     const done=i<cur,active=i===cur;
     const row=document.createElement('div');row.className='prow';
@@ -873,8 +898,15 @@ function setupTurns(){
   const btnEl=document.getElementById('btnMiTurno');
   const btnHost=document.getElementById('btnHostNextTurn');
 
-  // Si le toca a la víctima, el host la salta automáticamente
+  // Si le toca a la víctima, el host la salta automáticamente y le manda su pista
   if(esVictimaElTurno&&!yaAcabo&&isHost){
+    const victimaName=gs.victima;
+    const ronda=gs.ronda;
+    if(gs.pistas){
+      const idx=Math.min(ronda-1,gs.pistas.length-1);
+      const pistaVictima=gs.pistas[idx].replace(/\s*\(FALSO\)\s*$/i,'').replace(/\s*— FALSO\s*$/i,'');
+      await fset(`notifications/${victimaName}/${Date.now()}`,{tipo:'pista',de:null,texto:pistaVictima,ronda});
+    }
     setTimeout(()=>hostNextTurn(),800);
     return;
   }
@@ -925,17 +957,22 @@ window.hostNextTurn=async function(){
 async function loadMyTurn(){
   const snap=await fget('game');gs=snap.val();
   const ronda=gs.ronda;
-  const hasPista=Math.random()>0.25;
+  // Penalización pnopista: si acepté inmunidad la ronda anterior, sin pista
+  const tuvePenaltyNoPista=gs.immunityPenalties?.[myName]==='pnopista'&&gs.immunityAccepted?.[myName]===ronda-1;
+  const hasPista=!tuvePenaltyNoPista&&Math.random()>0.25;
 
   if(pendingPistas.length>0){
     const p=pendingPistas.shift();
     document.getElementById('pistaCard').style.display='block';
     document.getElementById('sinPista').style.display='none';
-    // Solo mostramos el texto, sin prefijo de remitente
     document.getElementById('pistaText').textContent=p.texto;
+  }else if(tuvePenaltyNoPista){
+    document.getElementById('pistaCard').style.display='none';
+    document.getElementById('sinPista').style.display='block';
+    document.getElementById('sinPista').querySelector('.ctext').textContent='Por haber aceptado inmunidad la ronda anterior, no recibes pista esta ronda.';
   }else if(hasPista&&gs.pistas){
     const idx=Math.min(ronda-1,gs.pistas.length-1);
-    const pista=gs.pistas[idx];
+    const pista=gs.pistas[idx].replace(/\s*\(FALSO\)\s*$/i,'').replace(/\s*— FALSO\s*$/i,'');
     if(!pistasAcum.find(p=>p.texto===pista)){
       pistasAcum.push({de:null,texto:pista,ronda});
     }
@@ -945,6 +982,7 @@ async function loadMyTurn(){
   }else{
     document.getElementById('pistaCard').style.display='none';
     document.getElementById('sinPista').style.display='block';
+    document.getElementById('sinPista').querySelector('.ctext').textContent='esta ronda no tienes pista.';
   }
 
   document.getElementById('s5st').textContent=`SEÑALADOS · ronda ${ronda}/4`;
@@ -1007,32 +1045,38 @@ window.sendAcYTerminar=async function(){
   goScreen('s4');
 }
 
-// INMUNIDAD — primero muestra overlay de VOTACIONES, luego la pantalla
+// INMUNIDAD
 async function loadImmunity(){
   const snap=await fget('game');gs=snap.val();
   const ronda=gs.ronda;
 
-  // Excluir jugadores que ya fueron inmunes la ronda anterior (no dos seguidas)
-  const prevAccepted=Object.entries(gs.immunityAccepted||{})
-    .filter(([,r])=>r===ronda-1)
-    .map(([p])=>p);
-  const immPlayers=((gs.immunityRounds||{})[ronda]||[]).filter(p=>!prevAccepted.includes(p));
-
+  const immPlayers=((gs.immunityRounds||{})[ronda]||[]);
   const iAmChosen=immPlayers.includes(myName);
 
-  // La víctima auto-pasa la inmunidad
+  // La víctima auto-pasa siempre
   if(myRole==='victima'){
     await fset(`game/immDecision/${myName}`,true);
     checkImmDone();
     return;
   }
 
-  // Mostrar overlay "VOTACIONES" primero
+  // Si no hay inmunidad esta ronda: mostrar VOTACIONES y pasar directamente
+  if(immPlayers.length===0){
+    showDrama([{
+      html:`<div class="drama-sub" style="margin-bottom:0.6rem;">ronda ${ronda} de ${gs.totalRondas}</div><div class="drama-big">VOTACIONES</div>`,
+      dur:2200
+    }],()=>{
+      // Auto-pasar sin mostrar pantalla de inmunidad
+      fset(`game/immDecision/${myName}`,true).then(()=>checkImmDone());
+    });
+    return;
+  }
+
+  // Hay inmunidad — mostrar VOTACIONES y luego la pantalla
   showDrama([{
     html:`<div class="drama-sub" style="margin-bottom:0.6rem;">ronda ${ronda} de ${gs.totalRondas}</div><div class="drama-big">VOTACIONES</div>`,
     dur:2200
   }],()=>{
-    // Configurar la pantalla de inmunidad
     document.getElementById('s5cSt').textContent=`SEÑALADOS · ronda ${ronda}/4`;
 
     if(iAmChosen){
@@ -1043,10 +1087,7 @@ async function loadImmunity(){
       document.getElementById('s5cSub').textContent='alguien puede ser inmune en esta votación';
     }
 
-    document.getElementById('immInfo').innerHTML=immPlayers.length>0
-      ?`<strong>${immPlayers.join('</strong> y <strong>')}</strong> tienen la opción de ser inmunes esta ronda.`
-      :'Nadie tiene inmunidad disponible esta ronda.';
-
+    document.getElementById('immInfo').innerHTML=`<strong>${immPlayers.join('</strong> y <strong>')}</strong> ${immPlayers.length>1?'tienen':'tiene'} la opción de ser inmune esta ronda.`;
     document.getElementById('immBox').style.display=iAmChosen?'block':'none';
     document.getElementById('noImmCard').style.display=iAmChosen?'none':'block';
     document.getElementById('btnAceptarImm').style.display=iAmChosen?'block':'none';
@@ -1122,17 +1163,6 @@ async function startVoting(){
   document.getElementById('voteWait').style.display='none';
   document.getElementById('btnVotar').textContent='Votar →';
 
-  // La víctima no puede votar ni ser votada
-  if(myRole==='victima'){
-    await fset(`game/roundVotes/${myName}`,{vote:'victima'});
-    document.getElementById('btnVotar').style.display='none';
-    document.getElementById('voteWait').style.display='block';
-    document.getElementById('voteWait').textContent='💀 estás muerto/a — no puedes votar';
-    goScreen('s6');
-    waitForVoteResults();
-    return;
-  }
-
   const psnap=await fget('players');
   const victima=gs.victima;
   const players=Object.keys(psnap.val()||{}).filter(p=>p!==myName&&p!==victima);
@@ -1202,12 +1232,20 @@ async function showResults(){
   const tally={};
   Object.values(votes).forEach(v=>{
     const vt=v.vote||v;
-    if(vt&&vt!=='abstención'&&vt!=='inmune') tally[vt]=(tally[vt]||0)+1;
+    if(vt&&vt!=='abstención'&&vt!=='inmune'&&vt!=='victima') tally[vt]=(tally[vt]||0)+1;
   });
+  // Aplicar penalizaciones de inmunidad y guardar para mostrarlas
+  const penaltyMessages=[];
   Object.entries(gs.immunityPenalties||{}).forEach(([p,pen])=>{
     if((gs.immunityAccepted||{})[p]===ronda){
       const extra=pen==='p1'?1:pen==='p2'?2:pen==='p3'?3:0;
-      if(extra>0) tally[p]=(tally[p]||0)+extra;
+      if(extra>0){
+        tally[p]=(tally[p]||0)+extra;
+        penaltyMessages.push(`Por haber sido inmune, <strong>${p}</strong> recibe ${extra} chupito${extra>1?'s':''} extra.`);
+      }
+      if(pen==='pnopista'){
+        penaltyMessages.push(`Por haber sido inmune, <strong>${p}</strong> no recibirá pista la próxima ronda.`);
+      }
     }
   });
 
@@ -1250,6 +1288,15 @@ async function showResults(){
     const d=document.createElement('div');d.className='notif';
     d.innerHTML=`<div class="nlabel">pistas recibidas</div><div class="ntext">${pNots.map(n=>`De <strong>${n.de}</strong>: "${n.texto}"`).join('<br>')}</div>`;
     notifsEl.appendChild(d);
+  }
+
+  // Penalizaciones de inmunidad — prominente, lo ve todo el mundo
+  if(penaltyMessages.length){
+    const d=document.createElement('div');
+    d.style.cssText='background:#120000;border:1px solid rgba(193,39,45,0.6);border-radius:10px;padding:0.85rem 1rem;margin-bottom:0.55rem;';
+    d.innerHTML=`<div style="font-size:0.54rem;letter-spacing:0.22em;color:var(--rojo);text-transform:uppercase;margin-bottom:0.4rem;">⚠ consecuencia de la inmunidad</div><div style="font-size:0.82rem;color:var(--hueso);line-height:1.5;">${penaltyMessages.join('<br>')}</div>`;
+    // Insertarlo arriba del todo en resultados, antes de los votos
+    document.getElementById('voteResults').before(d);
   }
 
   await fset(`notifications/${myName}`,null);
