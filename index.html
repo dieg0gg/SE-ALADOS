@@ -137,6 +137,19 @@ html,body { height:100%; width:100%; overflow:hidden; background:var(--negro); c
 .hmbtn { width:100%; padding:0.6rem; background:transparent; border:1px solid #2a2a2a; border-radius:6px; font-family:var(--font); font-size:0.75rem; color:var(--apagado); cursor:pointer; margin-bottom:0.4rem; text-align:left; transition:all 0.15s; }
 .hmbtn:hover { border-color:#3a3a3a; color:#888; }
 .hmbtn:last-child { margin-bottom:0; }
+
+/* HOST FLOATING PANEL */
+.host-fab { position:fixed; bottom:1.4rem; right:1.4rem; width:42px; height:42px; border-radius:50%; background:#1a1a1a; border:1px solid #333; color:var(--apagado); font-size:1.1rem; display:none; align-items:center; justify-content:center; cursor:pointer; z-index:9999; box-shadow:0 2px 12px rgba(0,0,0,0.5); transition:all 0.2s; }
+.host-fab:active { transform:scale(0.93); }
+.host-panel { position:fixed; bottom:4.5rem; right:1.4rem; background:#161616; border:1px solid #2a2a2a; border-radius:12px; padding:1rem; width:240px; z-index:9999; display:none; box-shadow:0 4px 24px rgba(0,0,0,0.6); }
+.host-panel.open { display:block; }
+.host-panel-title { font-size:0.52rem; letter-spacing:0.22em; color:var(--apagado); text-transform:uppercase; margin-bottom:0.7rem; }
+.host-panel-btn { width:100%; padding:0.65rem 0.8rem; background:transparent; border:1px solid #2a2a2a; border-radius:8px; font-family:var(--font); font-size:0.75rem; color:var(--hueso); cursor:pointer; margin-bottom:0.4rem; text-align:left; transition:all 0.15s; display:flex; align-items:center; gap:0.5rem; }
+.host-panel-btn:hover { border-color:#3a3a3a; background:#1e1e1e; }
+.host-panel-btn:last-child { margin-bottom:0; }
+.host-panel-btn.danger { color:var(--rojo); border-color:rgba(193,39,45,0.3); }
+.host-panel-btn.danger:hover { background:#180404; border-color:rgba(193,39,45,0.6); }
+.host-panel-sep { height:1px; background:#222; margin:0.5rem 0; }
 </style>
 </head>
 <body>
@@ -470,7 +483,7 @@ async function gemini(prompt){
   try{
     const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI}`,{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:1.1,maxOutputTokens:1600}})
+      body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.95,maxOutputTokens:2800}})
     });
     const d=await r.json();
     return d.candidates?.[0]?.content?.parts?.[0]?.text||null;
@@ -524,6 +537,7 @@ function setupLobby(){
     document.getElementById('waitMsg').style.display='none';
     document.getElementById('s2sub').textContent='tú eres el host — arranca cuando quieras';
     document.getElementById('hmBtn').style.display='block';
+    showHostFab();
   }
 
   fon('players',data=>{
@@ -665,51 +679,46 @@ window.startGame=async function(){
     'bañándose en la piscina a oscuras','sentado/a en el escalón de la entrada fumando'
   ]);
 
-  const prompt=`Eres el guionista de un thriller de misterio en una casa rural española. Tu trabajo es crear UNA HISTORIA ÚNICA, específica y sorprendente, NO genérica.
+  const prompt=`Eres el guionista de un thriller de misterio. Vas a crear UNA historia y de ella vas a extraer TODO lo demás. Nada puede existir fuera de esa historia.
 
-JUGADORES PRESENTES: ${players.join(', ')}
-VÍCTIMA: ${victima}
-ASESINO/A: ${asesino}
-MÉTODO DEL CRIMEN (obligatorio, no lo cambies): ${asesino} ${metodos}.
-MOTIVO (obligatorio, no lo cambies): ${motivos}.
+━━━ DATOS FIJOS (no los cambies) ━━━
+Jugadores: ${players.join(', ')}
+Víctima: ${victima}
+Asesino/a: ${asesino}
+Cómo lo hizo: ${asesino} ${metodos}
+Por qué: ${motivos}
+La casa tiene: piscina exterior, jardín, terraza de arriba, terraza baja, salón, cocina, baño planta baja, baño planta alta, escaleras con barandilla de hierro, pasillo de arriba, entrada principal, habitaciones, coche aparcado en la entrada.
 
-LA CASA TIENE: piscina exterior, jardín, terraza de arriba, terraza baja, salón, cocina, baño planta baja, baño planta alta, escaleras con barandilla de hierro, pasillo de arriba, entrada principal, habitaciones, coche aparcado en la entrada.
+━━━ PASO 1: ESCRIBE LA HISTORIA (haz esto mentalmente antes de rellenar el JSON) ━━━
+Construye una línea temporal de esa noche desde las 22h hasta las 3am con estos elementos obligatorios:
 
-═══ FASE 1: CONSTRUYE LA HISTORIA ═══
-Crea una línea temporal concreta desde las 22h hasta las 3am. Asigna a cada jugador un lugar y actividad ESPECÍFICA en momentos concretos de la noche. La historia debe incluir:
-- Una tensión en la cena (quién dijo qué, quién se fue antes)
-- Movimientos de ${asesino} y ${victima} que los acercan al momento del crimen
-- Al menos 2 jugadores que SIN QUERER vieron u oyeron algo relevante sin saberlo
-- El momento exacto y lugar donde ${asesino} ejecutó el crimen usando el método indicado
-- Qué hizo ${asesino} después para disimular
+A) La cena: qué tensión había, qué se dijo, quién se fue antes y por qué.
+B) Dónde estaba cada jugador (${players.join(', ')}) entre las 00h y las 3am. Cada uno en un sitio distinto de la casa haciendo algo concreto y creíble.
+C) El crimen: ${asesino} ${metodos}. Hora exacta. Qué vio o escuchó alguien sin entender qué era.
+D) Qué hizo ${asesino} después para disimular y dónde fue.
+E) Quién encontró el cuerpo y cuándo.
 
-═══ FASE 2: COARTADAS (derivadas al 100% de la historia) ═══
-Cada coartada debe:
-- Referenciar el lugar y momento exacto que esa persona vivió en la historia
-- Ser VERIFICABLE o REFUTABLE con lo que otros vieron
-- Contener un detalle sensorial concreto (olía a..., oíste..., viste la luz de...)
-- La coartada de ${asesino} debe ser LO QUE DICE que estaba haciendo, no lo que realmente hizo
+━━━ PASO 2: RELLENA EL JSON EXTRAYENDO TODO DE LA HISTORIA ━━━
 
-═══ FASE 3: PISTAS (fragmentos reales de la historia) ═══
-Las 4 pistas son evidencias físicas o testimonios que EXISTEN en la historia que construiste:
-- Pista 1 (ronda 1): evidencia física en la escena del crimen, sin nombrar al culpable
-- Pista 2 (ronda 2): algo que alguien vio u oyó esa noche sin entender qué era, que ahora cobra sentido
-- Pista 3 (ronda 3): detalle que contradice la coartada de ${asesino} o lo/la sitúa cerca del crimen
-- Pista 4 (ronda 4): COMPLETAMENTE FALSA, plantada por ${asesino}, que desvía la sospecha hacia otra persona
+REGLA DE ORO: cada coartada debe ser exactamente lo que esa persona estaba haciendo según la historia del paso 1. Cada pista debe ser una evidencia o testimonio que YA EXISTE en esa historia. Si una pista no puede trazarse a un momento concreto de la historia, no es válida.
 
-Responde SOLO con este JSON exacto, sin markdown, sin explicaciones:
+Responde SOLO con este JSON, sin markdown ni texto extra:
 {
-  "crimen": "una frase impactante de máx 15 palabras: qué le pasó a ${victima}, dónde y cuándo fue encontrado/a",
-  "historia_completa": "la historia completa en 6-8 frases. Narra cronológicamente. Menciona a ${players.join(', ')} por nombre con lo que hizo cada uno. Describe explícitamente cómo ${asesino} usó el método indicado para matar a ${victima}, el lugar exacto, la hora y qué hizo después para no levantar sospechas.",
+  "crimen": "frase de máx 12 palabras: cómo/dónde apareció ${victima} y cuándo fue encontrado/a. Sin nombrar al culpable.",
+  "historia_completa": "La historia en 7-9 frases cronológicas. Menciona a ${players.join(', ')} por nombre con lo que hizo cada uno esa noche. Incluye la hora exacta del crimen, cómo ${asesino} ${metodos}, y qué hizo después. Sé explícito/a — nada de eufemismos ni frases vagas.",
   "motivo_asesino": "${motivos}",
   "datos": {
-    ${players.map(p=>`"${p}": "coartada real de ${p}: lugar exacto en la casa + actividad específica que estaba haciendo + un detalle sensorial concreto. Máx 25 palabras."`).join(',\n    ')}
+${players.map(p => {
+  if(p===asesino) return `    "${p}": "Lo que ${p} DICE que estaba haciendo (su coartada falsa): lugar de la casa + actividad + un detalle sensorial que suene creíble. Es mentira, pero coherente con la historia."`;
+  if(p===victima) return `    "${p}": "Dónde estaba ${p} antes de ser asesinado/a según la historia: lugar + actividad + detalle sensorial. Coherente con el momento del crimen."`;
+  return `    "${p}": "Dónde estaba ${p} según la historia: lugar exacto en la casa + qué hacía + UN detalle concreto que vio u oyó esa noche sin entender qué era. Máx 30 palabras."`;
+}).join(',\n')}
   },
   "pistas": [
-    "pista 1 — evidencia física en la escena, concreta y verificable, sin nombrar al culpable",
-    "pista 2 — testimonio de alguien que vio u oyó algo esa noche sin entender qué era",
-    "pista 3 — detalle que sitúa a ${asesino} cerca del crimen o contradice su coartada, sin nombrarlo/a directamente",
-    "pista 4 — FALSA: dato inventado por ${asesino} que apunta a otra persona del grupo de forma creíble"
+    "PISTA 1 (ronda 1): evidencia física hallada en la escena — algo concreto (objeto, marca, rastro) que existe en la historia. Sin nombrar al culpable.",
+    "PISTA 2 (ronda 2): algo que uno de los jugadores (nómbralo) vio u oyó esa noche sin darle importancia — extraído literalmente de su coartada en la historia.",
+    "PISTA 3 (ronda 3): detalle que sitúa a ${asesino} cerca del lugar del crimen o contradice directamente su coartada — sin nombrarlo/a. Debe poder deducirse de la historia.",
+    "PISTA 4 (ronda 4): completamente FALSA, inventada por ${asesino} para desviar sospechas hacia otro jugador concreto (nómbralo). Creíble pero imposible si se cruza con las otras pistas."
   ]
 }`;
 
@@ -720,36 +729,45 @@ Responde SOLO con este JSON exacto, sin markdown, sin explicaciones:
   }catch(e){}
 
   if(!data){
-    // El fallback también usa los arrays aleatorios para que nunca sea siempre lo mismo
-    const lugaresFallback=shuffle([
-      {lugar:'en la terraza, fumando y mirando el móvil',sensorial:'olías el humo del cigarro desde la ventana'},
-      {lugar:'en el baño de arriba',sensorial:'oíste el agua correr durante más de media hora'},
-      {lugar:'en el jardín, llamando a alguien en voz baja',sensorial:'viste la luz del salón encendida'},
-      {lugar:'en el salón, dormitando en el sofá con la tele puesta',sensorial:'la tele hacía ruido de fondo toda la noche'},
-      {lugar:'en la cocina calentando algo a las 3am',sensorial:'olía a comida recalentada cuando pasaste por ahí'},
-      {lugar:'en el coche aparcado, escuchando música',sensorial:'viste las luces del coche apagadas de golpe'},
-      {lugar:'en el pasillo de arriba, mirando el móvil',sensorial:'oíste pasos bajar las escaleras a oscuras'},
-      {lugar:'en el borde de la piscina, con los pies dentro',sensorial:'el agua estaba fría y había silencio total'},
-      {lugar:'en tu habitación, con la puerta entreabierta',sensorial:'oíste voces tensas que no supiste identificar'},
-      {lugar:'en la entrada, sentado/a en el escalón',sensorial:'viste a alguien cruzar el jardín a lo lejos'}
+    // Usamos las mismas variables ya sorteadas arriba para que todo sea coherente
+    const hora=rand(['a las 2am','a las 2:30am','pasadas las 3am','cerca de las 2am']);
+    // lugar corto para el campo crimen (sin subordinadas raras)
+    const lugarCorto=lugarCrimen[0]
+      .replace(`, cuando ${victima} bajaba`,'')
+      .replace(`, a oscuras`,'')
+      .replace(`, lejos de las ventanas`,'');
+
+    // coartadas de los no-asesinos: lugares distintos de donde ocurrió el crimen
+    const coartadasFallback=shuffle([
+      {lugar:'en la terraza de arriba',actividad:'fumando',sensorial:'oíste un ruido abajo pero pensaste que era el viento'},
+      {lugar:'en el baño de la planta alta',actividad:'con dolor de tripa desde medianoche',sensorial:'el grifo estuvo abierto un rato largo'},
+      {lugar:'en el jardín',actividad:'llamando a alguien en voz baja',sensorial:'viste una luz encenderse y apagarse en la planta baja'},
+      {lugar:'en el salón',actividad:'dormitando en el sofá con la tele puesta',sensorial:'la tele hacía ruido pero no oíste nada más'},
+      {lugar:'en el coche aparcado',actividad:'escuchando música con los ojos cerrados',sensorial:'viste por el retrovisor a alguien cruzar la entrada'},
+      {lugar:'en el pasillo de arriba',actividad:'mirando el móvil sentado/a en el suelo',sensorial:'oíste pasos rápidos bajar las escaleras'},
+      {lugar:'en el borde de la piscina',actividad:'con los pies en el agua',sensorial:'el agua se movió un momento sin que hubiera viento'},
+      {lugar:'en tu habitación',actividad:'intentando dormir con la puerta entreabierta',sensorial:'oíste voces tensas que no lograste identificar'},
+      {lugar:'en la entrada',actividad:'sentado/a en el escalón fumando',sensorial:'viste una silueta cruzar el jardín a oscuras'},
+      {lugar:'en la cocina',actividad:'calentando algo en el microondas',sensorial:'al salir notaste que la puerta trasera estaba entreabierta'}
     ]);
-    const horasCrimen=['a las 2am','a las 2:30am','pasadas las 3am','justo antes de las 2am'];
-    const horaCrimen=rand(horasCrimen);
-    const lugarCorto=lugarCrimen[0].replace(`cuando ${victima} bajaba`,`cuando bajaba`);
+
     data={
-      crimen:`${victima} apareció muerto/a ${lugarCorto.replace('en el ','en el ').replace('al borde','al borde')} a primera hora de la mañana`,
-      historia_completa:`La cena estuvo cargada de tensión desde el principio — ${asesino} y ${victima} apenas se dirigieron la palabra. ${motivos}. ${horaCrimen}, cuando el resto ya dormía o creía dormir, ${asesino} ${metodos}. Después volvió a su sitio como si nada hubiera pasado. El cuerpo fue encontrado a las 8am.`,
+      crimen:`${victima} fue encontrado/a muerto/a ${lugarCorto} — ${hora} nadie oyó nada`,
+      historia_completa:`La cena estuvo tensa desde el principio. ${motivos}. El grupo fue dispersándose según avanzaba la noche. ${hora}, ${asesino} ${metodos}. Nadie lo vio. Después volvió a mezclarse con el grupo como si nada. El cuerpo de ${victima} fue encontrado a primera hora de la mañana.`,
       motivo_asesino:motivos,
       datos:Object.fromEntries(players.map((p,i)=>{
-        if(p===asesino) return [p,`Dices que estabas ${lugaresFallback[0].lugar}. ${lugaresFallback[0].sensorial}. No viste a nadie.`];
-        const l=lugaresFallback[(i+1)%lugaresFallback.length];
-        return [p,`Estabas ${l.lugar}. ${l.sensorial}.`];
+        if(p===asesino){
+          const c=coartadasFallback[0];
+          return [p,`Dices que estabas ${c.lugar}, ${c.actividad}. ${c.sensorial}. No viste a ${victima} en toda la noche.`];
+        }
+        const c=coartadasFallback[(i%( coartadasFallback.length-1))+1];
+        return [p,`Estabas ${c.lugar}, ${c.actividad}. ${c.sensorial}.`];
       })),
       pistas:[
-        `Cerca de la escena había rastros de ${objetos[0]} — nadie recuerda haberlo dejado ahí`,
-        `Uno de los jugadores oyó un golpe seco ${horaCrimen} y lo achacó al viento`,
-        `La coartada de alguien no encaja con lo que otra persona vio esa misma hora en el mismo sitio`,
-        `Un mensaje en el móvil de ${victima} apunta a otra persona del grupo como responsable — pero parece demasiado obvio (FALSO)`
+        `En la escena se encontró ${objetos[0]} con marcas que no estaban antes — nadie recuerda haberlo movido`,
+        `${rand(players.filter(p=>p!==asesino&&p!==victima))} oyó ${hora} un sonido extraño ${lugarCorto} pero no le dio importancia`,
+        `La coartada de alguien sitúa a esa persona cerca de ${lugarCorto} justo cuando ocurrió todo`,
+        `Hay un mensaje en el móvil de ${victima} que apunta directamente a ${rand(players.filter(p=>p!==asesino&&p!==victima))} — pero fue enviado cuando ${victima} ya estaba muerto/a (FALSO)`
       ]
     };
   }
@@ -1443,7 +1461,7 @@ function resetAll(){
   document.getElementById('btnJoin').textContent='Elige tu nombre →';
 }
 
-window.resetRoom=function(){resetAll();toast('Sala reseteada ✓');document.getElementById('hostMenu').style.display='none';goScreen('s1');}
+window.resetRoom=function(){resetAll();toast('Sala reseteada ✓');closeHostPanel();goScreen('s1');}
 window.reanudarSala=async function(){
   await fset('players',null);await fset('game/listos',null);await fset('game/roundVotes',null);
   await fset('game/immDecision',null);await fset('gamePhase',null);await fset('notifications',null);
@@ -1453,11 +1471,76 @@ window.reanudarSala=async function(){
     r.classList.remove('selected');r.querySelector('.pst').textContent='libre';r.querySelector('.pst').className='pst';r.querySelector('.av').className='av';
   });
   document.getElementById('btnJoin').textContent='Elige tu nombre →';
-  document.getElementById('hostMenu').style.display='none';
+  closeHostPanel();
+  document.getElementById('hostFab').style.display='none';
   toast('Sala vaciada — volved a entrar');goScreen('s1');
 }
 window.hideReveal=function(){document.getElementById('revealOverlay').classList.remove('show');resetAll();goScreen('s1');}
 window.toggleHM=function(){const m=document.getElementById('hostMenu');m.style.display=m.style.display==='none'||!m.style.display?'block':'none';}
+
+// HOST FLOATING PANEL
+function showHostFab(){
+  const fab=document.getElementById('hostFab');
+  fab.style.display='flex';
+}
+function closeHostPanel(){
+  document.getElementById('hostPanel').classList.remove('open');
+}
+window.toggleHostPanel=function(){
+  document.getElementById('hostPanel').classList.toggle('open');
+}
+// Cerrar panel si se toca fuera
+document.addEventListener('click',e=>{
+  const panel=document.getElementById('hostPanel');
+  const fab=document.getElementById('hostFab');
+  if(panel.classList.contains('open')&&!panel.contains(e.target)&&e.target!==fab){
+    panel.classList.remove('open');
+  }
+});
+
+window.hostPanelAction=async function(action){
+  closeHostPanel();
+  if(action==='reset'){
+    if(!confirm('¿Resetear TODA la sala? Esto borra la partida y saca a todo el mundo.'))return;
+    resetAll();
+    toast('Sala reseteada ✓');
+    document.getElementById('hostFab').style.display='none';
+    goScreen('s1');
+  }
+  if(action==='reanudar'){
+    if(!confirm('¿Vaciar la sala? Los jugadores tendrán que volver a entrar.'))return;
+    await reanudarSala();
+  }
+  if(action==='skipTurn'){
+    await fset('game/turnDone',true);
+    toast('Turno saltado ✓');
+  }
+  if(action==='nextPhase'){
+    const phase=(await fget('gamePhase')).val();
+    const snap=await fget('game');const g=snap.val();
+    if(phase==='roles') await fset('gamePhase','turns');
+    else if(phase==='turns') await fset('gamePhase','immunity');
+    else if(phase==='immunity'){await fset('game/immDecision',null);await fset('gamePhase','voting');}
+    else if(phase==='voting') await fset('gamePhase','results');
+    else if(phase==='results'){
+      if(g&&g.ronda>=4) await fset('gamePhase','finalVoting');
+      else await hostNextRound();
+    }
+    else if(phase==='finalVoting') await fset('gamePhase','reveal');
+    toast('Fase avanzada ✓');
+  }
+}
 </script>
+
+<!-- HOST FLOATING BUTTON + PANEL — al final del DOM para estar encima de todo -->
+<button class="host-fab" id="hostFab" onclick="toggleHostPanel()">⚙</button>
+<div class="host-panel" id="hostPanel">
+  <div class="host-panel-title">⚙ panel del host</div>
+  <button class="host-panel-btn" onclick="hostPanelAction('nextPhase')">⏭ Forzar siguiente fase</button>
+  <button class="host-panel-btn" onclick="hostPanelAction('skipTurn')">⚡ Saltar turno actual</button>
+  <div class="host-panel-sep"></div>
+  <button class="host-panel-btn" onclick="hostPanelAction('reanudar')">🔄 Vaciar sala (mantener partida)</button>
+  <button class="host-panel-btn danger" onclick="hostPanelAction('reset')">🗑 Resetear todo y empezar de cero</button>
+</div>
 </body>
 </html>
