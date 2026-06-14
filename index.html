@@ -669,46 +669,39 @@ window.startGame=async function(){
     'bañándose en la piscina a oscuras','sentado/a en el escalón de la entrada fumando'
   ]);
 
-  const prompt=`Eres el guionista de un thriller de misterio. Vas a crear UNA historia y de ella vas a extraer TODO lo demás. Nada puede existir fuera de esa historia.
+  const prompt=`Eres el guionista de un thriller de misterio. Debes respetar EXACTAMENTE los datos que te doy — no puedes cambiarlos bajo ningún concepto.
 
-━━━ DATOS FIJOS (no los cambies) ━━━
-Jugadores: ${players.join(', ')}
-Víctima: ${victima}
-Asesino/a: ${asesino}
-Cómo lo hizo: ${asesino} ${metodos}
-Por qué: ${motivos}
-La casa tiene: piscina exterior, jardín, terraza de arriba, terraza baja, salón, cocina, baño planta baja, baño planta alta, escaleras con barandilla de hierro, pasillo de arriba, entrada principal, habitaciones, coche aparcado en la entrada.
+VÍCTIMA: ${victima}
+ASESINO/A: ${asesino}
+MOTIVO: ${motivos}
+MÉTODO EXACTO DEL CRIMEN — COPIA ESTO LITERALMENTE EN LA HISTORIA: "${asesino} ${metodos}"
+JUGADORES: ${players.join(', ')}
+ESPACIOS DE LA CASA: piscina, jardín, terraza de arriba, terraza baja, salón, cocina, baño planta baja, baño planta alta, escaleras con barandilla de hierro, pasillo de arriba, entrada principal, habitaciones, coche aparcado.
 
-━━━ PASO 1: ESCRIBE LA HISTORIA (haz esto mentalmente antes de rellenar el JSON) ━━━
-Construye una línea temporal de esa noche desde las 22h hasta las 3am con estos elementos obligatorios:
+TU TAREA:
+1. Inventa una escena de cena tensa y DIFERENTE cada vez — qué conflicto hubo, qué se dijo, quién se fue antes.
+2. Sitúa a cada jugador en un espacio distinto de la casa durante la noche con una actividad concreta y sensorial.
+3. Narra el crimen usando OBLIGATORIAMENTE la frase del método exacto que te di arriba. No la parafrasees. No la cambies.
+4. Describe qué hizo ${asesino} después para disimular.
+5. Extrae coartadas y pistas DIRECTAMENTE de lo que has narrado. Nada puede existir fuera de la historia.
 
-A) La cena: qué tensión había, qué se dijo, quién se fue antes y por qué.
-B) Dónde estaba cada jugador (${players.join(', ')}) entre las 00h y las 3am. Cada uno en un sitio distinto de la casa haciendo algo concreto y creíble.
-C) El crimen: ${asesino} ${metodos}. Hora exacta. Qué vio o escuchó alguien sin entender qué era.
-D) Qué hizo ${asesino} después para disimular y dónde fue.
-E) Quién encontró el cuerpo y cuándo.
-
-━━━ PASO 2: RELLENA EL JSON EXTRAYENDO TODO DE LA HISTORIA ━━━
-
-REGLA DE ORO: cada coartada debe ser exactamente lo que esa persona estaba haciendo según la historia del paso 1. Cada pista debe ser una evidencia o testimonio que YA EXISTE en esa historia. Si una pista no puede trazarse a un momento concreto de la historia, no es válida.
-
-Responde SOLO con este JSON, sin markdown ni texto extra:
+RESPONDE SOLO con este JSON exacto, sin markdown:
 {
-  "crimen": "frase de máx 12 palabras: cómo/dónde apareció ${victima} y cuándo fue encontrado/a. Sin nombrar al culpable.",
-  "historia_completa": "La historia en 7-9 frases cronológicas. Menciona a ${players.join(', ')} por nombre con lo que hizo cada uno esa noche. Incluye la hora exacta del crimen, cómo ${asesino} ${metodos}, y qué hizo después. Sé explícito/a — nada de eufemismos ni frases vagas.",
+  "crimen": "máx 12 palabras: dónde y cómo fue encontrado/a ${victima}. Sin nombrar al culpable.",
+  "historia_completa": "7-9 frases cronológicas. DEBE incluir la frase '${asesino} ${metodos}' literalmente. Menciona a ${players.join(', ')} por nombre. Sin eufemismos.",
   "motivo_asesino": "${motivos}",
   "datos": {
-${players.map(p => {
-  if(p===asesino) return `    "${p}": "Lo que ${p} DICE que estaba haciendo (su coartada falsa): lugar de la casa + actividad + un detalle sensorial que suene creíble. Es mentira, pero coherente con la historia."`;
-  if(p===victima) return `    "${p}": "Dónde estaba ${p} antes de ser asesinado/a según la historia: lugar + actividad + detalle sensorial. Coherente con el momento del crimen."`;
-  return `    "${p}": "Dónde estaba ${p} según la historia: lugar exacto en la casa + qué hacía + UN detalle concreto que vio u oyó esa noche sin entender qué era. Máx 30 palabras."`;
+${players.map(p=>{
+  if(p===asesino) return `    "${p}": "Coartada FALSA de ${p}: lo que dice que estaba haciendo, lugar creíble, detalle sensorial. No puede coincidir con el lugar del crimen."`;
+  if(p===victima) return `    "${p}": "Últimos movimientos conocidos de ${p} esa noche: dónde estaba, qué hacía, con quién habló por última vez antes de morir. No es coartada — es lo que los demás saben de sus últimos pasos."`;
+  return `    "${p}": "Dónde estaba ${p} según la historia. Lugar exacto + actividad + algo concreto que vio u oyó sin entender qué era. Máx 25 palabras."`;
 }).join(',\n')}
   },
   "pistas": [
-    "PISTA 1 (ronda 1): evidencia física hallada en la escena — algo concreto (objeto, marca, rastro) que existe en la historia. Sin nombrar al culpable.",
-    "PISTA 2 (ronda 2): algo que uno de los jugadores (nómbralo) vio u oyó esa noche sin darle importancia — extraído literalmente de su coartada en la historia.",
-    "PISTA 3 (ronda 3): detalle que sitúa a ${asesino} cerca del lugar del crimen o contradice directamente su coartada — sin nombrarlo/a. Debe poder deducirse de la historia.",
-    "PISTA 4 (ronda 4): completamente FALSA, inventada por ${asesino} para desviar sospechas hacia otro jugador concreto (nómbralo). Creíble pero imposible si se cruza con las otras pistas."
+    "Pista 1: evidencia física en la escena del crimen que existe en tu historia. Concreta. Sin nombrar al culpable.",
+    "Pista 2: algo que un jugador concreto (nómbralo) vio u oyó esa noche sin entenderlo, extraído de su coartada.",
+    "Pista 3: detalle que sitúa a ${asesino} cerca del crimen o contradice su coartada. Sin nombrarlo/a.",
+    "Pista 4: INVENTADA por ${asesino} para culpar a otro jugador concreto (nómbralo). Creíble pero falsa."
   ]
 }`;
 
@@ -778,7 +771,8 @@ ${players.map(p => {
     roles[p]={rol,desc,dato:data.datos[p]||'Estabas en tu cuarto',observa:observers[p],historiaCompleta:p===asesino?data.historia_completa:null};
   });
 
-  const immunityRounds={2:shuffle(players).slice(0,Math.min(2,players.length-1)),3:shuffle(players).slice(0,1)};
+  const noVictima=players.filter(p=>p!==victima);
+  const immunityRounds={2:shuffle(noVictima).slice(0,Math.min(2,noVictima.length-1)),3:shuffle(noVictima).slice(0,1)};
 
   await fset('game',{
     crimen:data.crimen,pistas:data.pistas,roles,asesino,victima,
@@ -873,12 +867,19 @@ function setupTurns(){
 
   const esmiTurno=order[cur]===myName;
   const yaAcabo=cur>=order.length;
+  const esVictimaElTurno=order[cur]===gs.victima;
 
   const waitEl=document.getElementById('turnWait');
   const btnEl=document.getElementById('btnMiTurno');
   const btnHost=document.getElementById('btnHostNextTurn');
 
-  if(esmiTurno){
+  // Si le toca a la víctima, el host la salta automáticamente
+  if(esVictimaElTurno&&!yaAcabo&&isHost){
+    setTimeout(()=>hostNextTurn(),800);
+    return;
+  }
+
+  if(esmiTurno&&myRole!=='victima'){
     waitEl.style.display='none';
     btnEl.style.display='none';
     btnHost.style.display='none';
@@ -1019,6 +1020,13 @@ async function loadImmunity(){
 
   const iAmChosen=immPlayers.includes(myName);
 
+  // La víctima auto-pasa la inmunidad
+  if(myRole==='victima'){
+    await fset(`game/immDecision/${myName}`,true);
+    checkImmDone();
+    return;
+  }
+
   // Mostrar overlay "VOTACIONES" primero
   showDrama([{
     html:`<div class="drama-sub" style="margin-bottom:0.6rem;">ronda ${ronda} de ${gs.totalRondas}</div><div class="drama-big">VOTACIONES</div>`,
@@ -1114,8 +1122,20 @@ async function startVoting(){
   document.getElementById('voteWait').style.display='none';
   document.getElementById('btnVotar').textContent='Votar →';
 
+  // La víctima no puede votar ni ser votada
+  if(myRole==='victima'){
+    await fset(`game/roundVotes/${myName}`,{vote:'victima'});
+    document.getElementById('btnVotar').style.display='none';
+    document.getElementById('voteWait').style.display='block';
+    document.getElementById('voteWait').textContent='💀 estás muerto/a — no puedes votar';
+    goScreen('s6');
+    waitForVoteResults();
+    return;
+  }
+
   const psnap=await fget('players');
-  const players=Object.keys(psnap.val()||{}).filter(p=>p!==myName);
+  const victima=gs.victima;
+  const players=Object.keys(psnap.val()||{}).filter(p=>p!==myName&&p!==victima);
   const list=document.getElementById('voteList');list.innerHTML='';
   players.forEach(name=>{
     const immThisRound=(gs.immunityAccepted||{})[name]===ronda;
@@ -1326,7 +1346,9 @@ async function startFinalVoting(){
     document.getElementById('finalWait').style.display='none';
     document.getElementById('btnFinal').textContent='Votar →';
 
-    const players=allPlayers.filter(p=>p!==myName);
+    // La víctima no puede ser votada en la final
+    const victima=gs.victima;
+    const players=allPlayers.filter(p=>p!==myName&&p!==victima);
     const list=document.getElementById('finalList');list.innerHTML='';
     players.forEach(name=>{
       const row=document.createElement('div');row.className='prow';row.dataset.name=name;
