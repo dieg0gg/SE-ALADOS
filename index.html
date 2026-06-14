@@ -905,9 +905,11 @@ function setupTurns(){
     if(gs.pistas){
       const idx=Math.min(ronda-1,gs.pistas.length-1);
       const pistaVictima=gs.pistas[idx].replace(/\s*\(FALSO\)\s*$/i,'').replace(/\s*— FALSO\s*$/i,'');
-      await fset(`notifications/${victimaName}/${Date.now()}`,{tipo:'pista',de:null,texto:pistaVictima,ronda});
+      fset(`notifications/${victimaName}/${Date.now()}`,{tipo:'pista',de:null,texto:pistaVictima,ronda})
+        .then(()=>setTimeout(()=>window.hostNextTurn(),800));
+    }else{
+      setTimeout(()=>window.hostNextTurn(),800);
     }
-    setTimeout(()=>hostNextTurn(),800);
     return;
   }
 
