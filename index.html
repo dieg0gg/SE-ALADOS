@@ -59,6 +59,7 @@ html,body { height:100%; width:100%; overflow:hidden; background:var(--negro); c
 .btn-s { background:transparent; border:1px solid #2a2a2a; color:var(--apagado); margin-top:0.4rem; }
 .btn-s:hover { border-color:#3a3a3a; color:#888; }
 .btn-d { background:#1a1a1a; color:var(--apagado); border:1px solid #222; margin-top:auto; cursor:not-allowed; }
+.btn-chosen { background:#1a0505; color:var(--rojo); border:1px solid var(--rojo); margin-top:0.4rem; cursor:default; }
 
 .div { height:1px; background:linear-gradient(90deg,transparent,#222,transparent); margin:0.6rem 0; flex-shrink:0; }
 
@@ -70,6 +71,10 @@ html,body { height:100%; width:100%; overflow:hidden; background:var(--negro); c
 .rol-i { background:#181818; color:#666; border:1px solid #2a2a2a; }
 .rol-a { background:#200000; color:var(--rojo); border:1px solid rgba(193,39,45,0.5); box-shadow:0 0 14px rgba(193,39,45,0.15); }
 .rol-v { background:#080810; color:#5577bb; border:1px solid #223; }
+
+.countdown { font-size:1.3rem; font-weight:700; color:var(--rojo); letter-spacing:0.08em; flex-shrink:0; margin-bottom:0.4rem; }
+.countdown.urgent { animation:urgent 0.5s step-end infinite; }
+@keyframes urgent { 50%{opacity:0.3} }
 
 .vrow { display:flex; align-items:center; gap:0.55rem; margin-bottom:0.5rem; }
 .vname { font-size:0.7rem; color:var(--hueso); width:55px; flex-shrink:0; }
@@ -228,8 +233,10 @@ html,body { height:100%; width:100%; overflow:hidden; background:var(--negro); c
       <div class="ctext" id="observaText">—</div>
     </div>
   </div>
+  <!-- HOST VE ESTE BOTÓN, RESTO VE WAITING -->
   <button class="btn btn-p" id="btnHostContinuar" style="display:none;" onclick="hostContinuarARoles()">Continuar →</button>
   <div class="wpulse" id="rolWait" style="display:none;">esperando al host...</div>
+  <div class="wpulse" id="rolListoMsg" style="display:none;">listo ✓ esperando a los demás...</div>
 </div>
 
 <!-- S4 TURNO -->
@@ -243,7 +250,10 @@ html,body { height:100%; width:100%; overflow:hidden; background:var(--negro); c
   <div class="subtitle">cuando sea tu turno te avisaremos</div>
   <div class="scroll" id="turnList"></div>
   <div class="wpulse" id="turnWait">esperando turno...</div>
+  <!-- HOST: botón para avanzar al siguiente turno -->
   <button class="btn btn-s" id="btnHostNextTurn" style="display:none;" onclick="hostNextTurn()">Siguiente turno →</button>
+  <!-- btn mi turno hidden, auto-navigate happens -->
+  <div id="btnMiTurno" style="display:none;"></div>
 </div>
 
 <!-- S5 MI TURNO -->
@@ -338,6 +348,7 @@ html,body { height:100%; width:100%; overflow:hidden; background:var(--negro); c
     <div class="div"></div>
     <div id="s7notifs"></div>
   </div>
+  <!-- SOLO HOST VE ESTE BOTÓN -->
   <button class="btn btn-p" id="btnHostNextRound" style="display:none;" onclick="hostNextRound()">Siguiente ronda →</button>
   <div class="wpulse" id="s7wait" style="display:none;">esperando al host...</div>
 </div>
@@ -377,8 +388,6 @@ const NAMES = ["Sara","Ana","Lucía","Elena","Eneko","Diego","Ramón","Irene","D
 let myName=null, myRole=null, isHost=false;
 let curAction=null, selTarget=null, selVote=null, selFinal=null;
 let gs={}, pistasAcum=[], pendingPistas=[];
-// Evita registrar listeners duplicados si el host resetea y vuelve a unirse
-let listenersSetup=false;
 
 const fr = p => ref(db,`${ROOM}/${p}`);
 const fset = (p,v) => set(fr(p),v);
@@ -470,10 +479,6 @@ function setupLobby(){
     document.getElementById('hmBtn').style.display='block';
   }
 
-  // Solo registrar listeners una vez por sesión de navegador
-  if(listenersSetup)return;
-  listenersSetup=true;
-
   fon('players',data=>{
     const list=document.getElementById('lobbyList');list.innerHTML='';
     if(!data)return;
@@ -488,15 +493,7 @@ function setupLobby(){
   fon('gamePhase',phase=>{
     if(!phase||!myName)return;
     if(phase==='roles') loadMyRole();
-    if(phase==='turns'){
-      // Guard: no interrumpir a un jugador que está en su turno activo
-      const active=document.querySelector('.screen.active')?.id;
-      if(active!=='s5'&&active!=='s5b'){
-        fget('game').then(s=>{gs=s.val();setupTurns();goScreen('s4');});
-      }else{
-        fget('game').then(s=>{gs=s.val();setupTurns();});
-      }
-    }
+    if(phase==='turns'){fget('game').then(s=>{gs=s.val();setupTurns();goScreen('s4');});}
     if(phase==='immunity') loadImmunity();
     if(phase==='voting') startVoting();
     if(phase==='results') showResults();
@@ -513,21 +510,25 @@ function setupLobby(){
     });
   });
 
+  // Listen to turnDone to update host button — siempre, sin comprobar pantalla
   fon('game/turnDone',done=>{
     if(!isHost||!myName)return;
-    const active=document.querySelector('.screen.active')?.id;
-    if(active!=='s4')return;
     const btnHost=document.getElementById('btnHostNextTurn');
     fget('game').then(s=>{
       if(!s.val())return;
-      const g=s.val();
-      const yaAcabo=(g.currentTurnIndex||0)>=(g.turnOrder||[]).length;
+      gs=s.val();
+      const yaAcabo=(gs.currentTurnIndex||0)>=(gs.turnOrder||[]).length;
       if(done&&!yaAcabo){
         btnHost.style.display='block';
         btnHost.textContent='Siguiente turno →';
+        // Si el host estaba en s5 (era su turno), volver a s4
+        const active=document.querySelector('.screen.active')?.id;
+        if(active==='s5'||active==='s5b') goScreen('s4');
       }else if(yaAcabo){
         btnHost.style.display='block';
         btnHost.textContent='Pasar a inmunidad →';
+        const active=document.querySelector('.screen.active')?.id;
+        if(active==='s5'||active==='s5b') goScreen('s4');
       }else{
         btnHost.style.display='none';
       }
@@ -578,7 +579,7 @@ REGLAS para las coartadas:
 - NINGUNA puede ser genérica tipo "estaba en su habitación"
 
 REGLAS para las pistas:
-- Las 4 pistas deben ser fragmentos concretos de la historia construida
+- Las 4 pistas deben ser fragmentos concretos de la historia que construida
 - Deben revelarse progresivamente, cada una añadiendo info nueva
 - La pista 4 es FALSA pero coherente con la historia
 
@@ -664,11 +665,13 @@ async function loadMyRole(){
     document.getElementById('historiaCard').style.display='none';
   }
 
+  // Pistas acumuladas
   const pistaAcumCard=document.getElementById('pistasAcumCard');
   const pistaAcumText=document.getElementById('pistasAcumText');
-  if(pistasAcum.length>0){
+  const allPistas=[...pistasAcum];
+  if(allPistas.length>0){
     pistaAcumCard.style.display='block';
-    pistaAcumText.innerHTML=pistasAcum.map(p=>
+    pistaAcumText.innerHTML=allPistas.map(p=>
       p.de?`<div style="margin-bottom:0.4rem;"><span style="color:var(--apagado);font-size:0.7rem;">de ${p.de}:</span> ${p.texto}</div>`
           :`<div style="margin-bottom:0.4rem;">${p.texto}</div>`
     ).join('');
@@ -683,12 +686,15 @@ async function loadMyRole(){
 
   document.getElementById('s3st').textContent=`SEÑALADOS · ronda ${gs.ronda}/4`;
 
+  // HOST decide cuándo continuar, resto espera
   if(isHost){
     document.getElementById('btnHostContinuar').style.display='block';
     document.getElementById('rolWait').style.display='none';
+    document.getElementById('rolListoMsg').style.display='none';
   }else{
     document.getElementById('btnHostContinuar').style.display='none';
     document.getElementById('rolWait').style.display='block';
+    document.getElementById('rolListoMsg').style.display='none';
   }
 
   if(gs.ronda>1){
@@ -698,6 +704,7 @@ async function loadMyRole(){
   }
 }
 
+// HOST continúa desde roles a turnos
 window.hostContinuarARoles=async function(){
   await fset('gamePhase','turns');
 }
@@ -719,23 +726,37 @@ function setupTurns(){
 
   const esmiTurno=order[cur]===myName;
   const yaAcabo=cur>=order.length;
+
   const waitEl=document.getElementById('turnWait');
+  const btnEl=document.getElementById('btnMiTurno');
   const btnHost=document.getElementById('btnHostNextTurn');
 
   if(esmiTurno){
+    // Es mi turno — auto navegar, sin botones
     waitEl.style.display='none';
+    btnEl.style.display='none';
     btnHost.style.display='none';
     toast('⚡ ¡Es tu turno!',3000);
     setTimeout(()=>loadMyTurn(),1500);
   }else{
+    // No es mi turno
+    btnEl.style.display='none';
     waitEl.style.display='block';
     waitEl.textContent=yaAcabo?'todos han hablado ✓':order[cur]?`turno de ${order[cur]}...`:'esperando...';
+
+    // Host ve el botón para avanzar SOLO si el jugador actual ya terminó
     if(isHost){
       fget('game/turnDone').then(snap=>{
         const done=snap.val();
-        if(done&&!yaAcabo){btnHost.style.display='block';btnHost.textContent='Siguiente turno →';}
-        else if(yaAcabo){btnHost.style.display='block';btnHost.textContent='Pasar a inmunidad →';}
-        else{btnHost.style.display='none';}
+        if(done&&!yaAcabo){
+          btnHost.style.display='block';
+          btnHost.textContent=`Siguiente turno →`;
+        }else if(yaAcabo){
+          btnHost.style.display='block';
+          btnHost.textContent='Pasar a inmunidad →';
+        }else{
+          btnHost.style.display='none';
+        }
       });
     }else{
       btnHost.style.display='none';
@@ -743,6 +764,7 @@ function setupTurns(){
   }
 }
 
+// HOST avanza turno
 window.hostNextTurn=async function(){
   const snap=await fget('game');gs=snap.val();
   const next=(gs.currentTurnIndex||0)+1;
@@ -751,8 +773,6 @@ window.hostNextTurn=async function(){
     await fset('gamePhase','immunity');
   }else{
     await fupd('game',{currentTurnIndex:next});
-    // Nota: si gamePhase ya es 'turns', onValue no se dispara.
-    // El listener de currentTurnIndex maneja la actualización de pantalla.
     await fset('gamePhase','turns');
   }
 }
@@ -770,6 +790,7 @@ async function loadMyTurn(){
   }else if(hasPista&&gs.pistas){
     const idx=Math.min(ronda-1,gs.pistas.length-1);
     const pista=gs.pistas[idx];
+    // Track in pistasAcum if not already there
     if(!pistasAcum.find(p=>p.texto===pista)){
       pistasAcum.push({de:null,texto:pista,ronda});
     }
@@ -802,6 +823,7 @@ window.confirmAc=async function(){
     toast('Turno terminado');
     return;
   }
+  // Compartir o señalar: ir a elegir destinatario
   const players=Object.keys((await fget('players')).val()||{}).filter(p=>p!==myName);
   const list=document.getElementById('targetList');list.innerHTML='';
   selTarget=null;
@@ -819,6 +841,7 @@ window.confirmAc=async function(){
   goScreen('s5b');
 }
 
+// Enviar pista/señal Y terminar turno en un solo paso
 window.sendAcYTerminar=async function(){
   if(!selTarget){toast('Elige a alguien');return;}
   const snap=await fget('game');gs=snap.val();
@@ -837,6 +860,7 @@ window.sendAcYTerminar=async function(){
     toast(`Has señalado a ${selTarget}`);
   }
 
+  // Marcar turno como terminado y volver
   await fset('game/turnDone', true);
   goScreen('s4');
 }
@@ -856,6 +880,8 @@ async function loadImmunity(){
   document.getElementById('immBox').style.display=iAmChosen?'block':'none';
   document.getElementById('noImmCard').style.display=iAmChosen?'none':'block';
   document.getElementById('btnAceptarImm').style.display=iAmChosen?'block':'none';
+
+  // Mostrar decisión pendiente, ocultar waiting
   document.getElementById('immDecisionArea').style.display='block';
   document.getElementById('immWait').style.display='none';
 
@@ -863,6 +889,7 @@ async function loadImmunity(){
 }
 
 function marcarImmDecision(elegido){
+  // Resaltar la elección
   document.getElementById('immDecisionArea').style.display='none';
   document.getElementById('immWait').style.display='block';
   toast(elegido?'Inmunidad activada. Habrá un precio...':'Continúas sin inmunidad.');
@@ -888,9 +915,6 @@ window.rechazarImm=async function(){
 
 async function checkImmDone(){
   const check=async()=>{
-    // Parar si la fase ya cambió (evita bucle infinito entre partidas)
-    const phase=(await fget('gamePhase')).val();
-    if(phase!=='immunity')return;
     const psnap=await fget('players');
     const total=Object.keys(psnap.val()||{}).length;
     const dsnap=await fget('game/immDecision');
@@ -905,7 +929,7 @@ async function checkImmDone(){
   check();
 }
 
-// VOTACIÓN
+// VOTING
 async function startVoting(){
   const snap=await fget('game');gs=snap.val();
   const ronda=gs.ronda;
@@ -979,19 +1003,17 @@ window.submitVote=async function(){
 
 function waitForVoteResults(){
   const check=async()=>{
-    // Parar si la fase ya cambió
-    const phase=(await fget('gamePhase')).val();
-    if(phase!=='voting')return;
     const psnap=await fget('players');
     const total=Object.keys(psnap.val()||{}).length;
     const vsnap=await fget('game/roundVotes');
-    if(Object.keys(vsnap.val()||{}).length>=total) await fset('gamePhase','results');
+    const counted=Object.keys(vsnap.val()||{}).length;
+    if(counted>=total) await fset('gamePhase','results');
     else setTimeout(check,2000);
   };
   setTimeout(check,2000);
 }
 
-// RESULTADO
+// RESULTS
 async function showResults(){
   const snap=await fget('game');gs=snap.val();
   const ronda=gs.ronda;
@@ -1053,6 +1075,7 @@ async function showResults(){
   await fset(`notifications/${myName}`,null);
   await fupd('game',{[`nominaciones/${loser}`]:(gs.nominaciones?.[loser]||0)+1});
 
+  // Solo el host puede avanzar
   if(isHost){
     const btnNext=document.getElementById('btnHostNextRound');
     btnNext.style.display='block';
@@ -1080,8 +1103,9 @@ window.hostNextRound=async function(){
   await fset('gamePhase','roles');
 }
 
-// VOTACIÓN FINAL
+// FINAL
 async function startFinalVoting(){
+  const snap=await fget('game');gs=snap.val();
   const psnap=await fget('players');
   const players=Object.keys(psnap.val()||{}).filter(p=>p!==myName);
   selFinal=null;
@@ -1111,9 +1135,6 @@ window.submitFinal=async function(){
   toast('Voto final enviado');
 
   const check=async()=>{
-    // Parar si la fase ya cambió
-    const phase=(await fget('gamePhase')).val();
-    if(phase!=='finalVoting')return;
     const psnap=await fget('players');
     const total=Object.keys(psnap.val()||{}).length;
     const fsnap=await fget('game/finalVotes');
@@ -1167,28 +1188,26 @@ window.closePistaPopup=function(){
 function resetAll(){
   fset('game',null);fset('gamePhase',null);fset('players',null);fset('notifications',null);
   myName=null;myRole=null;isHost=false;selVote=null;selFinal=null;curAction=null;selTarget=null;
-  pistasAcum=[];pendingPistas=[];listenersSetup=false;
+  pistasAcum=[];pendingPistas=[];
   document.getElementById('nameList').querySelectorAll('.prow').forEach(r=>{
     r.classList.remove('selected');
     r.querySelector('.pst').textContent='libre';r.querySelector('.pst').className='pst';
     r.querySelector('.av').className='av';
   });
   document.getElementById('btnJoin').textContent='Elige tu nombre →';
-  document.getElementById('revealOverlay').classList.remove('show');
 }
 
 window.resetRoom=function(){resetAll();toast('Sala reseteada ✓');document.getElementById('hostMenu').style.display='none';goScreen('s1');}
 window.reanudarSala=async function(){
-  await fset('players',null);await fset('game/roundVotes',null);
+  await fset('players',null);await fset('game/listos',null);await fset('game/roundVotes',null);
   await fset('game/immDecision',null);await fset('gamePhase',null);await fset('notifications',null);
   myName=null;myRole=null;isHost=false;selVote=null;selFinal=null;curAction=null;selTarget=null;
-  pistasAcum=[];pendingPistas=[];listenersSetup=false;
+  pistasAcum=[];pendingPistas=[];
   document.getElementById('nameList').querySelectorAll('.prow').forEach(r=>{
     r.classList.remove('selected');r.querySelector('.pst').textContent='libre';r.querySelector('.pst').className='pst';r.querySelector('.av').className='av';
   });
   document.getElementById('btnJoin').textContent='Elige tu nombre →';
   document.getElementById('hostMenu').style.display='none';
-  document.getElementById('revealOverlay').classList.remove('show');
   toast('Sala vaciada — volved a entrar');goScreen('s1');
 }
 window.hideReveal=function(){document.getElementById('revealOverlay').classList.remove('show');resetAll();goScreen('s1');}
