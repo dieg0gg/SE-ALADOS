@@ -720,17 +720,36 @@ Responde SOLO con este JSON exacto, sin markdown, sin explicaciones:
   }catch(e){}
 
   if(!data){
-    const coartadas=shuffle(['Fumando en la terraza, viste luz en la cocina a las 3am.','En el baño de arriba con dolor de tripa desde medianoche.','Llamando por teléfono en el jardín, oíste un ruido extraño.','Bebiendo solo/a en el salón, te quedaste dormido/a en el sofá.','Escuchando música con auriculares en tu cuarto, no oíste nada.','En la cocina calentando algo, viste pasar una sombra por la ventana.','Mirando el móvil en la terraza de arriba toda la noche.','Llorando en el coche aparcado, procesando algo de la cena.','Sentado/a en el borde de la piscina a las 2am, solo/a.','En el salón viendo una película en silencio.']);
+    // El fallback también usa los arrays aleatorios para que nunca sea siempre lo mismo
+    const lugaresFallback=shuffle([
+      {lugar:'en la terraza, fumando y mirando el móvil',sensorial:'olías el humo del cigarro desde la ventana'},
+      {lugar:'en el baño de arriba',sensorial:'oíste el agua correr durante más de media hora'},
+      {lugar:'en el jardín, llamando a alguien en voz baja',sensorial:'viste la luz del salón encendida'},
+      {lugar:'en el salón, dormitando en el sofá con la tele puesta',sensorial:'la tele hacía ruido de fondo toda la noche'},
+      {lugar:'en la cocina calentando algo a las 3am',sensorial:'olía a comida recalentada cuando pasaste por ahí'},
+      {lugar:'en el coche aparcado, escuchando música',sensorial:'viste las luces del coche apagadas de golpe'},
+      {lugar:'en el pasillo de arriba, mirando el móvil',sensorial:'oíste pasos bajar las escaleras a oscuras'},
+      {lugar:'en el borde de la piscina, con los pies dentro',sensorial:'el agua estaba fría y había silencio total'},
+      {lugar:'en tu habitación, con la puerta entreabierta',sensorial:'oíste voces tensas que no supiste identificar'},
+      {lugar:'en la entrada, sentado/a en el escalón',sensorial:'viste a alguien cruzar el jardín a lo lejos'}
+    ]);
+    const horasCrimen=['a las 2am','a las 2:30am','pasadas las 3am','justo antes de las 2am'];
+    const horaCrimen=rand(horasCrimen);
+    const lugarCorto=lugarCrimen[0].replace(`cuando ${victima} bajaba`,`cuando bajaba`);
     data={
-      crimen:`${victima} ha aparecido ${rand(['ahogado/a en la piscina','al pie de las escaleras','en el jardín'])} esta mañana`,
-      historia_completa:`Esa noche la tensión venía de la cena: ${asesino} y ${victima} tuvieron una discusión sobre un secreto que ${victima} amenazaba con revelar. A las 2am, cuando el resto dormía, ${asesino} siguió a ${victima} al jardín. Allí le golpeó en la cabeza con una botella de vino vacía que había en la terraza, y después lo empujó a la piscina para simular un accidente. El cuerpo fue encontrado flotando a las 7am.`,
-      motivo_asesino:`${asesino} llevaba tiempo guardando un secreto que ${victima} amenazaba con revelar esa misma noche.`,
-      datos:Object.fromEntries(players.map((p,i)=>[p,p===asesino?'Bajaste al jardín a las 2am con la excusa de tomar el aire. No viste a nadie, o eso dices.':coartadas[i%coartadas.length]])),
+      crimen:`${victima} apareció muerto/a ${lugarCorto.replace('en el ','en el ').replace('al borde','al borde')} a primera hora de la mañana`,
+      historia_completa:`La cena estuvo cargada de tensión desde el principio — ${asesino} y ${victima} apenas se dirigieron la palabra. ${motivos}. ${horaCrimen}, cuando el resto ya dormía o creía dormir, ${asesino} ${metodos}. Después volvió a su sitio como si nada hubiera pasado. El cuerpo fue encontrado a las 8am.`,
+      motivo_asesino:motivos,
+      datos:Object.fromEntries(players.map((p,i)=>{
+        if(p===asesino) return [p,`Dices que estabas ${lugaresFallback[0].lugar}. ${lugaresFallback[0].sensorial}. No viste a nadie.`];
+        const l=lugaresFallback[(i+1)%lugaresFallback.length];
+        return [p,`Estabas ${l.lugar}. ${l.sensorial}.`];
+      })),
       pistas:[
-        'Se encontraron huellas húmedas que iban desde la piscina hasta la puerta trasera de la casa',
-        'Alguien oyó una discusión apagada en el jardín pasadas las 2am pero no quiso levantarse',
-        'El móvil de la víctima tenía una conversación borrada esa misma noche con alguien del grupo',
-        'Un testigo dice haber visto a dos personas juntas en el jardín esa noche — pero solo había una (FALSO)'
+        `Cerca de la escena había rastros de ${objetos[0]} — nadie recuerda haberlo dejado ahí`,
+        `Uno de los jugadores oyó un golpe seco ${horaCrimen} y lo achacó al viento`,
+        `La coartada de alguien no encaja con lo que otra persona vio esa misma hora en el mismo sitio`,
+        `Un mensaje en el móvil de ${victima} apunta a otra persona del grupo como responsable — pero parece demasiado obvio (FALSO)`
       ]
     };
   }
