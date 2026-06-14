@@ -415,7 +415,7 @@ const fbApp = initializeApp({
   appId:"1:17582841653:web:8c01dbc0f9bc550ece767c"
 });
 const db = getDatabase(fbApp);
-const GEMINI = "AIzaSyAQ.Ab8RN6K0lW4jsVjGAq3qaMzkeI5pSw8DHqdgCge5mPrkQHM_sw";
+const GEMINI = "AIzaSyAQ.Ab8RN6KKXtIFeekhLuJyup5GkZ9nBJ0879ug6_gWb6DFAtbEWg";
 const ROOM = "rural2025";
 const NAMES = ["Sara","Ana","Lucía","Elena","Eneko","Diego","Ramón","Irene","Dani","Adriana"];
 
@@ -625,38 +625,28 @@ window.startGame=async function(){
   });
 
   // Variedad forzada: objeto + acción + lugar se combinan independientemente
-  // Variedad forzada: objeto + acción + lugar se combinan independientemente
-  const objetos=shuffle([
-    'una botella de ron vacía','una sartén de hierro','el cable del cargador',
-    'un adorno de cerámica del salón','una piedra grande del jardín','sus propias manos',
-    'un cojín del sofá','una cuerda de tender que había en la terraza',
-    'el jarrón de la entrada','un palo de golf que estaba en el maletero',
-    'un taser','un cuchillo de cocina',
-    'el cuerno arrancado del ciervo disecado que colgaba del salón',
-    'un bidón de gasolina y un mechero'
+  // Combinaciones pre-validadas: acción + objeto + lugar siempre tienen sentido juntos
+  const crimeOptions=shuffle([
+    {metodo:`golpeó a ${victima} en la nuca con una botella de ron vacía`,       lugar:'en la cocina, a oscuras',                           obj:'una botella de ron vacía'},
+    {metodo:`golpeó a ${victima} en la nuca con una sartén de hierro`,           lugar:'en la cocina',                                      obj:'una sartén de hierro'},
+    {metodo:`golpeó a ${victima} en la cabeza con el jarrón de la entrada`,      lugar:'en la entrada de la casa',                          obj:'el jarrón de la entrada'},
+    {metodo:`golpeó a ${victima} en la nuca con un palo de golf`,                lugar:'en el jardín, lejos de las ventanas',               obj:'un palo de golf'},
+    {metodo:`golpeó a ${victima} con el cuerno arrancado del ciervo disecado`,   lugar:'en el salón, a oscuras',                            obj:'el cuerno del ciervo disecado del salón'},
+    {metodo:`golpeó a ${victima} en la nuca con un adorno de cerámica`,          lugar:'en el pasillo de arriba',                           obj:'un adorno de cerámica'},
+    {metodo:`golpeó a ${victima} en la cabeza con una piedra del jardín`,        lugar:'en el jardín',                                      obj:'una piedra grande del jardín'},
+    {metodo:`estranguló a ${victima} con el cable del cargador`,                 lugar:'en el pasillo de arriba, junto a las habitaciones', obj:'el cable del cargador'},
+    {metodo:`estranguló a ${victima} con una cuerda de tender`,                  lugar:'en la terraza de arriba',                           obj:'una cuerda de tender'},
+    {metodo:`estranguló a ${victima} con sus propias manos`,                     lugar:'en el baño de la planta baja',                      obj:'sus propias manos'},
+    {metodo:`apuñaló a ${victima} con un cuchillo de cocina`,                    lugar:'en la cocina',                                      obj:'un cuchillo de cocina'},
+    {metodo:`ahogó a ${victima} sujetándole la cabeza bajo el agua`,             lugar:'en la piscina',                                     obj:'sus manos'},
+    {metodo:`empujó a ${victima} por la barandilla de las escaleras`,            lugar:'en las escaleras',                                  obj:'la fuerza de sus manos'},
+    {metodo:`quemó vivo/a a ${victima} con gasolina y un mechero`,               lugar:'en el cuarto de la caldera',                        obj:'un bidón de gasolina y un mechero'},
+    {metodo:`electrocutó a ${victima} con un taser y lo/la ahogó en la piscina`,lugar:'en la piscina',                                     obj:'un taser'},
   ]);
-  const acciones=shuffle([
-    `golpeó a ${victima} en la nuca`,
-    `estranguló a ${victima}`,
-    `asfixió a ${victima}`,
-    `golpeó repetidamente a ${victima} en la cabeza`,
-    `empujó a ${victima} con fuerza`,
-    `apuñaló a ${victima}`,
-    `quemó vivo/a a ${victima}`
-  ]);
-  const lugarCrimen=shuffle([
-    'en el pasillo de arriba, junto a las habitaciones',
-    'en la cocina, a oscuras',
-    'en el baño de la planta baja',
-    'al borde de la piscina',
-    `en las escaleras, cuando ${victima} bajaba`,
-    'en el jardín, lejos de las ventanas',
-    'en la terraza de arriba',
-    'en el cuarto de la caldera',
-    'dentro del coche aparcado en la entrada',
-    'en la piscina'
-  ]);
-  const metodos=`${acciones[0]} con ${objetos[0]} ${lugarCrimen[0]}`;
+  const crimen=crimeOptions[0];
+  const metodos=`${crimen.metodo} ${crimen.lugar}`;
+  const lugarCrimen=[crimen.lugar]; // para compatibilidad con el fallback
+  const objetos=[crimen.obj];
 
   const motivos=shuffle([
     `${victima} le contó a la pareja de ${asesino} que era adicto/a — eso destrozó la relación. Esa tarde ${asesino} confirmó por fin que fue ${victima} quien mandó ese mensaje`,
@@ -729,45 +719,51 @@ ${players.map(p => {
   }catch(e){}
 
   if(!data){
-    // Usamos las mismas variables ya sorteadas arriba para que todo sea coherente
     const hora=rand(['a las 2am','a las 2:30am','pasadas las 3am','cerca de las 2am']);
-    // lugar corto para el campo crimen (sin subordinadas raras)
-    const lugarCorto=lugarCrimen[0]
-      .replace(`, cuando ${victima} bajaba`,'')
-      .replace(`, a oscuras`,'')
-      .replace(`, lejos de las ventanas`,'');
+    const lugarCorto=lugarCrimen[0].replace(', a oscuras','').replace(', lejos de las ventanas','').replace(', junto a las habitaciones','');
+    const testigo=rand(players.filter(p=>p!==asesino&&p!==victima));
+    const culpableFalso=rand(players.filter(p=>p!==asesino&&p!==victima&&p!==testigo));
 
-    // coartadas de los no-asesinos: lugares distintos de donde ocurrió el crimen
-    const coartadasFallback=shuffle([
-      {lugar:'en la terraza de arriba',actividad:'fumando',sensorial:'oíste un ruido abajo pero pensaste que era el viento'},
-      {lugar:'en el baño de la planta alta',actividad:'con dolor de tripa desde medianoche',sensorial:'el grifo estuvo abierto un rato largo'},
-      {lugar:'en el jardín',actividad:'llamando a alguien en voz baja',sensorial:'viste una luz encenderse y apagarse en la planta baja'},
-      {lugar:'en el salón',actividad:'dormitando en el sofá con la tele puesta',sensorial:'la tele hacía ruido pero no oíste nada más'},
-      {lugar:'en el coche aparcado',actividad:'escuchando música con los ojos cerrados',sensorial:'viste por el retrovisor a alguien cruzar la entrada'},
-      {lugar:'en el pasillo de arriba',actividad:'mirando el móvil sentado/a en el suelo',sensorial:'oíste pasos rápidos bajar las escaleras'},
-      {lugar:'en el borde de la piscina',actividad:'con los pies en el agua',sensorial:'el agua se movió un momento sin que hubiera viento'},
-      {lugar:'en tu habitación',actividad:'intentando dormir con la puerta entreabierta',sensorial:'oíste voces tensas que no lograste identificar'},
-      {lugar:'en la entrada',actividad:'sentado/a en el escalón fumando',sensorial:'viste una silueta cruzar el jardín a oscuras'},
-      {lugar:'en la cocina',actividad:'calentando algo en el microondas',sensorial:'al salir notaste que la puerta trasera estaba entreabierta'}
+    // Coartadas coherentes con el lugar del crimen (el asesino NO puede estar en el mismo sitio que dice)
+    const zonasLibres=shuffle([
+      {lugar:'la terraza de arriba',     actividad:'fumando solo/a',                   sensorial:`viste luz en ${lugarCorto} encenderse y apagarse`},
+      {lugar:'el baño de la planta alta',actividad:'con dolor de tripa',               sensorial:'oíste el agua correr durante un buen rato'},
+      {lugar:'el jardín',                actividad:'llamando a alguien por teléfono',   sensorial:'oíste un golpe seco a lo lejos pero no le diste importancia'},
+      {lugar:'el salón',                 actividad:'dormitando con la tele de fondo',   sensorial:'la tele hacía ruido pero en algún momento oíste pasos rápidos'},
+      {lugar:'el coche aparcado',        actividad:'escuchando música en la oscuridad', sensorial:'viste por el retrovisor una sombra moverse hacia la casa'},
+      {lugar:'el pasillo de arriba',     actividad:'mirando el móvil en el suelo',      sensorial:'oíste pasos bajar las escaleras muy rápido'},
+      {lugar:'el borde de la piscina',   actividad:'con los pies en el agua',           sensorial:'el agua se movió de golpe sin que hubiera viento'},
+      {lugar:'tu habitación',            actividad:'intentando dormir',                 sensorial:'oíste voces tensas que no supiste de quién eran'},
+      {lugar:'la entrada',               actividad:'sentado/a en el escalón',           sensorial:'viste a alguien cruzar el jardín a oscuras sin hacer ruido'},
+      {lugar:'la cocina',                actividad:'calentando algo en el microondas',  sensorial:'al salir viste la puerta trasera entreabierta'}
+    ]);
+
+    // Plantillas de historia variadas — nunca la misma introducción
+    const plantillas=shuffle([
+      `La cena se torció cuando ${asesino} y ${victima} se cruzaron de palabras por algo que llevaba tiempo sin decirse. ${motivos}. Cada uno se fue retirando a su rincón según avanzaba la noche. ${hora}, aprovechando que nadie miraba, ${asesino} ${metodos}. ${testigo} oyó algo pero no le dio importancia. El cuerpo apareció al amanecer.`,
+      `Todo empezó antes de la cena: ${asesino} recibió algo — un mensaje, una mirada, una confirmación — que lo cambió todo. ${motivos}. La noche siguió aparentemente tranquila hasta que ${hora} ${asesino} ${metodos}. Nadie en la casa lo vio venir. ${victima} fue encontrado/a a la mañana siguiente.`,
+      `Durante la cena ${victima} dijo algo que no debería haber dicho. ${motivos}. La tensión quedó flotando en el ambiente mientras el grupo se dispersaba. ${hora}, cuando la casa estaba en silencio, ${asesino} encontró su momento: ${metodos}. Se deshizo de cualquier rastro y volvió como si nada.`,
+      `Nadie sospechaba nada cuando se sentaron a cenar. Pero ${asesino} llevaba esa noche mucho tiempo planeándola. ${motivos}. Esperó pacientemente a que todos se relajaran. ${hora}, ${asesino} ${metodos}. ${testigo} escuchó algo extraño pero lo achacó al alcohol. El cuerpo de ${victima} apareció horas después.`,
+      `La noche empezó bien — risas, alcohol, música. Pero entre copa y copa, ${asesino} no podía quitarse de la cabeza lo que sabía. ${motivos}. Cuando el grupo se fue apagando, ${asesino} actuó: ${hora}, ${metodos}. Después volvió a su sitio. Nadie notó que faltaba ${victima} hasta la mañana.`
     ]);
 
     data={
-      crimen:`${victima} fue encontrado/a muerto/a ${lugarCorto} — ${hora} nadie oyó nada`,
-      historia_completa:`La cena estuvo tensa desde el principio. ${motivos}. El grupo fue dispersándose según avanzaba la noche. ${hora}, ${asesino} ${metodos}. Nadie lo vio. Después volvió a mezclarse con el grupo como si nada. El cuerpo de ${victima} fue encontrado a primera hora de la mañana.`,
+      crimen:`${victima} fue encontrado/a muerto/a ${lugarCorto} a primera hora de la mañana`,
+      historia_completa:plantillas[0],
       motivo_asesino:motivos,
       datos:Object.fromEntries(players.map((p,i)=>{
         if(p===asesino){
-          const c=coartadasFallback[0];
-          return [p,`Dices que estabas ${c.lugar}, ${c.actividad}. ${c.sensorial}. No viste a ${victima} en toda la noche.`];
+          const z=zonasLibres[0];
+          return [p,`Dices que estabas en ${z.lugar}, ${z.actividad}. ${z.sensorial}. Aseguras no haber visto a ${victima} en toda la noche.`];
         }
-        const c=coartadasFallback[(i%( coartadasFallback.length-1))+1];
-        return [p,`Estabas ${c.lugar}, ${c.actividad}. ${c.sensorial}.`];
+        const z=zonasLibres[(i%(zonasLibres.length-1))+1];
+        return [p,`Estabas en ${z.lugar}, ${z.actividad}. ${z.sensorial}.`];
       })),
       pistas:[
-        `En la escena se encontró ${objetos[0]} con marcas que no estaban antes — nadie recuerda haberlo movido`,
-        `${rand(players.filter(p=>p!==asesino&&p!==victima))} oyó ${hora} un sonido extraño ${lugarCorto} pero no le dio importancia`,
-        `La coartada de alguien sitúa a esa persona cerca de ${lugarCorto} justo cuando ocurrió todo`,
-        `Hay un mensaje en el móvil de ${victima} que apunta directamente a ${rand(players.filter(p=>p!==asesino&&p!==victima))} — pero fue enviado cuando ${victima} ya estaba muerto/a (FALSO)`
+        `Cerca de la escena se encontró ${objetos[0]} — tenía marcas recientes y nadie recuerda haberlo dejado ahí`,
+        `${testigo} oyó ${hora} un ruido en ${lugarCorto} pero lo achacó al viento o al alcohol`,
+        `Alguien que dice estar en otro sitio ${hora} fue visto/a cerca de ${lugarCorto} justo a esa hora`,
+        `Hay un mensaje de voz en el móvil de ${victima} que implica directamente a ${culpableFalso} — pero fue enviado después de que ${victima} muriera (FALSO)`
       ]
     };
   }
